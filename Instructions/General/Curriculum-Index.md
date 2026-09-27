@@ -23,6 +23,10 @@ Example:
 
 The checker is read-only and never logs in, creates, deletes, or changes resources. It returns exit code `0` when no errors are found, and `1` for errors (or warnings when `-FailOnWarning` is used). Missing optional tools are warnings or skipped checks.
 
+## Staged workflow
+
+Follow the [staged lab roadmap](Staged-Lab-Roadmap.md) from host/network foundation through optional topics. Use the [base-image guide](Base-Images-and-Templates.md) before cloning guests and the [compatibility matrix](Compatibility-Matrix.md) to choose a low, standard, or expanded VM profile.
+
 ## General
 
 - [Adding-a-registry-value](../General/Adding-a-registry-value.md)

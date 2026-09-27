@@ -9,9 +9,10 @@ The baseline is **Windows Server 2025 Evaluation** and **Windows 10** running in
 1. Read [learner setup](Instructions/General/Learner-Setup.md), including the safety and licensing notes.
 2. Configure the [segmented VMware networks](Instructions/General/VMware-Segmented-Networking.md) before creating the foundation VMs.
 3. Use the [curriculum index and dependency map](Instructions/General/Curriculum-Index.md) to choose a learning path.
-4. Build the foundation topology, create snapshots, and establish `ad.lab.test`.
-5. Run the read-only preflight checker, resolve blockers and warnings, snapshot the stage, perform the lab, verify the result, and clean up.
-6. Complete the practices before their dependent labs; each document names additional machines, roles, and Azure prerequisites.
+4. Follow the [staged lab roadmap](Instructions/General/Staged-Lab-Roadmap.md), using the [base-image guide](Instructions/General/Base-Images-and-Templates.md) and [compatibility matrix](Instructions/General/Compatibility-Matrix.md).
+5. Build the foundation topology, create snapshots, and establish `ad.lab.test`.
+6. Run the read-only preflight checker, resolve blockers and warnings, snapshot the stage, perform the lab, verify the result, and clean up.
+7. Complete the practices before their dependent labs; each document names additional machines, roles, and Azure prerequisites.
 
 ## Scope and safety
 
