@@ -39,6 +39,8 @@ For advanced topics, use the [Milestone F advanced infrastructure guide](Advance
 
 For cloud and hybrid topics, continue with the [Milestone G Azure and hybrid services guide](Azure-Hybrid-Services.md); it replaces instructor-selected identifiers with placeholders and keeps Azure provisioning cost-gated.
 
+Finish with the [Milestone H optional and cost-gated guide](Optional-Cost-Gated-Topics.md), which provides the go/no-go workflow and final curriculum completion checklist.
+
 ## General
 
 - [Adding-a-registry-value](../General/Adding-a-registry-value.md)

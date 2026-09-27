@@ -22,6 +22,8 @@ Use the [Milestone F advanced infrastructure guide](Advanced-Infrastructure.md) 
 
 Use the [Milestone G Azure and hybrid services guide](Azure-Hybrid-Services.md) only with the existing Entra tenant/subscription, UK South default, £10 hard safety limit, explicit permissions, and a cleanup plan.
 
+Use the [Milestone H optional and cost-gated guide](Optional-Cost-Gated-Topics.md) for multi-region, PKI/AD FS, multi-forest, managed data, hosted compute, AI, and other topics outside the default profile. Stop if cost, support, or rollback cannot be bounded.
+
 Before each practice or lab, run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with only the paths, VM names, network values, and Azure placeholders relevant to that stage. Resolve blockers and review warnings, take a snapshot, perform the lab, verify the outcome, and then deallocate/delete disposable Azure resources and revert or clean up local lab state.
 
 ## Media, licensing, and snapshots

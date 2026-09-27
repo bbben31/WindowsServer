@@ -138,9 +138,9 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **VMs/networks:** **Extra capacity:** use the manifest's topology and `TBD` values where source evidence is insufficient. Keep optional services isolated from the core foundation.
 
-**Practices/labs:** Filter the manifest for `compatibility.optional=true` or `riskCost.cost=cost-gated`.
+**Practices/labs:** Follow the [Milestone H optional and cost-gated guide](Optional-Cost-Gated-Topics.md), then filter the manifest for `compatibility.optional=true` or `riskCost.cost=cost-gated`.
 
-**Verification:** Run preflight, record the selected lab's expected state, and verify charges/resources after completion.
+**Verification:** Use the H decision workflow: preflight, budget/quota/permission check, snapshot/backup, lab, verify, deallocate/delete, inventory check, and private outcome record.
 
 **Expected state:** The optional experiment is complete, documented, and removable without affecting the core foundation.
 
