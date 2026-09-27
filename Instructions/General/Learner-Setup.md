@@ -14,6 +14,8 @@ The supported baseline for this edition is a **Windows 11** host, **VMware Works
 
 Configure the VMnets and adapter placement using [VMware segmented networking](VMware-Segmented-Networking.md) before assigning static addresses or creating the AD forest. Then follow the [Milestone B base-image runbook](Base-Images-and-Templates.md) before creating role-specific guests. These guides are the source of truth for VMnet10/20/30, the optional NAT path, gateways, DNS reachability, template sizing, and clone identity boundaries.
 
+Use the [Milestone C AD DS/DNS foundation runbook](AD-DNS-Foundation.md) to promote `VN1-SRV1`, validate the first forest, and add `VN1-SRV5` only when replication or another lab requires it.
+
 Before each practice or lab, run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with only the paths, VM names, network values, and Azure placeholders relevant to that stage. Resolve blockers and review warnings, take a snapshot, perform the lab, verify the outcome, and then deallocate/delete disposable Azure resources and revert or clean up local lab state.
 
 ## Media, licensing, and snapshots

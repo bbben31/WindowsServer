@@ -31,6 +31,8 @@ Start with the [Milestone A VMware network runbook](VMware-Segmented-Networking.
 
 Then complete the [Milestone B base-image runbook](Base-Images-and-Templates.md) before cloning role-specific servers or clients.
 
+Next follow the [Milestone C AD DS/DNS foundation runbook](AD-DNS-Foundation.md) before joining member servers or clients.
+
 ## General
 
 - [Adding-a-registry-value](../General/Adding-a-registry-value.md)

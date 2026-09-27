@@ -48,7 +48,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **VMs/networks:** `VN1-SRV1` at `10.10.10.10/24` on VMnet10; optional `VN1-SRV5` at `10.10.10.11/24` after the first controller is healthy. No public DNS on the domain NIC.
 
-**Practices/labs:** [Configure AD DS as a new forest](Configuring-Active-Directory-Domain-Services-as-a-new-forest.md), [Configure AD DS as an additional domain controller](Configuring-Active-Directory-Domain-Services-as-an-additional-domain-controller.md), and [Deploying domain controllers](../Labs/Deploying-domain-controllers.md).
+**Practices/labs:** Follow the [Milestone C AD DS/DNS foundation runbook](AD-DNS-Foundation.md), then use [Configure AD DS as a new forest](Configuring-Active-Directory-Domain-Services-as-a-new-forest.md), [Configure AD DS as an additional domain controller](Configuring-Active-Directory-Domain-Services-as-an-additional-domain-controller.md), and [Deploying domain controllers](../Labs/Deploying-domain-controllers.md) for the source-aligned detail.
 
 **Verification:** `Resolve-DnsName ad.lab.test -Server 10.10.10.10`; `dcdiag /test:dns /v`; `repadmin /replsummary` when a second controller exists.
 
