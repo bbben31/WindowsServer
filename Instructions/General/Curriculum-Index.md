@@ -27,6 +27,8 @@ The checker is read-only and never logs in, creates, deletes, or changes resourc
 
 Follow the [staged lab roadmap](Staged-Lab-Roadmap.md) from host/network foundation through optional topics. Use the [base-image guide](Base-Images-and-Templates.md) before cloning guests and the [compatibility matrix](Compatibility-Matrix.md) to choose a low, standard, or expanded VM profile.
 
+Start with the [Milestone A VMware network runbook](VMware-Segmented-Networking.md) before creating the first guest.
+
 ## General
 
 - [Adding-a-registry-value](../General/Adding-a-registry-value.md)

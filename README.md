@@ -22,17 +22,16 @@ Some source procedures refer to instructor automation or shared classroom assets
 
 ## VMware topology
 
-Use host-only or custom VMware networks for isolated lab traffic, and add NAT only when a lab explicitly needs Internet access. A practical scalable starting point is:
+Use host-only or custom VMware networks for isolated lab traffic, and add NAT only when a lab explicitly needs Internet access. The concrete Milestone A plan is:
 
 | Segment | Example network | Purpose |
 | --- | --- | --- |
-| `LAB-AD` | `192.168.50.0/24` | Domain, DNS, DHCP, management |
-| `LAB-SRV` | `192.168.60.0/24` | Server and cluster traffic |
-| `LAB-STORAGE` | `192.168.70.0/24` | iSCSI, CSV, Storage Replica, or SMB |
-| `LAB-CLIENT` | `192.168.80.0/24` | Windows 10 clients and test users |
-| `LAB-AZURE` | NAT/Internet | Azure Arc, Azure Stack HCI-related, and cloud exercises |
+| `VMnet10` | `10.10.10.0/24` | Management, AD, and DNS |
+| `VMnet20` | `10.10.20.0/24` | Server workloads and optional storage/cluster traffic |
+| `VMnet30` | `10.10.30.0/24` | Windows 10 clients |
+| `VMnet8` | VMware NAT | Temporary, controlled outbound access |
 
-Use one private, documented address plan rather than copying classroom addresses. Reserve `.10-.49` for infrastructure, `.50-.199` for servers, and `.200-.249` for clients. The first domain controller can be `192.168.50.10`, the second `192.168.50.11`, and the client can use DHCP or a reserved address. Change these examples consistently if they overlap with the host or home network.
+Use the [Milestone A VMware runbook](Instructions/General/VMware-Segmented-Networking.md) to create these networks and host adapters. Reserve `10.10.10.10` for `VN1-SRV1` (AD DS/DNS), `10.10.10.11` for `VN1-SRV5` (second DC/DNS), `10.10.10.20` for `VN1-SRV4`, and `10.10.30.20` for `CL1` when using static client addressing. DHCP ranges, host adapter addresses, VMware NAT gateway values, and any overlapping home-network values are host-specific placeholders; do not copy them blindly.
 
 Recommended recognizable names are `VN1-SRV1`, `VN1-SRV4`, `VN1-SRV5`, `VN2-SRV1`, `VN2-SRV2`, `VN1-SRV20`, `VN1-SRV21`, `CL1`, and `CL3`. Use additional names from each lab (for example cluster, storage, RDS, or Azure Arc nodes) when that lab requires them. The AD forest/domain for this repository is **`ad.lab.test`**.
 
