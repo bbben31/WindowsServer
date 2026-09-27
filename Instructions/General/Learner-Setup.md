@@ -14,6 +14,8 @@ The supported baseline for this edition is a **Windows 11** host, **VMware Works
 
 Configure the VMnets and adapter placement using [VMware segmented networking](VMware-Segmented-Networking.md) before assigning static addresses or creating the AD forest. That guide is the source of truth for VMnet10/20/30, the optional NAT path, gateways, and DNS reachability.
 
+Before each practice or lab, run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with only the paths, VM names, network values, and Azure placeholders relevant to that stage. Resolve blockers and review warnings, take a snapshot, perform the lab, verify the outcome, and then deallocate/delete disposable Azure resources and revert or clean up local lab state.
+
 ## Media, licensing, and snapshots
 
 Obtain the **Windows Server 2025 Evaluation ISO** and **Windows 10 ISO** from official Microsoft download pages. Server 2022 evaluation media is an optional substitution where a lab requires it. Do not commit ISO files or product keys. Evaluation editions have time limits; record the activation date and comply with the license terms.

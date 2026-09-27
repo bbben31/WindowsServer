@@ -2,6 +2,27 @@
 
 Complete `Instructions/General/Learner-Setup.md` first. Within each section, practices establish skills and the labs combine them. A lab may require extra VMs, storage disks, certificates, or Azure resources; use its prerequisite/topology notes and do not assume the foundation topology is sufficient.
 
+## Manifest and preflight
+
+Use the machine-readable [curriculum manifest](../../metadata/curriculum-manifest.json) to filter all 89 practices and 50 labs by Azure requirement, topology, risk, cost, permissions, dependencies, and cleanup. Run the read-only [learner preflight checker](../../tools/Preflight-LearnerLab.ps1) before a lab, then resolve warnings, snapshot the relevant VMs, perform the lab, verify the result, and clean up.
+
+Example:
+
+```powershell
+.\tools\Preflight-LearnerLab.ps1 `
+  -ServerIsoPath '<PATH_TO_WINDOWS_SERVER_2025_EVALUATION_ISO>' `
+  -Windows10IsoPath '<PATH_TO_WINDOWS_10_ISO>' `
+  -VmName VN1-SRV1,VN1-SRV4,CL1 `
+  -ExpectedDnsServer 10.10.10.10 `
+  -ExpectedSubnet 10.10.10 `
+  -AzureSubscriptionId '<AZURE_SUBSCRIPTION_ID>' `
+  -AzureRegion 'UK South' `
+  -AzureResourceGroup '<AZURE_RESOURCE_GROUP>' `
+  -ReportPath '.\preflight-report.json'
+```
+
+The checker is read-only and never logs in, creates, deletes, or changes resources. It returns exit code `0` when no errors are found, and `1` for errors (or warnings when `-FailOnWarning` is used). Missing optional tools are warnings or skipped checks.
+
 ## General
 
 - [Adding-a-registry-value](../General/Adding-a-registry-value.md)
