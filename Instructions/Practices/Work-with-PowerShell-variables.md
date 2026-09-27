@@ -109,10 +109,9 @@ Perform these steps on CL1.
     $holiday - $now
     ````
 
-1. Calculate the number of bytes of 1 TB.
+1. Calculate the number of bytes of 7 TB.
 
     ````powershell
-    1TB
+    7TB
     ````
-
 

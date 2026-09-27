@@ -7,7 +7,7 @@
 
 ## Task
 
-On CL1, list the latest 20 events from the system log on VN1-SRV1. List all warnings, errors and audit failures from the system log on VM1-DC1. List all details for the oldest the events that DSC generated on VN1-SRV1.
+On CL1, list the latest 20 events from the system log on VN1-SRV1. List all warnings, errors and audit failures from the system log on VN1-SRV1. List all details for the oldest events that DSC generated on VN1-SRV1.
 
 ## Instructions
 
@@ -97,5 +97,4 @@ Perform these steps on CL1.
     ````
 
     Notice the event with Id 1102.
-
 

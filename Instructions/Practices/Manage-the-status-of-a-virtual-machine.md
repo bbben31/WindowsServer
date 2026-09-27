@@ -1,5 +1,7 @@
 ﻿# Practice: Manage the status of a virtual machine
 
+> **Optional nested-Hyper-V exercise:** Hyper-V Manager steps apply only to a dedicated nested Hyper-V guest; VMware Workstation controls the default lab VMs.
+
 ## Required VMs
 
 * VN1-SRV1
@@ -96,5 +98,4 @@ Perform this task on CL1.
     Alternatively, you can reset the virtual machine from the context-menu in Hyper-V Manager.
 
     > The virtual machine is reset immediately without a graceful shut down.
-
 

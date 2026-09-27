@@ -1,4 +1,4 @@
-﻿# Generating the KDS root key
+# Generating the KDS root key
 
 1. Open a terminal.
 1. In Terminal, verify if the KDS root key exists.
@@ -10,7 +10,7 @@
 1. If there is no KDS root key, generate it.
 
     ````powershell
-    Add-KdsRootKey â€“EffectiveTime (Get-Date).AddHours((-10))
+    Add-KdsRootKey -EffectiveTime (Get-Date).AddHours((-10))
     ````
 
     *Note:* In a real-world scenario, it is recommended to not use the ```-EffectiveTime```parameter. Instead, after generating the KDS root key, wait for at least 10 hours before proceeding.

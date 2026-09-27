@@ -51,7 +51,7 @@
             list.
         #>
         $name = ''
-        Remove-WindowsFeature `
+        Uninstall-WindowsFeature `
             -Computername $computername `
             -Name $name `
             -Restart
@@ -85,4 +85,3 @@
 [Add or remove roles and features in Windows Server](https://learn.microsoft.com/en-us/windows-server/administration/server-manager/add-remove-roles-features)
 
 [Manage Servers with Windows Admin Center](https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/use/manage-servers)
-

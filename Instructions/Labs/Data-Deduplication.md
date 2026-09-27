@@ -1,6 +1,6 @@
-﻿# Lab: Data Deduplication
+# Lab: Data Deduplication
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the d.lab.test domain. Do not use classroom provisioning scripts or credentials.
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.testd.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -107,7 +107,7 @@ Perform this task on CL1.
 1. Change the minimum file age of deduplicated files to zero.
 
    ````powershell
-   Set-DedupVolume â€“Volume $volume â€“MinimumFileAgeDays 0
+   Set-DedupVolume -Volume $volume -MinimumFileAgeDays 0
    ````
 
 1. Retrieve volumes with deduplication enabled and take a note of the current savings rate on drive **D:**.
@@ -162,7 +162,7 @@ Perform these steps on CL1.
 1. Start the optimization on volume **D:**.
 
    ````powershell
-   Start-DedupJob â€“Volume D: â€“Type Optimization
+   Start-DedupJob -Volume D: -Type Optimization
    ````
 
 1. Review the running deduplication process.

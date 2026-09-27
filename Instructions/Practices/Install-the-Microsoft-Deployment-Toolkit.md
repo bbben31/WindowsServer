@@ -27,7 +27,7 @@ Perform this task on CL1.
 1. On page Completed the Microsoft Deployment Toolkit ... Setup Wizard, click **Finish**.
 1. Switch to **Microsoft Edge**.
 1. Navigate to <https://learn.microsoft.com/en-us/windows-hardware/get-started/adk-install>.
-1. On page Download and install the Windows ADK | Microsoft Learn, click the link **Other ADK Downloads**.
+1. On page Download and install the Windows ADK | Microsoft Learn, first download and install the Windows ADK base package for the supported Windows build, then click the link **Other ADK Downloads**.
 1. Click the link **Download the Windows PE add-on for the ADK, version 2004**.
 1. Under Downloads, under **adkwinpesetup.exe**, click **Open file**.
 1. In Windows Assessment and Deployment Kit Windows Preinstallation Environment Add-Ons - Windows 10, on page Specify Location, click **Next**.
@@ -38,5 +38,4 @@ Perform this task on CL1.
     You do not have to wait for the download and installation to complete. The time is dependent on your internet connection.
 
 1. On page Welcome to the Windows Assessment and Deployment Kit Windows Preinstallation Environment Add-Ons - Windows 10, click **Close**.
-
 

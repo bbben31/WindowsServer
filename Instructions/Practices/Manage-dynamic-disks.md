@@ -1,5 +1,7 @@
 ﻿# Practice: Manage dynamic disks
 
+> **Optional nested-Hyper-V exercise:** Hyper-V Manager steps apply only to a dedicated nested Hyper-V guest; use VMware Workstation for the default lab host.
+
 ## Required VMs
 
 * VN1-SRV1
@@ -109,5 +111,4 @@ Perform these steps on CL1.
     ````powershell
     Remove-CimSession $cimSession
     ````
-
 

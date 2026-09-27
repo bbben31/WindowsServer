@@ -726,12 +726,12 @@
                                      ],
                         "windowsVersionAssumptions":  "Repository baseline; verify source procedure",
                         "azure":  {
-                                      "required":  true,
+                                      "required":  false,
                                       "services":  [
-                                                       "None identified"
+                                                       "None"
                                                    ],
-                                      "region":  "UK South",
-                                      "scope":  "Core services only by default; optional services are cost-gated"
+                                      "region":  "Not applicable",
+                                      "scope":  "Local VMware lab only"
                                   },
                         "permissions":  [
                                             "TBD - verify exact role/account requirement in procedure"
@@ -739,10 +739,10 @@
                         "dependencies":  [
                                              "TBD - no explicit relative prerequisite link found"
                                          ],
-                        "cleanup":  "Deallocate/delete disposable Azure resources and verify the lab resource group is empty.",
+                        "cleanup":  "Power off or remove disposable local VMware VMs and review snapshots; no Azure resources are required.",
                         "riskCost":  {
                                          "risk":  "low",
-                                         "cost":  "cost-gated"
+                                         "cost":  "local-only"
                                      },
                         "compatibility":  {
                                               "optional":  false,
@@ -4757,12 +4757,12 @@
                                                           "Windows 10"
                                                       ],
                         "azure":  {
-                                      "required":  true,
+                                      "required":  false,
                                       "services":  [
-                                                       "None identified"
+                                                       "None"
                                                    ],
-                                      "region":  "UK South",
-                                      "scope":  "Core services only by default; optional services are cost-gated"
+                                      "region":  "Not applicable",
+                                      "scope":  "Local VMware lab only"
                                   },
                         "permissions":  [
                                             "TBD - verify exact role/account requirement in procedure"
@@ -4772,10 +4772,10 @@
                                              "../Labs/Explore-Windows-Admin-Center.md",
                                              "../Practices/Create-a-custom-Microsoft-Management-Console.md"
                                          ],
-                        "cleanup":  "Deallocate/delete disposable Azure resources and verify the lab resource group is empty.",
+                        "cleanup":  "Power off or remove disposable local VMware VMs and review snapshots; no Azure resources are required.",
                         "riskCost":  {
                                          "risk":  "high",
-                                         "cost":  "cost-gated"
+                                         "cost":  "local-only"
                                      },
                         "compatibility":  {
                                               "optional":  false,

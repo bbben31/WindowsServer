@@ -25,7 +25,7 @@
     $computerName = '' # Insert the name of the computer to add the key to
 
     Invoke-Command -Computername $computerName -ScriptBlock {
-        New-Item $path -Force
+        New-Item $using:path -Force
         Set-ItemProperty `
             -Path $using:path `
             -Name $using:name `
@@ -33,4 +33,3 @@
             -Type $using:type
     }
     ````
-

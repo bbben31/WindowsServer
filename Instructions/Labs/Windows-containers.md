@@ -1,6 +1,6 @@
-﻿# Windows containers
+# Windows containers
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the d.lab.test domain. Do not use classroom provisioning scripts or credentials.
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.testd.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -24,8 +24,8 @@
 
 ## Exercise 1: Run the first container
 
-1. [Configure nested virtualization](#task-1-configure-nested-virtualization) for the VM WIN-VN2-SRV2
-1. [Download and install Docker CE](#task-2-download-and-install-docker-ce) on VN2-SRV2
+1. [Configure nested virtualization](#task-1-configure-nested-virtualization) for the VM VN1-SRV13. This is an expanded VMware exercise and is not part of the default profile.
+1. [Download and install Docker CE](#task-2-download-and-install-docker-ce) on VN1-SRV13
 1. [Pull the Nano server base image](#task-3-pull-the-nano-server-base-image)
 1. [Run the Nano server image in a container](#task-4-run-the-nano-server-image-in-a-container) with the user ContainerAdministrator and create a simple text file in it
 1. [Create a new container image](#task-5-create-a-new-container-image) from the container you created with the name helloworld and run a new container from the image, emitting the content of the text file you created
@@ -35,17 +35,8 @@
 Perform this task on the host.
 
 1. Open **Windows PowerShell (Admin)**.
-1. In Windows PowerShell (Admin), for **WIN-VN1-SRV13**, shut down the virtual machine, expose the virtualtion extensions to the virtual machine, enable MAC address spoofing, disable dynamic memory and set the startup memory to **4 GB**, and start the virtual machine again.
-
-    ````powershell
-    $vMName = 'WIN-VN1-SRV13'
-    Stop-VM -VMName $vMName
-    Set-VMProcessor -VMName $vMName -ExposeVirtualizationExtensions $true
-    Get-VMNetworkAdapter -VMName $vMName |
-    Set-VMNetworkAdapter -MacAddressSpoofing On
-    Set-VM -VMName $vMName -StaticMemory -MemoryStartupBytes 4GB
-    Start-VM -VMName $vMName
-    ````
+1. Power off **VN1-SRV13** and open **VM > Settings > Processors** in VMware Workstation. Enable **Virtualize Intel VT-x/EPT or AMD-V/RVI** and, if Docker requires it, **Virtualize IOMMU**. Set fixed memory of **4 GB** and keep the NIC on the documented VMware VMnet. Do not run Hyper-V host cmdlets against a VMware VM.
+1. Start the VM and verify nested virtualization from inside Windows with `systeminfo.exe`; if the hypervisor requirements are not available, stop this optional exercise.
 
 ### Task 2: Download and install Docker CE
 
@@ -56,7 +47,7 @@ Perform this task on VN1-SRV13.
 1. Download and install Docker CE from Github.
 
     ````powershell
-    Set-Location c:\LabResources
+    Set-Location C:\WindowsServerLab\Resources\Downloads
     Invoke-WebRequest `
         -Uri 'https://raw.githubusercontent.com/microsoft/Windows-Containers/Main/helpful_tools/Install-DockerCE/install-docker-ce.ps1' `
         -OutFile install-docker-ce.ps1 `
@@ -299,6 +290,5 @@ Peform this task on CL1.
     You should see a sample web site.
 
 [figure 1]: /images/Docker-VSCode-extension.png
-
 
 

@@ -1,5 +1,7 @@
 ﻿# Practice: Manage the guest operating system from the host
 
+> **Optional nested-Hyper-V exercise:** This source procedure is not a default VMware host procedure. Use it only inside a dedicated nested Hyper-V guest.
+
 ## Required VMs
 
 * VN1-SRV1
@@ -134,5 +136,4 @@ You do not have to wait for the copy process to finish. If the copy process is n
 
 1. Switch to **Hyper-V Manager**.
 1. Under Virtual Machines, in the context-menu of **PM-SRV20**, click **Cancel Copying a file to the guest**.
-
 

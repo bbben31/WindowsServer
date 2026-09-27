@@ -1,6 +1,6 @@
-﻿# Lab: Manage domain users, groups, and computers
+# Lab: Manage domain users, groups, and computers
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the d.lab.test domain. Do not use classroom provisioning scripts or credentials.
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.testd.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -135,7 +135,7 @@ Perform this task on CL1.
     ````powershell
     # You need to set up these variables once only
     $domainFQDN = 'ad.lab.test'
-    $domainDN = 'DC=ad, DC=adatum, DC=com'
+    $domainDN = 'DC=ad, DC=lab, DC=test'
     $domainNetBIOS = 'AD'
     ````
 
@@ -902,7 +902,6 @@ Perform this task on CL2.
     > This time you should be successful.
 
 1. Sign out.
-
 
 
 

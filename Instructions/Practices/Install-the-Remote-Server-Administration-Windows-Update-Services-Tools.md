@@ -30,7 +30,7 @@ You do not need to wait for the completion of the installation
 Perform these steps on CL1.
 
 1. In the context menu of **Start**, click **Terminal (Admin)**.
-1. Add the windows capabilities **RSAT: Server DHCP Server tools**.
+1. Add the Windows capability **RSAT: Windows Server Update Services tools**.
 
     ````powershell
     Get-WindowsCapability -Online -Name 'Rsat.WSUS.Tools*' |
@@ -38,5 +38,4 @@ Perform these steps on CL1.
     ````
 
 You do not need to wait for the completion of the installation.
-
 

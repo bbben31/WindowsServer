@@ -1,6 +1,6 @@
-﻿# Lab: Delegated managed service accounts
+# Lab: Delegated managed service accounts
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the d.lab.test domain. Do not use classroom provisioning scripts or credentials.
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.testd.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -76,7 +76,7 @@ Perform this task on CL1.
 1. If there is no KDS root key, generate it.
 
     ````powershell
-    Add-KdsRootKey â€“EffectiveTime (Get-Date).AddHours((-10))
+    Add-KdsRootKey -EffectiveTime (Get-Date).AddHours((-10))
     ````
 
 1. Verify the KDS root key again.

@@ -24,6 +24,7 @@
     $networkCategory = 'Private' # Replace with Public, if required
 
     Set-NetConnectionProfile `
+        -CimSession $cimSession `
         -InterfaceAlias $interfaceAlias -NetworkCategory $networkCategory
     ````
 

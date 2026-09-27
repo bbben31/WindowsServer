@@ -1,6 +1,6 @@
-﻿# Lab: Active Directory Rights Management Service
+# Lab: Active Directory Rights Management Service
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the d.lab.test domain. Do not use classroom provisioning scripts or credentials.
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.testd.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -395,7 +395,7 @@ Perform this task on VN2-SRV1.
 
     ````powershell
     Set-ItemProperty `
-        â€“Path RC:\ClusterDatabase `
+        -Path RC:\ClusterDatabase `
         -Name ServerName `
         -Value rmsdb.ad.lab.test
     ````
@@ -404,7 +404,7 @@ Perform this task on VN2-SRV1.
 
     ````powershell
     $adrmssvc = Get-Credential
-    Set-ItemProperty â€“Path RC:\ -Name ServiceAccount -Value $adrmssvc
+    Set-ItemProperty -Path RC:\ -Name ServiceAccount -Value $adrmssvc
     ````
 
     In **Windows PowerShell credential request**, enter the credentials for **ad\svcrms**.
@@ -586,7 +586,7 @@ Perform this task on CL1.
 
     ````powershell
     $adrmssvc = Get-Credential
-    Set-ItemProperty â€“Path RC:\ -Name ServiceAccount -Value $adrmssvc
+    Set-ItemProperty -Path RC:\ -Name ServiceAccount -Value $adrmssvc
     ````
 
     In **Windows PowerShell credential request**, enter the credentials for **ad\svcrms**.
@@ -594,9 +594,9 @@ Perform this task on CL1.
 1. Configure the AD RMS server to use **rmsdb.ad.lab.test** as database server and **DRMS_Config_rms_ad_adatum_com_443** as database.
 
     ````powershell
-    Set-ItemProperty â€“Path RC:\ClusterDatabase -Name ServerName -Value rmsdb.ad.lab.test
+    Set-ItemProperty -Path RC:\ClusterDatabase -Name ServerName -Value rmsdb.ad.lab.test
     Set-ItemProperty `
-        â€“Path RC:\ClusterDatabase `
+        -Path RC:\ClusterDatabase `
         -Name DatabaseName `
         -Value DRMS_Config_rms_ad_adatum_com_443
     ````

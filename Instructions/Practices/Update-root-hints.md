@@ -1,4 +1,4 @@
-﻿# Practice: Update root hints
+# Practice: Update root hints
 
 ## Required VMs
 
@@ -86,10 +86,10 @@ Perform this task on CL1.
 
     > You will receive an error message, because the server cannot resolve names from the internet anymore.
 
-1. On **vn2-srv1.ad.lab.test**, import the root hints again from **10.1.1.8**.
+1. On **vn2-srv1.ad.lab.test**, import the root hints again from **10.10.10.10**.
 
     ````powershell
-    Import-DnsServerRootHint -NameServer 10.1.1.8 -ComputerName $computerName
+    Import-DnsServerRootHint -NameServer 10.10.10.10 -ComputerName $computerName
     ````
 
 1. Resolve the name **microsoft.com** using the server **VN2-SRV1.ad.lab.test** again.

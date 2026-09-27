@@ -38,7 +38,7 @@ Perform this task on CL1.
 
 1. Using Microsoft Edge, navigate to <https://admincenter>.
 1. In Windows Admin Center, on the connections page, click **vn2-srv1.ad.lab.test**.
-1. Connected to vn1-srv5.ad.lab.test, under **Tools**, click **Roles & features**.
+1. Connected to **vn2-srv1.ad.lab.test**, under **Tools**, click **Roles & features**.
 1. In Roles and features, activate the checkbox beside **DNS Server** and click **Install**.
 1. In the pane Install Role and Features, activate the checkbox **Reboot the server automatically, if required** and click **Yes**.
 
@@ -58,5 +58,4 @@ Perform this task on CL1.
         Install-WindowsFeature -Name DNS -IncludeManagementTools -Restart 
     }
     ````
-
 

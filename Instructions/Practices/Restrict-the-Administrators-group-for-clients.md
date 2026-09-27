@@ -59,6 +59,7 @@ Perform these steps on CL1.
 1. In **Select Users, Service Accounts, or Groups**, click **Object Types**.
 1. In Object Types, activate **Groups** and click **OK**.
 1. In **Select Users, Service Accounts, or Groups**, under **Enter the object names to select**, type **Client Computer Administrators** and click **OK**.
+1. In **Select Users, Service Accounts, or Groups**, under **Enter the object names to select**, type **Administrator** and click **OK**.
 1. In **Group Membership**, click **OK**.
 1. In **Administrators Properties**, click **OK**.
 1. Close **Group Policy Management Editor**.
@@ -81,5 +82,4 @@ Perform these steps on CL4.
 
 1. In Administrators Properties, click **Cancel**.
 1. Sign out.
-
 

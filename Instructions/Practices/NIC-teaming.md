@@ -1,4 +1,4 @@
-﻿# Practice: NIC teaming
+# Practice: NIC teaming
 
 ## Required VMs
 
@@ -8,15 +8,13 @@
 
 ## Task
 
-On PM-SRV3, configure the network adapters in a team and assign it the IP address 10.1.200.26.
+On PM-SRV3, configure the network adapters in a team and assign it the IP address 10.10.20.26.
 
 ## Instructions
 
 Perform this task on the host.
 
-1. Open **Hyper-V Manager**.
-1. In Hyper-V Manager, click the name of your computer.
-1. Under Virtual Machines, in the context menu of **PM-SRV3**, click **Settings...**
+1. In VMware Workstation, power off **PM-SRV3**, verify two NICs on the intended VMnet, and open the guest console. Hyper-V host settings are not used by the default learner host.
 1. In Settings for PM-SRV3, expand the first **Network Adapter** and click **Advanced Features**.
 1. Under **NIC Teaming** (you might have to scroll down), activate **Enable this network adapter to be part of a team in guest operating system**.
 
@@ -44,25 +42,24 @@ This is expected and should be ignored as NIC teaming isn't supported with Hyper
     $cimSession = New-CimSession PM-SRV3
     ````
 
-1. Assign IP address **10.1.200.26/24** and default gateway **10.1.200.1** to **Perimeter**.
+1. Assign IP address **10.10.20.26/24** to **Perimeter**. Leave the default gateway unset on isolated VMnet20.
 
     ````powershell
     $interfaceAlias = 'Perimeter'
     New-NetIPAddress `
         -InterfaceAlias $interfaceAlias `
-        -IPAddress 10.1.200.26 `
+        -IPAddress 10.10.20.26 `
         -PrefixLength 24 `
-        -DefaultGateway 10.1.200.1 `
         -AddressFamily IPv4 `
         -CimSession $cimSession
     ````
 
-1. Set the DNS server address **10.1.1.8** for **Perimeter**.
+1. Set the DNS server address **10.10.10.10** for **Perimeter**.
 
     ````powershell
     Set-DnsClientServerAddress `
         -InterfaceAlias $interfaceAlias `
-        -ServerAddresses 10.1.1.8 `
+        -ServerAddresses 10.10.10.10 `
         -CimSession $cimSession
     ````
 
@@ -84,5 +81,3 @@ This is expected and should be ignored as NIC teaming isn't supported with Hyper
 1. In NIC Teaming, under **TEAMS**, click **Perimeter**. Under **ADAPTERS AND INTERFACES**, on tab **Network Adapters**, under **Available to be added to a team (1)**, in the context-menu of **Permieter0**, click **Add to Team "Perimeter"**.
 
 Note: Because NIC teaming in virtual machines is only supported with external virtual switches, you will not see any gains in performance or fault-tolerance. The purpose of this practice is to demonstrate the configuration of NIC teaming in general.
-
-

@@ -38,6 +38,8 @@ Perform these steps on CL1.
 1. In **Group Policy Management Editor**, in **Password Policy**, double-click **Password must meet complexity requirements**.
 1. In Password must meet complexity requirements Properties, activate **Define this policy setting**, ensure **Disabled** is selected, and click **OK**.
 1. In **Group Policy Management Editor**, click **Account Lockout**.
+1. In **Account lockout duration**, activate **Define this policy setting**, enter **10** minutes, and click **OK**.
+1. In **Reset account lockout counter after**, activate **Define this policy setting**, enter **10** minutes, and click **OK**.
 1. In Account Lockout, double-click **Account lockout threshold**.
 1. In Account lockout threshold Properties, activate **Define this policy setting**. Under **Account will lock out after**, type **100** and click **OK**.
 1. In Suggested Value Changes, click **OK**.
@@ -61,5 +63,4 @@ Perform these steps on CL1.
     > The password should be accepted.
 
 1. Sign out.
-
 

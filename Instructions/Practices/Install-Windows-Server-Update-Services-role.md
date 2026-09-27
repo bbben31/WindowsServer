@@ -1,4 +1,4 @@
-﻿# Practice: Install Windows Server Update Services role
+# Practice: Install Windows Server Update Services role
 
 ## Required VMs
 
@@ -71,9 +71,9 @@ Perform these steps on CL1.
 
     ````powershell
     Set-ItemProperty `
-        â€“Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\10 `
-        â€“Name ConfigurationState `
-        â€“Value 2
+        -Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\10 `
+        -Name ConfigurationState `
+        -Value 2
     ````
 
 1. Exit from the PowerShell session.
@@ -114,9 +114,9 @@ Perform these steps on CL1.
     ````powershell
     Invoke-Command -ComputerName $computerName -ScriptBlock {
         Set-ItemProperty `
-            â€“Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\10 `
-            â€“Name ConfigurationState `
-            â€“Value 2
+            -Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\10 `
+            -Name ConfigurationState `
+            -Value 2
     }
     ````
 

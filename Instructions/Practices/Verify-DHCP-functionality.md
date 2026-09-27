@@ -1,4 +1,4 @@
-﻿# Practice: Verify DHCP functionality
+# Practice: Verify DHCP functionality
 
 ## Required VMs
 
@@ -33,7 +33,7 @@ Perform this task on CL1.
     Invoke-Command -ComputerName $computerName -ScriptBlock {
         $interfaceIndex = (
                 Get-NetIPAddress -AddressFamily IPv4 |
-                Where-Object { $PSItem.IPAddress -like '10.1.1.*' }
+                Where-Object { $PSItem.IPAddress -like '10.10.30.*' }
             ).InterfaceIndex
         
         Get-NetRoute -InterfaceIndex $interfaceIndex |
@@ -52,7 +52,7 @@ Perform this task on CL1.
     Get-NetIPConfiguration -ComputerName $computerName
     ````
 
-    At least one network adapter should haven an IP address in the 10.1.1.0 subnet, the IPv4DefaultGateway of 10.1.1.1 and DNSServer of 10.1.1.8.
+    At least one network adapter should haven an IP address in the 10.10.30.0 subnet, the IPv4DefaultGateway of <VMNET30_GATEWAY> and DNSServer of 10.10.10.10.
 
     If the command fails, try again after a few minutes. If it still fails, sign in to the server and execute
 
@@ -112,7 +112,7 @@ Perform this task on VN1-SRV1, VN1-SRV3, VN1-SRV4, VN1-SRV5, VN1-SRV11, VN1-SRV1
     ipconfig.exe /all
     ````
 
-    The network adapters should have received the IP address you added as reservation. The DNS Servers should be 10.1.1.8 and the Default Gateway should be 10.1.1.1. If the IP address is an APIPA address, try to execute
+    The network adapters should have received the IP address you added as reservation. The DNS Servers should be 10.10.10.10 and the Default Gateway should be <VMNET30_GATEWAY>. If the IP address is an APIPA address, try to execute
 
     ````shell
     ipconfig.exe /renew
@@ -141,7 +141,7 @@ Perform this task on VN1-SRV2, VN1-SRV8, VN1-SRV9, and VN1-SRV10.
 1. Double-click the ntwork adpater you just configured.
 1. In network adapter's status, click **Details...**
 
-    The network adapters should have received the IP address you added as reservation. The DNS Servers should be 10.1.1.8 and the Default Gateway should be 10.1.1.1. If the IP address is an APIPA address, try to execute
+    The network adapters should have received the IP address you added as reservation. The DNS Servers should be 10.10.10.10 and the Default Gateway should be <VMNET30_GATEWAY>. If the IP address is an APIPA address, try to execute
 
     ````shell
     ipconfig.exe /renew
@@ -162,7 +162,7 @@ Perform this task on CL1.
 1. In Ethernet, right to **IP assignment**, click **Edit**.
 1. In Edit IP settings, in the drop-down at the top, click **Automatic (DHCP)** and click **Save**.
 
-    In **Ethernet**, verify that the computer has received an IP address in the 10.1.1.0 subnet (such as 10.1.1.2) and IPv4 DNS servers of 10.1.1.8.
+    In **Ethernet**, verify that the computer has received an IP address in the 10.10.30.0 subnet (such as 10.10.30.2) and IPv4 DNS servers of 10.10.10.10.
 
 ### Windows Admin Center
 
@@ -187,7 +187,7 @@ Perform this task on CL1.
 1. Connected to vn1-srv1.ad.lab.test, under **Tools**, click Networks.
 1. Under Networks, click the network you just configured.
 
-    In the bottom pane, verify that IPv4 DHCP is set to Yes, the computer has obtained the IP address you added as reservation, the IPv4 Default Gateway is 10.1.1.1 and the IPv4 DNS Servers is 10.1.1.8.
+    In the bottom pane, verify that IPv4 DHCP is set to Yes, the computer has obtained the IP address you added as reservation, the IPv4 Default Gateway is <VMNET30_GATEWAY> and the IPv4 DNS Servers is 10.10.10.10.
 
 1. In the top-left corner, click **Windows Admin Center**.
 
