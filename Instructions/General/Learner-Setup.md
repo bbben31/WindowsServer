@@ -12,7 +12,7 @@ The supported baseline for this edition is a **Windows 11** host, **VMware Works
 * Enable CPU virtualization in firmware. Enable nested virtualization only for the Hyper-V, containers, or nested-lab exercises that need it.
 * Store VM files under a host path you control, such as `D:\VMs\WindowsServerLab`, and use `C:\WindowsServerLab\Resources` inside the guest for ISOs and lab data. These are examples, not required paths.
 
-Configure the VMnets and adapter placement using [VMware segmented networking](VMware-Segmented-Networking.md) before assigning static addresses or creating the AD forest. That guide is the source of truth for VMnet10/20/30, the optional NAT path, gateways, and DNS reachability.
+Configure the VMnets and adapter placement using [VMware segmented networking](VMware-Segmented-Networking.md) before assigning static addresses or creating the AD forest. Then follow the [Milestone B base-image runbook](Base-Images-and-Templates.md) before creating role-specific guests. These guides are the source of truth for VMnet10/20/30, the optional NAT path, gateways, DNS reachability, template sizing, and clone identity boundaries.
 
 Before each practice or lab, run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with only the paths, VM names, network values, and Azure placeholders relevant to that stage. Resolve blockers and review warnings, take a snapshot, perform the lab, verify the outcome, and then deallocate/delete disposable Azure resources and revert or clean up local lab state.
 

@@ -29,6 +29,8 @@ Follow the [staged lab roadmap](Staged-Lab-Roadmap.md) from host/network foundat
 
 Start with the [Milestone A VMware network runbook](VMware-Segmented-Networking.md) before creating the first guest.
 
+Then complete the [Milestone B base-image runbook](Base-Images-and-Templates.md) before cloning role-specific servers or clients.
+
 ## General
 
 - [Adding-a-registry-value](../General/Adding-a-registry-value.md)

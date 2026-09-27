@@ -30,7 +30,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **VMs/networks:** One temporary Server VM and one temporary Windows 10 VM, disconnected from the domain. Use VMnet10 for management and VMnet8 only for controlled updates.
 
-**Practices/labs:** [Install Windows Server manually](../Practices/Install-Windows-Server-manually.md), [Install Windows Server with Desktop Experience manually](../Practices/Install-Windows-Server-with-Desktop-Experience-manually.md), and [Create and install a virtual machine](../Practices/Create-and-install-a-virtual-machine.md). Use the [base-image guide](Base-Images-and-Templates.md).
+**Practices/labs:** [Install Windows Server manually](../Practices/Install-Windows-Server-manually.md), [Install Windows Server with Desktop Experience manually](../Practices/Install-Windows-Server-with-Desktop-Experience-manually.md), and [Create and install a virtual machine](../Practices/Create-and-install-a-virtual-machine.md). Follow the full [Milestone B base-image runbook](Base-Images-and-Templates.md).
 
 **Verification:** `winver`; `Get-ComputerInfo`; `Get-WindowsFeature`; `Get-NetIPConfiguration`; run preflight with ISO paths.
 
