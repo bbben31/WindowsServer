@@ -35,6 +35,8 @@ Next follow the [Milestone C AD DS/DNS foundation runbook](AD-DNS-Foundation.md)
 
 Continue in order with [Milestone D member servers and clients](Member-Servers-and-Clients.md), then [Milestone E core Windows administration](Core-Windows-Administration.md). The runbooks link to the source-aligned practices and labs without replacing them.
 
+For advanced topics, use the [Milestone F advanced infrastructure guide](Advanced-Infrastructure.md) before selecting storage, Hyper-V, clustering, RDS, WSUS, deployment, Linux/container, or Azure File Sync material.
+
 ## General
 
 - [Adding-a-registry-value](../General/Adding-a-registry-value.md)

@@ -102,7 +102,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **VMs/networks:** **Extra capacity:** clusters, Storage Spaces Direct, Storage Replica, iSCSI, RDS high availability, AD FS, RMS, deployment services, and nested Hyper-V may require several additional VMs, disks, certificates, or VMnet20/30 paths.
 
-**Practices/labs:** Select the relevant Labs entries in the manifest and follow each lab's prerequisites; do not combine unrelated advanced stacks without sufficient RAM and storage.
+**Practices/labs:** Follow the [Milestone F advanced infrastructure guide](Advanced-Infrastructure.md), then select the relevant practices/Labs entries in the manifest; do not combine unrelated advanced stacks without sufficient RAM and storage.
 
 **Verification:** Use the lab's documented checks plus `Get-Cluster`, `Get-Volume`, `Get-IscsiSession`, `Get-WindowsFeature`, or preflight where applicable.
 
