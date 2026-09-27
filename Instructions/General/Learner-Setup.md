@@ -1,0 +1,39 @@
+# Learner setup
+
+This document replaces the instructor prerequisite workflow. It describes what one learner must prepare without creating accounts, tenants, or credentials automatically.
+
+## Host and VMware Workstation Pro
+
+* Use a supported Windows 10/11 host with enough CPU, RAM, and SSD space for the current lab. Storage-heavy, clustering, RDS, AD FS, and Storage Spaces Direct labs need substantially more resources than the foundation.
+* Create VMware custom networks for `LAB-AD`, `LAB-SRV`, `LAB-STORAGE`, and `LAB-CLIENT`. Prefer host-only networks for isolated experiments. Add a NAT adapter only to a VM that needs updates or Azure access.
+* Keep the VMware DHCP service disabled on the AD and server segments when Windows DHCP is being studied. On the client segment, either use Windows DHCP from the lab or VMware DHCP, never both.
+* Enable CPU virtualization in firmware. Enable nested virtualization only for the Hyper-V, containers, or nested-lab exercises that need it.
+* Store VM files under a host path you control, such as `D:\VMs\WindowsServerLab`, and use `C:\WindowsServerLab\Resources` inside the guest for ISOs and lab data. These are examples, not required paths.
+
+## Media, licensing, and snapshots
+
+Obtain Windows Server 2025, Windows 10, and optional Server 2022 evaluation media from official Microsoft download pages. Do not commit ISO files or product keys. Evaluation editions have time limits; record the activation date and comply with the license terms.
+
+Take a clean snapshot after OS installation, a second snapshot after VMware networking and updates, and a foundation snapshot after `ad.lab.test` is healthy. Never use snapshots as a backup for production data. Before destructive storage, schema, federation, or cluster exercises, export or copy only disposable lab data.
+
+## Foundation build
+
+Start with `VN1-SRV1` as the first domain controller and DNS server, `VN1-SRV4` as a management/server node, and `CL1` as the Windows 10 management client. Add `VN1-SRV5` as a second domain controller before practicing availability, replication, or upgrade scenarios. Add `VN1-SRV20`, `VN1-SRV21`, `CL3`, `VN2-SRV1`, `VN2-SRV2`, and lab-specific cluster/storage nodes only when the dependency map calls for them.
+
+Use static addresses on domain controllers and infrastructure servers. Set the preferred DNS server on domain members to the AD DNS address, not to a public resolver. Create the forest/domain `ad.lab.test`; replace every example address with the address from your own plan. Verify forward and reverse name resolution before joining additional machines.
+
+Create a small number of personal test accounts manually, with unique temporary passwords stored outside Git. Do not reuse a real Microsoft account password. For service-account, AD FS, RMS, or delegation practices, use disposable accounts and certificates issued only inside the lab.
+
+## Azure and Microsoft Entra prerequisites
+
+Use an Azure subscription and Microsoft Entra tenant that you control or are explicitly authorized to use. Record only placeholders in notes: `<AZURE_SUBSCRIPTION_ID>`, `<AZURE_TENANT_ID>`, `<AZURE_RESOURCE_GROUP>`, and `<AZURE_REGION>`. Enable MFA, use a separate lab resource group, assign the minimum role required for each exercise, and set a budget alert before creating resources.
+
+Azure Arc, Azure File Sync, hybrid identity, Azure VM, and related labs may require resource providers, a supported region, a service principal or managed identity, and outbound Internet access. Read the current Microsoft documentation and each lab's prerequisites before provisioning. Never paste client secrets, certificates, access tokens, invitation links, or personal identifiers into Markdown, PowerShell history, or issue comments. Remove resource groups and role assignments when the lab is complete.
+
+## Missing classroom automation
+
+The instructor repository contained scripts and data for provisioning entire classes and handling student credentials. They are intentionally absent here. References to `C:\WindowsServerLab\Resources` identify where a learner may place personally reviewed installers, sample files, or a one-off helper script. If a lab references a source-only `Solutions` script, follow the surrounding GUI steps manually and create only the minimum disposable test data required for that lab.
+
+## Reset and troubleshooting
+
+Record the snapshot name, lab date, software versions, and any placeholder values used. If DNS, AD replication, time synchronization, or a cluster becomes inconsistent, stop dependent VMs, revert only the disposable lab machines to a known-good snapshot, and revalidate the foundation before continuing.
