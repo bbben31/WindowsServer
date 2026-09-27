@@ -37,6 +37,8 @@ Continue in order with [Milestone D member servers and clients](Member-Servers-a
 
 For advanced topics, use the [Milestone F advanced infrastructure guide](Advanced-Infrastructure.md) before selecting storage, Hyper-V, clustering, RDS, WSUS, deployment, Linux/container, or Azure File Sync material.
 
+For cloud and hybrid topics, continue with the [Milestone G Azure and hybrid services guide](Azure-Hybrid-Services.md); it replaces instructor-selected identifiers with placeholders and keeps Azure provisioning cost-gated.
+
 ## General
 
 - [Adding-a-registry-value](../General/Adding-a-registry-value.md)

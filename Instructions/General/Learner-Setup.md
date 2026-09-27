@@ -20,6 +20,8 @@ After the forest is healthy, follow the [Milestone D member-server and client ru
 
 Use the [Milestone F advanced infrastructure guide](Advanced-Infrastructure.md) only after E validation. It classifies extra disks, VMs, nested virtualization, quorum, deployment services, and Azure File Sync before you allocate scarce host or cloud resources.
 
+Use the [Milestone G Azure and hybrid services guide](Azure-Hybrid-Services.md) only with the existing Entra tenant/subscription, UK South default, £10 hard safety limit, explicit permissions, and a cleanup plan.
+
 Before each practice or lab, run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with only the paths, VM names, network values, and Azure placeholders relevant to that stage. Resolve blockers and review warnings, take a snapshot, perform the lab, verify the outcome, and then deallocate/delete disposable Azure resources and revert or clean up local lab state.
 
 ## Media, licensing, and snapshots

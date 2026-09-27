@@ -13,8 +13,9 @@ The baseline is **Windows Server 2025 Evaluation** and **Windows 10** running in
 5. Build the foundation topology, then follow the [Milestone C AD DS/DNS foundation runbook](Instructions/General/AD-DNS-Foundation.md) to establish `ad.lab.test`.
 6. Follow the [Milestone D member-server and client runbook](Instructions/General/Member-Servers-and-Clients.md), validate the members, then use the [Milestone E core administration runbook](Instructions/General/Core-Windows-Administration.md).
 7. Use the [Milestone F advanced infrastructure guide](Instructions/General/Advanced-Infrastructure.md) only for the selected storage, Hyper-V, RDS, clustering, deployment, or optional Linux/container topic.
-8. Run the read-only preflight checker, resolve blockers and warnings, snapshot the stage, perform the lab, verify the result, and clean up.
-9. Complete the practices before their dependent labs; each document names additional machines, roles, and Azure prerequisites.
+8. Use the [Milestone G Azure and hybrid services guide](Instructions/General/Azure-Hybrid-Services.md) only after a budget, scope, permission, and cleanup plan is ready.
+9. Run the read-only preflight checker, resolve blockers and warnings, snapshot the stage, perform the lab, verify the result, and clean up.
+10. Complete the practices before their dependent labs; each document names additional machines, roles, and Azure prerequisites.
 
 ## Scope and safety
 

@@ -120,7 +120,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **VMs/networks:** Use only the local VMs and outbound VMnet8 NICs required by the selected lab. **Extra capacity:** Azure VMs, Arc, File Sync, Monitor, Automation, and storage may incur costs or require additional resources.
 
-**Practices/labs:** Filter the manifest for `azure.required=true`; examples include [Add server to Azure Arc](../Practices/Add-server-to-Azure-Arc.md), [Register Windows Admin Center with Azure](../Practices/Register-Windows-Admin-Center-with-Azure.md), and [Managing hybrid servers using Azure Arc](../Labs/Managing-hybrid-servers-using-Azure-Arc.md).
+**Practices/labs:** Follow the [Milestone G Azure and hybrid services guide](Azure-Hybrid-Services.md), then filter the manifest for `azure.required=true`; examples include [Add server to Azure Arc](../Practices/Add-server-to-Azure-Arc.md), [Register Windows Admin Center with Azure](../Practices/Register-Windows-Admin-Center-with-Azure.md), and [Managing hybrid servers using Azure Arc](../Labs/Managing-hybrid-servers-using-Azure-Arc.md).
 
 **Verification:** Run preflight with explicit placeholders and `az account show` only when the CLI context already exists. Verify the service-specific state documented by the lab.
 
