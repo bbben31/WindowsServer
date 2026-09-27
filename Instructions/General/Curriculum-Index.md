@@ -33,6 +33,8 @@ Then complete the [Milestone B base-image runbook](Base-Images-and-Templates.md)
 
 Next follow the [Milestone C AD DS/DNS foundation runbook](AD-DNS-Foundation.md) before joining member servers or clients.
 
+Continue in order with [Milestone D member servers and clients](Member-Servers-and-Clients.md), then [Milestone E core Windows administration](Core-Windows-Administration.md). The runbooks link to the source-aligned practices and labs without replacing them.
+
 ## General
 
 - [Adding-a-registry-value](../General/Adding-a-registry-value.md)

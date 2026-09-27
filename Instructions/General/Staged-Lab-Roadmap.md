@@ -66,7 +66,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **VMs/networks:** `VN1-SRV4` on VMnet10 with optional VMnet20; `CL1` on VMnet30; add `VN1-SRV5`, `VN1-SRV20`, `VN1-SRV21`, or `CL3` only when a lab requires them.
 
-**Practices/labs:** [Join Windows 11 to a local AD domain](Joining-Windows-11-to-a-local-Active-Directory-domain.md), [Adding servers to Server Manager](Adding-servers-to-Server-Manager.md), [Manage domain users, groups, and computers](../Labs/Manage-domain-users-groups-and-computers.md).
+**Practices/labs:** Follow the [Milestone D member-server and client runbook](Member-Servers-and-Clients.md), then use [Join Windows 11 to a local AD domain](Joining-Windows-11-to-a-local-Active-Directory-domain.md), [Adding servers to Server Manager](Adding-servers-to-Server-Manager.md), and [Manage domain users, groups, and computers](../Labs/Manage-domain-users-groups-and-computers.md).
 
 **Verification:** `Test-NetConnection 10.10.10.10 -Port 53`; `whoami /fqdn`; `Get-ComputerInfo`; `Resolve-DnsName _ldap._tcp.ad.lab.test`.
 
@@ -84,7 +84,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **VMs/networks:** `VN1-SRV4`, `CL1`, and the minimum member servers named by each practice. Use VMnet10 for management and VMnet30 for clients.
 
-**Practices/labs:** Complete the practices and core labs linked under administration, DNS, DHCP, Group Policy, file sharing, Windows Admin Center, monitoring, and update services in the [curriculum index](Curriculum-Index.md).
+**Practices/labs:** Follow the [Milestone E core Windows administration runbook](Core-Windows-Administration.md), then complete the mapped practices and core labs under administration, DNS, DHCP, Group Policy, file sharing, Windows Admin Center, monitoring, and update services in the [curriculum index](Curriculum-Index.md).
 
 **Verification:** Use preflight with supplied VM names and DNS; run `Get-WinEvent`, `Get-Service`, `Get-SmbShare`, `Get-DnsServerZone`, or the verification commands documented by the selected procedure.
 

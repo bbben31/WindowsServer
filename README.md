@@ -11,8 +11,9 @@ The baseline is **Windows Server 2025 Evaluation** and **Windows 10** running in
 3. Use the [curriculum index and dependency map](Instructions/General/Curriculum-Index.md) to choose a learning path.
 4. Follow the [staged lab roadmap](Instructions/General/Staged-Lab-Roadmap.md), using the [base-image guide](Instructions/General/Base-Images-and-Templates.md) and [compatibility matrix](Instructions/General/Compatibility-Matrix.md).
 5. Build the foundation topology, then follow the [Milestone C AD DS/DNS foundation runbook](Instructions/General/AD-DNS-Foundation.md) to establish `ad.lab.test`.
-6. Run the read-only preflight checker, resolve blockers and warnings, snapshot the stage, perform the lab, verify the result, and clean up.
-7. Complete the practices before their dependent labs; each document names additional machines, roles, and Azure prerequisites.
+6. Follow the [Milestone D member-server and client runbook](Instructions/General/Member-Servers-and-Clients.md), validate the members, then use the [Milestone E core administration runbook](Instructions/General/Core-Windows-Administration.md).
+7. Run the read-only preflight checker, resolve blockers and warnings, snapshot the stage, perform the lab, verify the result, and clean up.
+8. Complete the practices before their dependent labs; each document names additional machines, roles, and Azure prerequisites.
 
 ## Scope and safety
 
