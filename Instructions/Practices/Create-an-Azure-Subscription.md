@@ -1,24 +1,12 @@
 ﻿# Practice: Create an Azure Subscription
 
-## Setup
-
-In your lab host provider, in course AZ-801, under **Module 9. Implementing operational monitoring in hybrid scenarios**, click **Launch Lab**.
-
-Take a note of the credentials for Azure.
-
 ## Task
 
-Create a new Azure trial subscription.
+This source activity is retained as a conceptual reference only. The learner edition uses the existing Microsoft Azure for Students subscription; do not create a subscription or collect profile data.
 
 ## Instructions
 
-1. Navigate to <https://portal.azure.com>.
-1. Sign in using the credentials for Azure you noted in the setup.
-1. In **Search resources, services, and docs**, type and click **Subscriptions**.
-1. In Subscriptions, click **Add**.
-1. In the pane Select an offer for your subscription, under **Free Trial**, click **Try Azure for free**.
-1. In Your profile, fill in your **First name**, **Last name**, **Email address**, **Phone**, **Address line 1**, **Postal Code** and **City**. Activate **I agree to the customer agreement** and click **Sign up**.
-
-    It may take one or two minutes for the subscription to create.
-
+1. Open the Azure portal and confirm the existing subscription is the Azure for Students subscription.
+1. Record only the placeholder `<AZURE_SUBSCRIPTION_ID>` in notes and use UK South as `<AZURE_REGION>`.
+1. If no eligible subscription is available, stop and ask the account owner; do not create a trial subscription from this curriculum.
 

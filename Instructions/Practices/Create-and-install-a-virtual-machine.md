@@ -1,5 +1,7 @@
 ﻿# Practice: Create and install a virtual machine
 
+> **Optional nested-Hyper-V exercise:** This source procedure is retained for a dedicated nested Hyper-V guest. The default learner VM creation path is VMware Workstation Pro 17.
+
 ## Required VMs
 
 * VN1-SRV1
@@ -54,5 +56,4 @@ Perform these steps on CL1.
 1. On page Ready to install, click **Install**.
 
 Do not wait for the installation to finish.
-
 

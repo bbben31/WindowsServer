@@ -21,10 +21,28 @@ foreach ($file in Get-ChildItem $RepositoryRoot -Recurse -File -Filter '*.md') {
     }
 }
 if ($badLinks.Count) { throw "Broken links: $($badLinks -join '; ')" }
-foreach ($script in @('tools\Preflight-LearnerLab.ps1','tools\Validate-Curriculum.ps1')) {
+foreach ($scriptFile in Get-ChildItem $RepositoryRoot -Recurse -File -Filter '*.ps1') {
     $tokens=$null; $errors=$null
-    [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $RepositoryRoot $script), [ref]$tokens, [ref]$errors) | Out-Null
-    if ($errors.Count) { throw "PowerShell syntax errors in $script" }
+    [System.Management.Automation.Language.Parser]::ParseFile($scriptFile.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+    if ($errors.Count) { throw "PowerShell syntax errors in $($scriptFile.FullName)" }
 }
-if (Get-ChildItem $RepositoryRoot -Recurse -Force | Where-Object Name -in @('Instructor','users.csv','Setup-Azure.ps1','Clear-EntraTentants.ps1')) { throw 'Instructor artifact detected.' }
-Write-Output "PASS: JSON, coverage (89 practices/50 labs), manifest paths, links, PowerShell syntax, and instructor exclusions."
+$forbidden = '(?i)(^|[\\/])Instructor([\\/]|$)|users\.csv|Setup-Azure\.ps1|Clear-EntraTenants?\.ps1|Create-(Student|Users|Tenant)|Reset-(Password|Mfa)|Invite-(Guest|Users)'
+foreach ($item in Get-ChildItem $RepositoryRoot -Recurse -Force) {
+    if ($item.FullName -notmatch '[\\/]\.git([\\/]|$)' -and $item.FullName -match $forbidden) {
+        throw "Instructor or credential automation artifact detected: $($item.FullName)"
+    }
+}
+$missingScripts = @()
+foreach ($file in Get-ChildItem $RepositoryRoot -Recurse -File -Filter '*.md') {
+    $content = Get-Content $file.FullName -Raw
+    foreach ($reference in [regex]::Matches($content, '(?i)(?<![\w-])([\w.-]+\.ps1)')) {
+        $name = $reference.Groups[1].Value
+        if ($name -notmatch '^(https?:|http)' -and -not (Get-ChildItem $RepositoryRoot -Recurse -File -Filter $name | Select-Object -First 1)) {
+            $missingScripts += "$($file.FullName): $name"
+        }
+    }
+}
+if ($missingScripts.Count) {
+    Write-Warning "Referenced source helpers not present in the learner tree (review each procedure before use): $($missingScripts -join '; ')"
+}
+Write-Output "PASS: JSON, coverage (89 practices/50 labs), manifest paths, links, all PowerShell syntax, script references, and instructor exclusions."

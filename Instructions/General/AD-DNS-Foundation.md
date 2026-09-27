@@ -50,7 +50,7 @@ Test-Connection 10.10.10.10 -Count 2
 
 1. In **Server Manager**, choose **Manage > Add Roles and Features**, install **Active Directory Domain Services**, and include the management tools.
 2. Select the notification flag and choose **Promote this server to a domain controller**.
-3. Choose **Add a new forest** and enter `ad.lab.test` as the root domain name. Do not use `ad.adatum.com`, a public name, or a name belonging to another network.
+3. Choose **Add a new forest** and enter `ad.lab.test` as the root domain name. Do not use a public name or a name belonging to another network.
 4. On **Domain Controller Options**, keep **DNS server** and **Global Catalog** selected. Choose the highest forest/domain functional level supported by this lab’s Server 2025 build unless a selected compatibility lab explicitly requires another level. Record the choice privately.
 5. Enter a unique DSRM password interactively. Do not save it in the wizard output or a repository file.
 6. Leave **Update DNS delegation** cleared. This is an isolated lab with no parent DNS zone to delegate.
@@ -68,7 +68,7 @@ $safeModeAdministratorPassword = Read-Host `
 
 Install-ADDSForest `
     -DomainName 'ad.lab.test' `
-    -DomainNetbiosName 'ADLAB' `
+    -DomainNetbiosName 'AD' `
     -InstallDns `
     -CreateDnsDelegation:$false `
     -SafeModeAdministratorPassword $safeModeAdministratorPassword `

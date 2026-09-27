@@ -1,4 +1,4 @@
-﻿# Practice: Add DHCP reservations
+# Practice: Add DHCP reservations
 
 ## Required VMs
 
@@ -39,7 +39,7 @@ Perform this task on CL1.
             
 
             Get-NetIPAddress -InterfaceIndex $PSItem.InterfaceIndex |
-            Where-Object { $PSItem.IPAddress -like '10.1.1.*' } | 
+            Where-Object { $PSItem.IPAddress -like '10.10.30.*' } |
             Select-Object `
                 @{ 
                     Name = 'InterfaceAlias'
@@ -71,16 +71,16 @@ Perform this task on CL1.
     ````shell
     Name                    InterfaceAlias ClientId          IPAddress
     ----                    -------------- --------          ---------
-    VN1-SRV1.ad.lab.test  Ethernet       00-15-5D-00-01-08 10.1.1.8
-    VN1-SRV10.ad.lab.test VNet1          00-15-5D-00-01-50 10.1.1.80
-    VN1-SRV2.ad.lab.test  Ethernet       00-15-5D-00-01-10 10.1.1.16
-    VN1-SRV3.ad.lab.test  Ethernet       00-15-5D-00-01-18 10.1.1.24
-    VN1-SRV4.ad.lab.test  VNet1          00-15-5D-00-01-20 10.1.1.32
-    VN1-SRV5.ad.lab.test  VNet1          00-15-5D-00-01-28 10.1.1.40
-    VN1-SRV6.ad.lab.test  VNet1          00-15-5D-00-01-30 10.1.1.48
-    VN1-SRV7.ad.lab.test  VNet1          00-15-5D-00-01-38 10.1.1.56
-    VN1-SRV8.ad.lab.test  VNet1          00-15-5D-00-01-40 10.1.1.64
-    VN1-SRV9.ad.lab.test  VNet1          00-15-5D-00-01-48 10.1.1.72
+    VN1-SRV1.ad.lab.test  Ethernet       00-15-5D-00-01-08 10.10.30.8
+    VN1-SRV10.ad.lab.test VNet1          00-15-5D-00-01-50 10.10.30.80
+    VN1-SRV2.ad.lab.test  Ethernet       00-15-5D-00-01-10 10.10.30.16
+    VN1-SRV3.ad.lab.test  Ethernet       00-15-5D-00-01-18 10.10.30.24
+    VN1-SRV4.ad.lab.test  VNet1          00-15-5D-00-01-20 10.10.30.32
+    VN1-SRV5.ad.lab.test  VNet1          00-15-5D-00-01-28 10.10.30.40
+    VN1-SRV6.ad.lab.test  VNet1          00-15-5D-00-01-30 10.10.30.48
+    VN1-SRV7.ad.lab.test  VNet1          00-15-5D-00-01-38 10.10.30.56
+    VN1-SRV8.ad.lab.test  VNet1          00-15-5D-00-01-40 10.10.30.64
+    VN1-SRV9.ad.lab.test  VNet1          00-15-5D-00-01-48 10.10.30.72
     ````
 
     Leave **Terminal** open.
@@ -92,7 +92,7 @@ For the rest of the practice, choose your favorite tool.
 1. Open **DHCP**.
 1. In DHCP, in the context-menu of **DHCP**, click **Add Server...**
 1. In Add Server, under **This server**, type **VN1-SRV6** and click **OK**.
-1. In **DHCP**, expand  **vn1-srv6.ad.lab.test**, **IPv4**., **Scope [10.1.1.0] VNet1**, and click **Reservations**.
+1. In **DHCP**, expand  **vn1-srv6.ad.lab.test**, **IPv4**., **Scope [10.10.30.0] VNet1**, and click **Reservations**.
 
 Perform these steps for each line of the table in Terminal.
 
@@ -105,20 +105,20 @@ Perform these steps for each line of the table in Terminal.
 1. In Microsoft Edge, navigate to <https://admincenter>
 1. In Windows Admin Center, click **vn1-srv6.ad.lab.test**.
 1. Connected to vn1-srv6.ad.lab.test, under **Tools**, click **DHCP**.
-1. In **DHCP**, click **VNet1 [10.1.1.0]**.
+1. In **DHCP**, click **VNet1 [10.10.30.0]**.
 
 Perform these steps for each line of the table in Terminal.
 
-1. In VNet1 [10.1.1.0], under **Address reservations**, click **New reservation**.
+1. In VNet1 [10.10.30.0], under **Address reservations**, click **New reservation**.
 1. In the panel Create a new reservation, under **Reservation name**, type the value of **PSComputerName**. Under **IP address**, type the value of **IPAddress**. In **MAC address**, type the value of **MacAddress**. Click **Create**.
 
 ### PowerShell
 
-1. In **Terminal**, on **VN1-SRV6** in scope **10.1.1.0**, create the reservations from the variable created earlier.
+1. In **Terminal**, on **VN1-SRV6** in scope **10.10.30.0**, create the reservations from the variable created earlier.
 
     ````powershell
     $computerName = 'vn1-srv6'
-    $scopeId = '10.1.1.0'
+    $scopeId = '10.10.30.0'
     $vNet1ServerAddresses |
     Add-DhcpServerv4Reservation -ComputerName $computerName -ScopeId $scopeId
     ````
@@ -136,16 +136,14 @@ Perform these steps for each line of the table in Terminal.
     ````shell
     IPAddress            ScopeId              ClientId             Name                 Type                 Description
     ---------            -------              --------             ----                 ----                 -----------
-    10.1.1.8             10.1.1.0             00-15-5d-00-01-08    VN1-SRV1.ad.adatu... Both
-    10.1.1.16            10.1.1.0             00-15-5d-00-01-10    VN1-SRV2.ad.adatu... Both
-    10.1.1.32            10.1.1.0             00-15-5d-00-01-20    VN1-SRV4.ad.adatu... Both
-    10.1.1.40            10.1.1.0             00-15-5d-00-01-28    VN1-SRV5.ad.adatu... Both
-    10.1.1.64            10.1.1.0             00-15-5d-00-01-40    VN1-SRV8.ad.adatu... Both
-    10.1.1.56            10.1.1.0             00-15-5d-00-01-38    VN1-SRV7.ad.adatu... Both
-    10.1.1.80            10.1.1.0             00-15-5d-00-01-50    VN1-SRV10.ad.adat... Both
-    10.1.1.24            10.1.1.0             00-15-5d-00-01-18    VN1-SRV3.ad.adatu... Both
-    10.1.1.48            10.1.1.0             00-15-5d-00-01-30    VN1-SRV6.ad.adatu... Both
-    10.1.1.72            10.1.1.0             00-15-5d-00-01-48    VN1-SRV9.ad.adatu... Both
+    10.10.30.8             10.10.30.0             00-15-5d-00-01-08    VN1-SRV1.ad.lab.test Both
+    10.10.30.16            10.10.30.0             00-15-5d-00-01-10    VN1-SRV2.ad.lab.test Both
+    10.10.30.32            10.10.30.0             00-15-5d-00-01-20    VN1-SRV4.ad.lab.test Both
+    10.10.30.40            10.10.30.0             00-15-5d-00-01-28    VN1-SRV5.ad.lab.test Both
+    10.10.30.64            10.10.30.0             00-15-5d-00-01-40    VN1-SRV8.ad.lab.test Both
+    10.10.30.56            10.10.30.0             00-15-5d-00-01-38    VN1-SRV7.ad.lab.test Both
+    10.10.30.80            10.10.30.0             00-15-5d-00-01-50    VN1-SRV10.ad.lab.test Both
+    10.10.30.24            10.10.30.0             00-15-5d-00-01-18    VN1-SRV3.ad.lab.test Both
+    10.10.30.48            10.10.30.0             00-15-5d-00-01-30    VN1-SRV6.ad.lab.test Both
+    10.10.30.72            10.10.30.0             00-15-5d-00-01-48    VN1-SRV9.ad.lab.test Both
     ````
-
-

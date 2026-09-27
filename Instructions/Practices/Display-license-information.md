@@ -16,10 +16,10 @@ Perform these steps on CL1.
 
 1. Sign in as **ad\\Administrator**.
 1. Open **Terminal**.
-1. Open a remote PowerShell session to **VN1-SRV5**.
+1. Open a remote PowerShell session to **VN1-SRV10**.
 
     ````powershell
-    Enter-PSSession VN1-SRV5
+    Enter-PSSession VN1-SRV10
     ````
 
 1. Display help of the license manager tool.
@@ -33,5 +33,4 @@ Perform these steps on CL1.
     ````powershell
     cscript $env:windir\system32\slmgr.vbs /dli
     ````
-
 

@@ -1,9 +1,12 @@
 ﻿# Practice: Work without and with Enhanced Session Mode
 
+> **Optional nested-Hyper-V exercise:** Enhanced Session Mode is a Hyper-V feature. This procedure requires a dedicated nested Hyper-V guest and is not part of the default VMware path.
+
 ## Required VMs
 
 * VN1-SRV1
 * PM-SRV1
+* PM-SRV20 (optional nested-Hyper-V guest; requires a Hyper-V-capable nested lab and is not part of the VMware default profile)
 * CL1
 
 ## Task
@@ -76,5 +79,3 @@ Perform these steps on CL1.
     The current IP configuration will be returned.
 
 Leave the virtual machine in its current state for the next exercise.
-
-

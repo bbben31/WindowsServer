@@ -1,4 +1,4 @@
-﻿# Practice: Query DNS
+# Practice: Query DNS
 
 ## Required VMs
 
@@ -155,7 +155,7 @@ Perform this task on CL1.
     Resolve-DnsName -Name ad.lab.test
     ````
 
-    > You should get the IP address 10.1.1.8 as response.
+    > You should get the IP address 10.10.10.10 as response.
 
 1. Resolve the name **ad.lab.test** using **VN2-SRV1** as DNS server without changing the DNS client settings.
 

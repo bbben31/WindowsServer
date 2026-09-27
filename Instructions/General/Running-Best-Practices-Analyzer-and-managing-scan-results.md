@@ -49,7 +49,7 @@
     # $bpaModelId must be set to the ID of a specific model
     $bpaModelId = ''
     Invoke-Command -ComputerName $computerName -ScriptBlock { 
-        Invoke-BpaModel -Id $bpaModelId
+        Invoke-BpaModel -Id $using:bpaModelId
     }
     ````
 
@@ -57,7 +57,7 @@
 
     ```powershell
     Invoke-Command -ComputerName $computerName -ScriptBlock {
-        Get-BpaResult -Id $bpaModelId
+        Get-BpaResult -Id $using:bpaModelId
     }
     ```
 

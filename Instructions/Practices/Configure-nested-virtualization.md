@@ -1,5 +1,7 @@
 ﻿# Practice: Configure nested virtualization
 
+> **Optional nested-Hyper-V exercise:** The Hyper-V commands below target a nested Hyper-V guest, not the Windows 11 VMware host. Do not run them against VMware Workstation VMs.
+
 ## Required VMs
 
 None
@@ -33,5 +35,4 @@ Perform these steps on the host.
 1. In the context-menu of **WIN-PM-SRV1**, click **Start**.
 
 Repeat this task from step 3 for **WIN-PM-SRV2**.
-
 

@@ -1,4 +1,4 @@
-﻿# Practice: Enable the Active Directory Recycle Bin
+# Practice: Enable the Active Directory Recycle Bin
 
 ## Required VMs
 
@@ -34,12 +34,11 @@ Perform these steps on CL1
 
     `````powershell
     $domainFQDN = 'ad.lab.test'
-    $domainDN = 'DC=ad, DC=adatum, DC=com'
+    $domainDN = 'DC=ad, DC=lab, DC=test'
     Enable-ADOptionalFeature `
         -Identity `
             "CN=Recycle Bin Feature, CN=Optional Features, CN=Directory Service, CN=Windows NT, CN=Services, CN=Configuration, $domainDN" `
         -Scope ForestOrConfigurationSet `
-        â€“Target $domainFQDN
+        -Target $domainFQDN
     ````
-
 

@@ -24,6 +24,8 @@ This is a personal lab using an **existing Microsoft Azure for Students subscrip
 
 Some source procedures refer to instructor automation or shared classroom assets. Those assets were deliberately not copied. Paths were normalized to `C:\WindowsServerLab\Resources` as a learner-controlled working directory; when a procedure names a missing automation script, perform the documented GUI task manually or replace it with your own reviewed local script. Treat every script downloaded from the Internet as untrusted until inspected.
 
+Some retained advanced exercises preserve source-specific classroom addresses, extra forests, nested Hyper-V guests, or dedicated Azure resources. Those values are **source-specific/TBD**, not additional defaults: do not mix them with the learner `10.10.10.0/24`, `10.10.20.0/24`, `10.10.30.0/24`, or `ad.lab.test` foundation. Use the milestone runbooks and manifest to decide whether an exercise is optional, dedicated, or requires explicit mapping before execution.
+
 ## VMware topology
 
 Use host-only or custom VMware networks for isolated lab traffic, and add NAT only when a lab explicitly needs Internet access. The concrete Milestone A plan is:

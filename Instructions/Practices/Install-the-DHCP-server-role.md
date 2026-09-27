@@ -1,4 +1,4 @@
-﻿# Practice: Install the DHCP server role
+# Practice: Install the DHCP server role
 
 ## Required VMs
 
@@ -62,9 +62,9 @@ Perform this task on CL1.
 
     ````powershell
     Set-ItemProperty `
-        â€“Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\12 `
-        â€“Name ConfigurationState `
-        â€“Value 2
+        -Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\12 `
+        -Name ConfigurationState `
+        -Value 2
     ````
 
 1. Exit from the PowerShell session.
@@ -82,9 +82,9 @@ $computerName = 'VN1-SRV6', 'VN1-SRV7', 'VN2-SRV2'
 Invoke-Command -ComputerName $computerName -ScriptBlock {
     Add-DhcpServerSecurityGroup 
     Set-ItemProperty `
-        â€“Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\12 `
-        â€“Name ConfigurationState `
-        â€“Value 2
+        -Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\12 `
+        -Name ConfigurationState `
+        -Value 2
 }
 ````
 
@@ -115,9 +115,9 @@ Perform this task on CL1.
     ````powershell
     Invoke-Command -ComputerName $computerName -ScriptBlock {
         Set-ItemProperty `
-            â€“Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\12 `
-            â€“Name ConfigurationState `
-            â€“Value 2
+            -Path HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\12 `
+            -Name ConfigurationState `
+            -Value 2
     }
     ````
 

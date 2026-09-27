@@ -13,8 +13,8 @@ On CL1, update the Active Directory schema to the current version.
 
 Perform these steps on the host.
 
-1. In the menu of **"WIN-CL1" on "..." - Connection to virtual computer**, click **Media**, **DVD Drive**, **Insert disk...**
-1. In **Open**, open **C:\WindowsServerLab\ISOs\2025_x64_EN_Eval.iso**.
+1. This is an advanced, dedicated operation. Take a full backup/snapshot of the forest and do not use a snapshot as the only rollback mechanism after schema changes.
+1. In VMware Workstation, open the CL1 VM settings, attach the verified Windows Server 2025 Evaluation ISO from `C:\WindowsServerLab\ISOs\<WINDOWS_SERVER_2025_EVALUATION_ISO>` to the virtual CD/DVD drive, and mount it in the guest.
 
 Perform these steps on CL1.
 
@@ -36,5 +36,4 @@ Perform these steps on CL1.
 Perform these steps on the host.
 
 1. In the menu of **"WIN-CL1" on "..." - Connection to virtual computer**, click **Media**, **DVD Drive**, **Eject "2025_x64_EN_Eval.iso"**.
-
 

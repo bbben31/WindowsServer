@@ -1,5 +1,7 @@
 ﻿# Practice: Configure basic Hyper-V settings
 
+> **Optional nested-Hyper-V exercise:** This source topic is not part of the default VMware host path. Perform it only inside a dedicated nested Hyper-V guest as described in [Advanced Infrastructure](../General/Advanced-Infrastructure.md).
+
 ## Required VMs
 
 * VN1-SRV1
@@ -46,5 +48,4 @@ Perform these steps on CL1.
 1. In the message box Apply Networking Changes, click **Yes**.
 
 Repeat this task from step 3 for **PM-SRV2**.
-
 

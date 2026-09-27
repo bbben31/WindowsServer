@@ -1,4 +1,4 @@
-﻿# Practice: Authorize DHCP server and activate scope
+# Practice: Authorize DHCP server and activate scope
 
 ## Required VMs
 
@@ -19,14 +19,14 @@ Perform this task on CL1.
 1. Open **DHCP**.
 1. In DHCP, in the context-menu of **DHCP**, click **Add Server...**
 1. In Add Server, under **This server**, type **VN1-SRV6** and click **OK**.
-1. In **DHCP**, expand **vn1-srv6.ad.lab.test**, **IPv4**., **Scope [10.1.1.0] VNet1**.
+1. In **DHCP**, expand **vn1-srv6.ad.lab.test**, **IPv4**., **Scope [10.10.30.0] VNet1**.
 1. In the context-menu of **vn1-srv6.ad.lab.test**, click **Authorize**.
 1. In the context-menu of **DHCP**, click **Manage authorized servers...**
 
     In Manage Authorized Servers, verify that vn1-srv6.ad.lab.test is listed.
 
 1. Click **Close**.
-1. In **DHCP**, in the context-menu of **Scope [10.1.1.0] VNet1**, click **Activate**.
+1. In **DHCP**, in the context-menu of **Scope [10.10.30.0] VNet1**, click **Activate**.
 
 ### PowerShell
 
@@ -47,11 +47,11 @@ Perform this task on CL1.
 
     This should list vn1-srv6.ad.lab.test.
 
-1. Activate the scope **10.1.1.0** on **VN1-SRV6**.
+1. Activate the scope **10.10.30.0** on **VN1-SRV6**.
 
     ````powershell
     $computerName = 'VN1-SRV6'
-    $scopeId = '10.1.1.0'
+    $scopeId = '10.10.30.0'
     Set-DhcpServerv4Scope `
         -ComputerName $computerName -ScopeId $scopeId -State Active
     ````

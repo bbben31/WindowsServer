@@ -17,7 +17,7 @@ Verify that SYSVOL is replicated using DFSR.
 
 ## Instructions
 
-Perform these steps on VN1-CL1.
+Perform these steps on CL1.
 
 1. Logon as **ad\Administrator**.
 1. Open **Terminal**.
@@ -40,5 +40,4 @@ Perform these steps on VN1-CL1.
     ````powershell
     Exit-PSSession
     ````
-
 

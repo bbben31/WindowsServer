@@ -13,6 +13,6 @@
 $computerName = '' # Insert the name of the computer the service runs on
 $name = '' # Insert the name of the service
 Invoke-Command -ComputerName $computerName -ScriptBlock {
-    Restart-Service $name
+    Restart-Service $using:name
 }
 ````
