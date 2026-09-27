@@ -12,6 +12,8 @@ The supported baseline for this edition is a **Windows 11** host, **VMware Works
 * Enable CPU virtualization in firmware. Enable nested virtualization only for the Hyper-V, containers, or nested-lab exercises that need it.
 * Store VM files under a host path you control, such as `D:\VMs\WindowsServerLab`, and use `C:\WindowsServerLab\Resources` inside the guest for ISOs and lab data. These are examples, not required paths.
 
+Configure the VMnets and adapter placement using [VMware segmented networking](VMware-Segmented-Networking.md) before assigning static addresses or creating the AD forest. That guide is the source of truth for VMnet10/20/30, the optional NAT path, gateways, and DNS reachability.
+
 ## Media, licensing, and snapshots
 
 Obtain the **Windows Server 2025 Evaluation ISO** and **Windows 10 ISO** from official Microsoft download pages. Server 2022 evaluation media is an optional substitution where a lab requires it. Do not commit ISO files or product keys. Evaluation editions have time limits; record the activation date and comply with the license terms.
