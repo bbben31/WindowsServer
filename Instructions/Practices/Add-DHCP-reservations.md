@@ -39,7 +39,7 @@ Perform this task on CL1.
             
 
             Get-NetIPAddress -InterfaceIndex $PSItem.InterfaceIndex |
-            Where-Object { $PSItem.IPAddress -like '10.10.10.*' } |
+            Where-Object { $PSItem.IPAddress -like '10.10.30.*' } |
             Select-Object `
                 @{ 
                     Name = 'InterfaceAlias'
@@ -71,8 +71,8 @@ Perform this task on CL1.
     ````shell
     Name                    InterfaceAlias ClientId          IPAddress
     ----                    -------------- --------          ---------
-    VN1-SRV1.ad.lab.test  Ethernet       00-15-5D-00-01-08 10.10.10.10
-    VN1-SRV10.ad.lab.test VNet1          00-15-5D-00-01-50 10.10.10.80
+    VN1-SRV1.ad.lab.test  Ethernet       00-15-5D-00-01-08 10.10.30.8
+    VN1-SRV10.ad.lab.test VNet1          00-15-5D-00-01-50 10.10.30.80
     VN1-SRV2.ad.lab.test  Ethernet       00-15-5D-00-01-10 10.10.30.16
     VN1-SRV3.ad.lab.test  Ethernet       00-15-5D-00-01-18 10.10.30.24
     VN1-SRV4.ad.lab.test  VNet1          00-15-5D-00-01-20 10.10.30.32
@@ -136,14 +136,14 @@ Perform these steps for each line of the table in Terminal.
     ````shell
     IPAddress            ScopeId              ClientId             Name                 Type                 Description
     ---------            -------              --------             ----                 ----                 -----------
-    10.10.30.8             10.10.30.0             00-15-5d-00-01-08    VN1-SRV1.ad.adatu... Both
-    10.10.30.16            10.10.30.0             00-15-5d-00-01-10    VN1-SRV2.ad.adatu... Both
-    10.10.30.32            10.10.30.0             00-15-5d-00-01-20    VN1-SRV4.ad.adatu... Both
-    10.10.30.40            10.10.30.0             00-15-5d-00-01-28    VN1-SRV5.ad.adatu... Both
-    10.10.30.64            10.10.30.0             00-15-5d-00-01-40    VN1-SRV8.ad.adatu... Both
-    10.10.30.56            10.10.30.0             00-15-5d-00-01-38    VN1-SRV7.ad.adatu... Both
-    10.10.30.80            10.10.30.0             00-15-5d-00-01-50    VN1-SRV10.ad.adat... Both
-    10.10.30.24            10.10.30.0             00-15-5d-00-01-18    VN1-SRV3.ad.adatu... Both
-    10.10.30.48            10.10.30.0             00-15-5d-00-01-30    VN1-SRV6.ad.adatu... Both
-    10.10.30.72            10.10.30.0             00-15-5d-00-01-48    VN1-SRV9.ad.adatu... Both
+    10.10.30.8             10.10.30.0             00-15-5d-00-01-08    VN1-SRV1.ad.lab.test Both
+    10.10.30.16            10.10.30.0             00-15-5d-00-01-10    VN1-SRV2.ad.lab.test Both
+    10.10.30.32            10.10.30.0             00-15-5d-00-01-20    VN1-SRV4.ad.lab.test Both
+    10.10.30.40            10.10.30.0             00-15-5d-00-01-28    VN1-SRV5.ad.lab.test Both
+    10.10.30.64            10.10.30.0             00-15-5d-00-01-40    VN1-SRV8.ad.lab.test Both
+    10.10.30.56            10.10.30.0             00-15-5d-00-01-38    VN1-SRV7.ad.lab.test Both
+    10.10.30.80            10.10.30.0             00-15-5d-00-01-50    VN1-SRV10.ad.lab.test Both
+    10.10.30.24            10.10.30.0             00-15-5d-00-01-18    VN1-SRV3.ad.lab.test Both
+    10.10.30.48            10.10.30.0             00-15-5d-00-01-30    VN1-SRV6.ad.lab.test Both
+    10.10.30.72            10.10.30.0             00-15-5d-00-01-48    VN1-SRV9.ad.lab.test Both
     ````

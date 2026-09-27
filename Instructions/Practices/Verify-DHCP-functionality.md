@@ -97,7 +97,7 @@ Perform this task on VN1-SRV1, VN1-SRV3, VN1-SRV4, VN1-SRV5, VN1-SRV11, VN1-SRV1
     ````
 
 1. In SConfig, enter **8**.
-1. In Network settings, enter the **Index#** of a network adapter with an **IP address** starting with **10.1.1**.
+1. In Network settings, enter the **Index#** of a network adapter with an **IP address** starting with **10.10.30**.
 1. In Network Adapter Settings, enter **1**.
 1. Enter **D**.
 1. On **VN1-SRV2**, **VN1-SRV3**, **VN1-SRV4**, **VN1-SRV5**, and **VN1-SRV7**: Under a number auf success messages, press ENTER.
@@ -131,7 +131,7 @@ Perform this task on VN1-SRV2, VN1-SRV8, VN1-SRV9, and VN1-SRV10.
 1. Sign in as **.\Administrator**.
 1. In **Server Manager**, click **Local Server**.
 
-    Under Local Server, under **PROPERTIES**, take a note of all network adapters with an IP address starting with **10.1.1**.
+    Under Local Server, under **PROPERTIES**, take a note of all network adapters with an IP address starting with **10.10.30**.
 
 1. Click any IP address.
 1. In Network Connections, in the context-menu of the network adapter, you took note of before, click **Properties**.
@@ -172,7 +172,7 @@ Perform this task on CL1.
 1. In Microsoft Edge, navigate to <https://admincenter>
 1. In Windows Admin Center, click **vn1-srv1.ad.lab.test**.
 1. Connected to vn1-srv1.ad.lab.test, under **Tools**, click **Networks**.
-1. Under Networks, click any network with an **IPv4 Address** starting with **10.1.1** and click **Settings**
+1. Under Networks, click any network with an **IPv4 Address** starting with **10.10.30** and click **Settings**
 1. Under IPv4, click **Obtain an IP address automatically** and **Obtain DNS server address automatically**. Click **Save**.
 1. In the message box Update IPv4 settings for ..., click **Yes**.
 1. In the top-left corner, click **Windows Admin Center**.
@@ -194,5 +194,4 @@ Perform this task on CL1.
 Repeat from step 3 for VN1-SRV2, VN1-SRV3, VN1-SRV4, VN1-SRV5, VN1-SRV8, VN1-SRV9,VN1-SRV10, VN1-SRV11, VN1-SRV12, VN1-SRV13, and CL1.
 
 To add CL1 to the Windows Admin Center, on the connections page, click **Add**. In the pane Add or create resources, under **Windows PCs**, click **Add**. In **Computer name**, type **CL1** and click **Add**.
-
 
