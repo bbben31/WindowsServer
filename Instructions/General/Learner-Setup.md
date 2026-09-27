@@ -4,6 +4,8 @@ This document replaces the instructor prerequisite workflow. It describes what o
 
 ## Host and VMware Workstation Pro
 
+The supported baseline for this edition is a **Windows 11** host, **VMware Workstation Pro 17**, **Intel Core i7-14700KF**, **32 GB RAM**, and approximately **2 TB of free storage**. These resources are sufficient for staged operation, not for running every VM simultaneously. Power on only the machines required by the current practice or lab; shut down and snapshot the rest.
+
 * Use a supported Windows 10/11 host with enough CPU, RAM, and SSD space for the current lab. Storage-heavy, clustering, RDS, AD FS, and Storage Spaces Direct labs need substantially more resources than the foundation.
 * Create VMware custom networks for `LAB-AD`, `LAB-SRV`, `LAB-STORAGE`, and `LAB-CLIENT`. Prefer host-only networks for isolated experiments. Add a NAT adapter only to a VM that needs updates or Azure access.
 * Keep the VMware DHCP service disabled on the AD and server segments when Windows DHCP is being studied. On the client segment, either use Windows DHCP from the lab or VMware DHCP, never both.
@@ -26,9 +28,11 @@ Create a small number of personal test accounts manually, with unique temporary 
 
 ## Azure and Microsoft Entra prerequisites
 
-Use an Azure subscription and Microsoft Entra tenant that you control or are explicitly authorized to use. Record only placeholders in notes: `<AZURE_SUBSCRIPTION_ID>`, `<AZURE_TENANT_ID>`, `<AZURE_RESOURCE_GROUP>`, and `<AZURE_REGION>`. Enable MFA, use a separate lab resource group, assign the minimum role required for each exercise, and set a budget alert before creating resources.
+Use your **existing** Azure subscription and Microsoft Entra tenant; do not create a dedicated tenant for this curriculum. You need Owner or User Access Administrator access for setup, but assign the minimum per-lab role after the resource group and policies exist. Record only placeholders in notes: `<AZURE_SUBSCRIPTION_ID>`, `<AZURE_TENANT_ID>`, `<AZURE_RESOURCE_GROUP>`, and `<AZURE_REGION>`. Enable MFA, create or select a clearly named lab resource group, set a budget alert and spending notifications before creating resources, and confirm the target region and provider registrations.
 
-Azure Arc, Azure File Sync, hybrid identity, Azure VM, and related labs may require resource providers, a supported region, a service principal or managed identity, and outbound Internet access. Read the current Microsoft documentation and each lab's prerequisites before provisioning. Never paste client secrets, certificates, access tokens, invitation links, or personal identifiers into Markdown, PowerShell history, or issue comments. Remove resource groups and role assignments when the lab is complete.
+Before each Azure lab, check its dependencies, required providers, region/SKU availability, role assignments, quotas, estimated cost, and whether a public endpoint is necessary. Azure Arc, Azure File Sync, hybrid identity, Azure VM, and related labs may require a managed identity or a service principal created through the documented product flow; never create broad directory permissions by default. Read the current Microsoft documentation and each lab's prerequisites before provisioning. Never paste client secrets, certificates, access tokens, invitation links, or personal identifiers into Markdown, PowerShell history, or issue comments. Remove lab resources, role assignments, identities, and diagnostic data when the lab is complete, then verify the resource group is empty.
+
+The following source instructor actions are not prerequisites for a single learner and must not be reproduced: creating a tenant, bulk user creation, password or MFA resets, guest invitations, granting Global Administrator, or deleting a tenant. Use the existing tenant's own test identities and the least privilege required by the lab.
 
 ## Missing classroom automation
 
