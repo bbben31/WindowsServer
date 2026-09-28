@@ -7,7 +7,7 @@
 
 ## Task
 
-Duplicate the web server certificate template with the display name Web Server explorable and the name WebServerexportable. For the new template, make the private key exportable, grant the computer CL1 Enroll permissions and make the template evailable on the enterprise root certification authority.
+Duplicate the Web Server certificate template with the display name **Web Server exportable** and template name **WebServerexportable**. Make the private key exportable, grant the CL1 computer account Enroll permission, and issue the template on the enterprise root certification authority.
 
 ## Instructions
 

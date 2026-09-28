@@ -32,7 +32,7 @@ Users complain about the performance of one of your servers. You analyze the per
 1. [Configure a data collector set with baseline performance counters](#task-1-configure-a-data-collector-set-with-baseline-performance-counters) on VN1-SRV10
 1. [Configure VN1-SRV10 with 1 GB of memory](#task-2-configure-vn1-srv10-with-1-gb-of-memory)
 1. [Start the data collector set](#task-3-start-the-data-collector-set)
-1. [Simulate load](#task-4-simulate-load) by copying an ISO file from C:\\LabResources of VN1-SRV10 to CL1.
+1. [Simulate load](#task-4-simulate-load) by copying an ISO file from `C:\WindowsServerLab\Resources` on VN1-SRV10 to CL1.
 1. [Analyze the performance data](#task-5-analyze-the-performance-data)
 
 ### Task 1: Configure a data collector set with baseline performance counters
@@ -60,12 +60,7 @@ Perform these steps on VN1-SRV10.
 
 Perform these steps on the host.
 
-1. Run **Windows PowerShell** as Administrator.
-1. In Windows PowerShell, execute
-
-    ````powershell
-    C:\WindowsServerLab\LabResources\Set-VMVN1SRV10Memory.ps1 -StartupBytes 1GB
-   ````
+1. Shut down VN1-SRV10. In VMware Workstation, record its current memory, set it to **1 GB**, and start the VM.
 
 Wait for the complete start of VN1-SRV10.
 
@@ -83,14 +78,14 @@ Perform these steps on VN1-SRV10.
 Perform these steps on CL1.
 
 1. Open **Terminal**.
-1. Measure the time it takes to copy **\\\\VN1-SRV10\\c$\\LabResources\\26100.1.240331-1435.ge_release_amd64fre_SERVER_LOF_PACKAGES_OEM.iso** to **C:\\**.
+1. Measure the time it takes to copy **\\\\VN1-SRV10\\c$\\WindowsServerLab\\Resources\\26100.1.240331-1435.ge_release_amd64fre_SERVER_LOF_PACKAGES_OEM.iso** to **C:\\**.
 
    ````powershell
    Get-Date
    Measure-Command { 
       Copy-Item `
          -Path `
-            '\\VN1-SRV10\c$\LabResources\26100.1.240331-1435.ge_release_amd64fre_SERVER_LOF_PACKAGES_OEM.iso' `
+            '\\VN1-SRV10\c$\WindowsServerLab\Resources\26100.1.240331-1435.ge_release_amd64fre_SERVER_LOF_PACKAGES_OEM.iso' `
          -Destination 'c:\' `
          -Force 
       }
@@ -146,12 +141,7 @@ Perform this task on CL1.
 
 Perform these steps on the host.
 
-1. Run **Windows PowerShell** as Administrator.
-1. In Windows PowerShell, execute
-
-    ````powershell
-    C:\WindowsServerLab\LabResources\Set-VMVN1SRV10Memory.ps1 -StartupBytes 4GB
-   ````
+1. Shut down VN1-SRV10. In VMware Workstation, restore its memory to **4 GB**, and start the VM.
 
 Wait for the complete start of VN1-SRV10.
 
@@ -168,7 +158,7 @@ Perform these steps on VN1-SRV10.
 ## Exercise 3: Use a performance alert
 
 1. [Configure a performance alert](#task-1-configure-a-performance-alert) on % Processor Time over 80 to log an event and start the Baseline data collector set.
-1. [Simulate CPU load](#task-2-simulate-cpu-load) by running consume.exe
+1. [Simulate CPU load](#task-2-simulate-cpu-load) with bounded PowerShell background jobs
 1. [Verify the performance alert](#task-3-verify-the-performance-alert) and stop all data collector sets.
 
 ### Task 1: Configure a performance alert
@@ -199,10 +189,24 @@ Perform these steps on VN1-SRV10.
 Perform these steps on VN1-SRV10.
 
 1. Run **Windows PowerShell** as Administrator.
-1. Run **consume.exe** to consume cpu resources.
+1. Start one bounded CPU workload per logical processor. The jobs stop after 60 seconds and are then removed.
 
    ````powershell
-   C:\WindowsServerLab\Resources\Consume.exe -cpu-time -time 60
+   $jobs = foreach ($processor in 1..([Environment]::ProcessorCount)) {
+       Start-Job -ScriptBlock {
+           $end = (Get-Date).AddSeconds(60)
+           while ((Get-Date) -lt $end) {
+               [Math]::Sqrt((Get-Random)) | Out-Null
+           }
+       }
+   }
+   try {
+       $jobs | Wait-Job | Out-Null
+   }
+   finally {
+       $jobs | Stop-Job
+       $jobs | Remove-Job -Force
+   }
    ````
 
    After about a minute, the process will stop automatically.

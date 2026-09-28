@@ -23,9 +23,9 @@
 1. On **VN1-SRV5**, sign in as **ad\\Administrator**.
 1. On **VN2-SRV2** sign in as **.\\Administrator**.
 
-You must have completed the practice [Explore Server Manager](../Practices/Explore-Server-Manager.md). If you skipped the practice, on **CL1**, in Terminal, run ````C:\WindowsServerLab\Resources\Solutions\Add-ServerManagerServers.ps1````.
+Complete [Explore Server Manager](../Practices/Explore-Server-Manager.md) on **CL1** before continuing.
 
-You must have completed the practice [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md). If you skipped the practice, on **VN1-SRV4**, sign in as **ad\Administrator**, and run ````C:\WindowsServerLab\Resources\Solutions\Install-AdminCenter.ps1````.
+Complete [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md) on **VN1-SRV4** before continuing.
 
 ## Introduction
 
@@ -221,7 +221,7 @@ You want to introduce new domain controllers to the domain running the latest ve
     }
     ````
 
-    If any records, are missing, wait for at least 15 minutes and check again. If the problem persists, ask the instructor.
+    If any records are missing, wait at least 15 minutes and check again. If the problem persists, run `dcdiag /test:dns /v`, `repadmin /replsummary`, and `Resolve-DnsName _ldap._tcp.ad.lab.test -Type SRV`; correct DNS client settings or replication before continuing.
 
 1. On CL1, verify that the shares **NETLOGON** and **SYSVOL** are present on **VN1-SRV5** and **VN2-SRV1**.
 

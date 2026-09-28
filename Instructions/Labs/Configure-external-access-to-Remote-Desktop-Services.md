@@ -170,7 +170,7 @@ Perform these steps on the host computer.
 1. Open **Hyper-V-Manager**.
 1. In Hyper-V-Manager, in the context-menu of your computer name, click **Virtual Switch Manager**.
 1. In Virtual Switch Manager, click **New Virtual Network Switch**. Under What type of switch do you want to create, click **External**. Click **Create Virtual Switch**.
-1. Under Virtual Switch Properties, under Name, type **External**. Under **External Network** select a network adapter. Your instructor will help you choose. Ensure, **Allow management operating system to share the network adapter** is activated and click **OK**.
+1. Under Virtual Switch Properties, under Name, type **External**. Under **External Network**, select the nested host adapter attached to the VMware segment chosen in your environment-profile map. Do not select a bridged physical adapter. Ensure **Allow management operating system to share the network adapter** is activated and click **OK**.
 1. In the confirmation dialog, click **Yes**.
 
 ### Task 3: Add a static NetNat mapping

@@ -22,14 +22,7 @@ As of December 2024, Microsoft release Windows Admin Center V2 without any docum
 
 1. On **VN1-SRV2**, sign in as **ad\Administrator**.
 1. Open **Windows PowerShell** as Administrator.
-1. Execute these commands:
-
-    ````powershell
-    C:\WindowsServerLab\Resources\Solutions\New-CertTemplateWebServerExportable.ps1
-    C:\WindowsServerLab\Resources\Solutions\Set-CertTemplatePermissions.ps1 `
-        -Template WebServerExportable `
-        -ComputerName VN1-SRV4
-    ````
+1. Complete [Create an exportable web server certificate template](../Practices/Create-an-exportable-web-server-certificate-template.md). Through the Certificate Templates console, grant VN1-SRV4 Enroll permission on `WebServerExportable` and confirm the enterprise CA issues the template.
 
 1. On **CL1**, sign in as **ad\Administrator**.
 1. On **VN1-SRV4**, sign in as **ad\Administrator**.
@@ -300,7 +293,7 @@ Perform this task on CL1.
 1. On page Confirmation, click **Next >**.
 1. On page Summary, click **View Report...**
 
-If there are any warnings or error, you may discuss them with your instructor and/or try to fix them. You may repeat this task after you applied fixes.
+Review every warning or error in the validation report. Correct storage, network, DNS, domain, driver, or configuration failures and repeat validation. Continue only when no blocking test fails; record any accepted lab-only warning and its reason.
 
 ### Task 4: Create a failover cluster
 
@@ -564,7 +557,7 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **File Explorer**.
-1. In File Explorer, copy **\\\\VN1-SRV4\\C$\\LabResources\\TinyCorePure64.vhdx** to **\\\\VN1-SRV4\\C$\\ClusterStorage\\Volume4\\Hyper-V\\Virtual Hard Disks**. Replace 4 with the volume number of the 80 GB disk.
+1. In File Explorer, copy **\\\\VN1-SRV4\\C$\\WindowsServerLab\\Resources\\TinyCorePure64.vhdx** to **\\\\VN1-SRV4\\C$\\ClusterStorage\\Volume4\\Hyper-V\\Virtual Hard Disks**. Replace 4 with the volume number of the 80 GB disk.
 1. Rename **\\\\VN1-SRV4\\C$\\ClusterStorage\\Volume*x*\\Hyper-V\\Virtual Hard Disks\\TinyCorePure64.vhdx** to **VN1-SRV23.vhdx**
 1. Open **Failover Cluster Manager**.
 1. In Failover Cluster Manager, expand **VN1-CLST1.ad.lab.test** and click **Roles**.
@@ -712,6 +705,7 @@ Perform this task on VN1-SRV4.
         -Password $password `
         -FilePath $filePath `
         -Cert $enrollmentResult.Certificate
+    ````
 
 On VN1-SRV4, leave everything open for the next task.
 
@@ -719,32 +713,9 @@ On VN1-SRV4, leave everything open for the next task.
 
 Perform this task on VN1-SRV4.
 
-1. Unblock the installation script, so that it can be executed without changing the execution policy.
-
-    *Important*: Replace **x** with the volume with 10 GB capacity, e.g., 1.
-
-    ````powershell
-    # Replace x with the volume with 10 GB capacity, e.g., 1
-    Unblock-File C:\ClusterStorage\Volumex\Install-WindowsAdminCenterHA.ps1
-    ````
-
-1. Install Windows Admin Center with high availability using the CSV with 10 GB capacity and the static address 10.1.1.34.
-
-    If you receive an error message running the script, restart VN1-SRV4 and try again.
-
-    ````powershell
-    $staticAddress = '10.1.1.34'
-    # Replace x with the volume with 10 GB capacity, e.g., 1
-    C:\ClusterStorage\Volumex\Install-WindowsAdminCenterHA.ps1 `
-        -clusterStorage C:\ClusterStorage\Volume1\ `
-        -clientAccessPoint $hostName `
-        -staticAddress 10.1.1.34 `
-        -msiPath C:\WindowsServerLab\Resources\WindowsAdminCenter.msi `
-        -certPath $filePath `
-        -certPassword $password
-    ````
-
-    This will take about 10 minutes.
+1. Treat Windows Admin Center high availability as an optional compatibility-gated extension. The source installation helper is not part of this repository.
+1. Verify that the current Windows Admin Center release supports the intended failover-cluster deployment and obtain the Microsoft-supplied procedure or signed deployment package from the official product documentation.
+1. Use the 10 GB CSV, the enterprise-profile address `10.1.1.34`, and the certificate exported above only when the current procedure confirms those inputs. Otherwise, stop this extension and continue with the remaining cluster exercises; do not substitute an unverified script.
 
 1. Add a DNS host record for the admincenter to the DNS server **VN1-SRV1**.
 

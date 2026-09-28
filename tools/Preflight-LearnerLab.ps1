@@ -2,7 +2,8 @@
 param(
     [string]$ManifestPath,
     [string]$ServerIsoPath,
-    [string]$Windows10IsoPath,
+    [Alias('Windows10IsoPath')]
+    [string]$ClientIsoPath,
     [string[]]$VmName,
     [string]$ExpectedDnsServer,
     [string]$ExpectedSubnet,
@@ -35,6 +36,55 @@ function Test-PathParameter {
     }
 }
 
+function Test-IsoParameter {
+    param([string]$Name, [string]$Path)
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        Add-Check $Name 'Skipped' 'No ISO path supplied.'
+        return
+    }
+    if ($Path -match '^<.+>$') {
+        Add-Check $Name 'Skipped' "Placeholder supplied: $Path"
+        return
+    }
+    if (!(Test-Path -LiteralPath $Path -PathType Leaf)) {
+        Add-Check $Name 'Error' "ISO was not found: $Path"
+        return
+    }
+    $item = Get-Item -LiteralPath $Path
+    if ($item.Extension -ine '.iso') {
+        Add-Check $Name 'Error' "Expected an .iso file: $Path"
+        return
+    }
+    if ($item.Length -lt 1GB) {
+        Add-Check $Name 'Warning' "The file is smaller than 1 GB; verify that it is complete: $Path"
+        return
+    }
+    Add-Check $Name 'Pass' "$Path ($([math]::Round($item.Length / 1GB, 2)) GB). Record its SHA-256 in private lab notes."
+}
+
+function Test-IPv4InCidr {
+    param([string]$Address, [string]$Cidr)
+    if ($Cidr -notmatch '^(.+)/(\d{1,2})$') { return $false }
+    $networkAddress = $null
+    $candidateAddress = $null
+    if (![Net.IPAddress]::TryParse($Matches[1], [ref]$networkAddress) -or
+        ![Net.IPAddress]::TryParse($Address, [ref]$candidateAddress)) { return $false }
+    $network = $networkAddress.GetAddressBytes()
+    $prefixLength = [int]$Matches[2]
+    $candidate = $candidateAddress.GetAddressBytes()
+    if ($network.Length -ne 4 -or $candidate.Length -ne 4 -or $prefixLength -lt 0 -or $prefixLength -gt 32) { return $false }
+    $wholeBytes = [math]::Floor($prefixLength / 8)
+    $remainingBits = $prefixLength % 8
+    for ($index = 0; $index -lt $wholeBytes; $index++) {
+        if ($network[$index] -ne $candidate[$index]) { return $false }
+    }
+    if ($remainingBits) {
+        $mask = [byte](256 - [math]::Pow(2, 8 - $remainingBits))
+        if (($network[$wholeBytes] -band $mask) -ne ($candidate[$wholeBytes] -band $mask)) { return $false }
+    }
+    return $true
+}
+
 if (Test-Path -LiteralPath $ManifestPath) {
     try {
         $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
@@ -47,17 +97,25 @@ if (Test-Path -LiteralPath $ManifestPath) {
 }
 
 $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
-if ($os) { Add-Check 'Host OS' 'Pass' "$($os.Caption) $($os.Version)" } else { Add-Check 'Host OS' 'Warning' 'CIM OS information is unavailable.' }
+if ($os) {
+    $hostStatus = if ($os.Caption -match 'Windows 11') { 'Pass' } else { 'Warning' }
+    Add-Check 'Host OS' $hostStatus "$($os.Caption) $($os.Version); the supported host baseline is Windows 11."
+} else { Add-Check 'Host OS' 'Warning' 'CIM OS information is unavailable.' }
 $computer = Get-CimInstance Win32_ComputerSystem -ErrorAction SilentlyContinue
-if ($computer) { Add-Check 'Host virtualization' 'Pass' "Hypervisor-present=$($computer.HypervisorPresent); model=$($computer.Model)" } else { Add-Check 'Host virtualization' 'Warning' 'Computer-system information is unavailable.' }
+$processor = Get-CimInstance Win32_Processor -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($computer -and $processor) {
+    $virtualizationReady = $processor.VirtualizationFirmwareEnabled -eq $true -and $processor.SecondLevelAddressTranslationExtensions -eq $true
+    $virtualizationStatus = if ($virtualizationReady) { 'Pass' } else { 'Warning' }
+    Add-Check 'Host virtualization' $virtualizationStatus "Firmware virtualization=$($processor.VirtualizationFirmwareEnabled); SLAT=$($processor.SecondLevelAddressTranslationExtensions); hypervisor-present=$($computer.HypervisorPresent); model=$($computer.Model)."
+} else { Add-Check 'Host virtualization' 'Warning' 'Processor or computer-system virtualization information is unavailable.' }
 
 $vmwareCommands = @('vmrun','vmware.exe','vmnetcfg.exe') | ForEach-Object {
     $command = Get-Command $_ -ErrorAction SilentlyContinue
     if ($command) { $_ }
 }
 if ($vmwareCommands) { Add-Check 'VMware visibility' 'Pass' ("Visible commands: " + ($vmwareCommands -join ', ')) } else { Add-Check 'VMware visibility' 'Warning' 'VMware CLI/config tools are not on PATH; inspect Virtual Network Editor manually.' }
-Test-PathParameter 'Windows Server ISO' $ServerIsoPath
-Test-PathParameter 'Windows 10 ISO' $Windows10IsoPath
+Test-IsoParameter 'Windows Server ISO' $ServerIsoPath
+Test-IsoParameter 'Windows 11 client ISO' $ClientIsoPath
 
 if ($VmName) {
     foreach ($name in $VmName) {
@@ -80,9 +138,15 @@ if ($ExpectedDnsServer) {
 } else { Add-Check 'AD/DNS checks' 'Skipped' 'Supply -ExpectedDnsServer to test ad.lab.test and DNS port 53.' }
 
 if ($ExpectedSubnet) {
-    $addresses = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object IPAddress -like "$($ExpectedSubnet -replace '/.*$','').*"
-    Add-Check 'Expected subnet' $(if ($addresses) {'Pass'} else {'Warning'}) "Found $($addresses.Count) local IPv4 address(es) matching the supplied prefix."
-} else { Add-Check 'IP/subnet checks' 'Skipped' 'Supply -ExpectedSubnet as a prefix such as 10.10.10.' }
+    if ($ExpectedSubnet -notmatch '^\d{1,3}(\.\d{1,3}){3}/\d{1,2}$') {
+        Add-Check 'Expected subnet' 'Error' 'Use CIDR notation, for example 10.10.10.0/24.'
+    }
+    else {
+        $addresses = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+            Where-Object { Test-IPv4InCidr -Address $_.IPAddress -Cidr $ExpectedSubnet })
+        Add-Check 'Expected subnet' $(if ($addresses.Count) {'Pass'} else {'Warning'}) "Found $($addresses.Count) local IPv4 address(es) in $ExpectedSubnet."
+    }
+} else { Add-Check 'IP/subnet checks' 'Skipped' 'Supply -ExpectedSubnet in CIDR notation, for example 10.10.10.0/24.' }
 
 if ($ExpectedDnsServer -and (Get-Command Get-ADDomain -ErrorAction SilentlyContinue)) {
     try { $domain = Get-ADDomain -ErrorAction Stop; Add-Check 'AD domain health' 'Pass' "Connected to $($domain.DNSRoot)." } catch { Add-Check 'AD domain health' 'Warning' 'Active Directory query failed.' }

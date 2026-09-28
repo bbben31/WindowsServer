@@ -113,7 +113,7 @@ Perform these steps on CL1.
 
 1. Configure the synchronization for off-peak hours once a day, e.g., at 18:00:00.
 
-    `````powershell
+    ````powershell
     $subscription = $wsusServer.GetSubscription()
     $subscription.SynchronizeAutomatically = $true
     $subscription.SynchronizeAutomaticallyTimeOfDay = `

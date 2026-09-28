@@ -4,7 +4,7 @@ Use clean templates to reduce repeated installation work. This is the operationa
 
 ## Prerequisites, sizing, and rollback
 
-Complete [Milestone A networking](VMware-Segmented-Networking.md), verify `VMnet10`, `VMnet20`, `VMnet30`, and optional `VMnet8`, and run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with both ISO paths. Download the Windows Server 2025 Evaluation ISO and Windows 10 ISO only from official Microsoft sources. Keep their SHA-256 values and download dates in private notes; never commit media, keys, tokens, or personal identifiers.
+Complete [Milestone A networking](VMware-Segmented-Networking.md), verify `VMnet10`, `VMnet20`, `VMnet30`, and optional `VMnet8`, and run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with both ISO paths. Download the Windows Server 2025 Evaluation ISO and Windows 11 ISO only from official Microsoft sources. Keep their SHA-256 values and download dates in private notes; never commit media, keys, tokens, or personal identifiers.
 
 On the 32 GB host, start conservatively:
 
@@ -12,11 +12,11 @@ On the 32 GB host, start conservatively:
 | --- | ---: | ---: | ---: | --- | --- |
 | `TEMPLATE-SRV2025` Server Core | 2 | 4 GB | 60 GB thin | VMnet10; VMnet8 only for updates | Run alone during installation |
 | `TEMPLATE-SRV2025-DE` Desktop Experience | 2 | 6 GB | 80 GB thin | VMnet10; VMnet8 only for updates | Use instead of Core, not alongside it |
-| `TEMPLATE-WIN10` | 2 | 4 GB | 64 GB thin | VMnet30; VMnet8 only for updates | Run with one Server template |
+| `TEMPLATE-WIN11` | 2 | 4 GB | 64 GB thin | VMnet30; VMnet8 only for updates | Run with one Server template |
 
-Do not power on every template and lab VM together. A practical initial startup is one Server template plus the Windows 10 template; shut down the template before cloning the next role. Leave at least 8 GB for the Windows 11 host and VMware overhead. Storage-heavy or nested labs need a separate expanded profile from the compatibility matrix.
+Do not power on every template and lab VM together. A practical initial startup is one Server template plus the Windows 11 template; shut down the template before cloning the next role. Leave at least 8 GB for the Windows 11 host and VMware overhead. Storage-heavy or nested labs need a separate expanded profile from the compatibility matrix.
 
-Before changing a template, create `B-before-template-build`. If installation or updates fail, power off the VM and revert to that snapshot. After each clean template reaches the expected state, take `B-server2025-clean` or `B-windows10-clean`. A VMware snapshot is a rollback point, not a backup.
+Before changing a template, create `B-before-template-build`. If installation or updates fail, power off the VM and revert to that snapshot. After each clean template reaches the expected state, take `B-server2025-clean` or `B-windows11-clean`. A VMware snapshot is a rollback point, not a backup.
 
 ## Create the Server 2025 VM in VMware
 
@@ -26,11 +26,11 @@ Before changing a template, create `B-before-template-build`. If installation or
 4. In **VM > Settings > Options > Advanced**, use UEFI firmware. Enable Secure Boot when the selected Windows edition and lab procedure support it. Use a virtual TPM only when Windows or a selected lab requires it; record the choice because it can affect cloning and encryption.
 5. Start the VM, select the required Server 2025 edition (Core or Desktop Experience), and complete setup with a local administrator account whose password is stored only in a password manager. Do not put the password in this repository or command history.
 
-## Create the Windows 10 VM
+## Create the Windows 11 VM
 
-1. Create a second VM from the Windows 10 ISO named `TEMPLATE-WIN10`, stored under the same templates directory.
+1. Create a second VM from the Windows 11 ISO named `TEMPLATE-WIN11`, stored under the same templates directory.
 2. Use 2 vCPUs, 4 GB RAM, a 64 GB thin-provisioned disk, UEFI firmware, and one adapter on **Custom: VMnet30**.
-3. Enable Secure Boot when supported by the selected Windows 10 configuration. Add a virtual TPM only if required by the edition or a later lab; do not copy a TPM-backed identity into another clone.
+3. Enable Secure Boot when supported by the selected Windows 11 configuration. Add a virtual TPM only if required by the edition or a later lab; do not copy a TPM-backed identity into another clone.
 4. Complete setup with a local administrator account and no personal Microsoft account, domain join, tokens, or private certificates. Keep its password outside Git.
 
 ## Prepare each clean template
@@ -40,7 +40,7 @@ Before changing a template, create `B-before-template-build`. If installation or
 3. Apply Windows updates, restart until no pending restart remains, and confirm the correct time zone. Do not activate with a personal or committed key; follow the evaluation license terms and record the evaluation start date privately.
 4. Set a temporary workgroup name and temporary hostname only. Do not join `ad.lab.test`. Remove personal files, browser profiles, downloaded secrets, installers containing credentials, and test accounts other than the local administrator.
 5. Confirm the network profile and firewall are appropriate for an isolated workgroup. Do not assign an AD DNS server, static domain address, or production gateway to the template.
-6. Shut down cleanly and create `B-server2025-clean` or `B-windows10-clean`.
+6. Shut down cleanly and create `B-server2025-clean` or `B-windows11-clean`.
 
 ## Server 2025 Evaluation template
 
@@ -50,12 +50,12 @@ Before changing a template, create `B-before-template-build`. If installation or
 4. Confirm time, storage, device state, firewall profile, and network profile. Leave the machine workgroup-joined and without personal data.
 5. Take `B-server2025-clean` after shutdown. Record the ISO version and snapshot date outside the repository.
 
-## Windows 10 client template
+## Windows 11 client template
 
-1. Create a new VMware VM from the Windows 10 ISO named `TEMPLATE-WIN10`.
+1. Create a new VMware VM from the Windows 11 ISO named `TEMPLATE-WIN11`.
 2. Attach the NIC to VMnet30 for client testing; use VMnet8 only for controlled updates.
 3. Install VMware Tools and updates. Do not join `ad.lab.test`, enroll the device, add personal accounts, or store tokens in the template.
-4. Take `B-windows10-clean` after shutdown and record the media version outside Git.
+4. Take `B-windows11-clean` after shutdown and record the media version outside Git.
 
 ## Naming, networking, and cloning cautions
 

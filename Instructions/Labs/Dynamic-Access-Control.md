@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -92,7 +92,7 @@ Perform this task on CL1.
 1. Link the group policy object to the organizational unit Domain Controllers.
 
     ````powershell
-    $gpo | New-GPLink -Target 'ou=Domain Controllers, dc=ad, dc=adatum, dc=com'
+    $gpo | New-GPLink -Target 'ou=Domain Controllers, DC=ad,DC=lab,DC=test'
     ````
 
 1. Invoke a group policy update all domain controllers.
@@ -100,7 +100,7 @@ Perform this task on CL1.
     ````powershell
     Get-ADComputer `
         -Filter * `
-        -SearchBase 'ou=Domain Controllers, dc=ad, dc=adatum, dc=com' | 
+        -SearchBase 'ou=Domain Controllers, DC=ad,DC=lab,DC=test' |
     Select-object -ExpandProperty DNSHostName | 
     Invoke-GPUpdate
     ````
@@ -147,7 +147,7 @@ Perform this task on CL1.
 1. Link the group policy object to the domain.
 
     ````powershell
-    $gpo | New-GPLink -Target 'dc=ad, dc=adatum, dc=com'
+    $gpo | New-GPLink -Target 'DC=ad,DC=lab,DC=test'
     ````
 
 ## Exercise 2: Manage access based on user properties
@@ -192,7 +192,7 @@ Perform this task on CL1.
     New-ADClaimType `
         -DisplayName 'department' `
         -SourceAttribute `
-            'CN=Department, CN=Schema, CN=Configuration, DC=ad, DC=adatum, DC=com' `
+            'CN=Department, CN=Schema, CN=Configuration, DC=ad,DC=lab,DC=test' `
         -ProtectedFromAccidentalDeletion $true `
         -SuggestedValues (
             'Finance', 'IT', 'Marketing', 'Research' | Foreach-Object {
@@ -448,7 +448,7 @@ Perform this task on CL1.
     New-ADClaimType `
         -DisplayName 'title' `
         -SourceAttribute `
-            'CN=Title, CN=Schema, CN=Configuration, DC=ad, DC=adatum, DC=com' `
+            'CN=Title, CN=Schema, CN=Configuration, DC=ad,DC=lab,DC=test' `
         -ProtectedFromAccidentalDeletion $true
     ````
 

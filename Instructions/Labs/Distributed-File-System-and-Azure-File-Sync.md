@@ -24,7 +24,7 @@
 1. On **CL1**, sign in as **ad\Administrator**.
 1. On **CL2**, sign in as **.\Administrator**.
 
-You need sign-in credentials for an active Azure Subscription in which you have the permissions to create resources. Moreover, you need to have the Global Administrator role in Azure Active Directory. Ask your instructor for help, if you are unsure.
+Use your existing Azure subscription and a disposable resource group. Confirm permission to create the storage account, Storage Sync Service, sync group, and cloud endpoint and to register the server. Global Administrator is not a prerequisite for Azure File Sync. Stop before the Azure exercise if the required resource roles, provider registration, cost headroom, or cleanup authority are unavailable.
 
 ## Introduction
 
@@ -519,9 +519,7 @@ Perform this task on CL1.
 
 Perform this task on CL1.
 
-1. Open **Microsoft Edge**, navigate to <https://download.microsoft.com/download/9108ca79-ba24-49bc-9aa6-a66c4fe28519/StorageSyncAgent_WS2025.msi>
-1. On the download page of Azure File Sync Agent, click **Download**.
-1. In Choose the download you want, activate **StorageSyncAgent_WS2025.msi** and click **Next**.
+1. Open **Microsoft Edge**, navigate to the official Windows Server 2025 Azure File Sync agent link <https://aka.ms/afs/agent/Server2025>, and save the package as **StorageSyncAgent_WS2025.msi**.
 1. Copy the downloaded file **StorageSyncAgent_WS2025.msi** to **\\\\VN1-SRV10\\IT**.
 
 ### Task 4: Register an additional server
@@ -529,10 +527,6 @@ Perform this task on CL1.
 Perform this task on VN2-SRV1.
 
 1. Sign in as **ad\\Administrator**.
-1. Open **Server Manager**.
-1. In Server Manager, click **Local Server**.
-1. In Local Server, beside **IE Enhanced Security Configuration**, click **On**.
-1. In Internet Explorer Enhanced Security Configuration, under **Administrators**, click **Off** and click **OK**.
 1. Open **\\\\VN1-SRV10\\IT\StorageSyncAgent_WS2025.msi**.
 1. In the message box Open File - Security Warning, click **Run**.
 1. In Storage Sync Agent Setup, on page Welcome to the Storage Sync Agent Setup Wizard, click **Next**.

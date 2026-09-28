@@ -557,7 +557,7 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **File Explorer**.
-1. In File Explorer, copy **\\\\VN1-SRV6\\C$\\LabResources\\TinyCorePure64.vhdx** to **\\\\VN1-SRV6\\C$\\ClusterStorage\\Hyper-converged disk\\Hyper-V\\Virtual Hard Disks**.
+1. In File Explorer, copy **\\\\VN1-SRV6\\C$\\WindowsServerLab\\Resources\\TinyCorePure64.vhdx** to **\\\\VN1-SRV6\\C$\\ClusterStorage\\Hyper-converged disk\\Hyper-V\\Virtual Hard Disks**.
 1. Rename **\\\\VN1-SRV6\\C$\\ClusterStorage\\Hyper-converged disk\\Hyper-V\\Virtual Hard Disks\\TinyCorePure64.vhdx** to **VN1-SRV24.vhdx**
 1. Open **Failover Cluster Manager**.
 1. In Failover Cluster Manager, expand **VN1-CLST2.ad.lab.test** and click **Roles**.

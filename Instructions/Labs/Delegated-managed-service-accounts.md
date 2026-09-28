@@ -13,11 +13,35 @@
 
 ## Setup
 
-1. On **VN1-SRV5**, sign in ad **ad\\Administrator**.
+1. Copy the repository `Resources` directory to `C:\WindowsServerLab\Resources` on **VN1-SRV9**. Obtain `nssm.exe` only from the [official NSSM project](https://nssm.cc/), verify its published SHA-256 value, inspect the download, and place the reviewed binary in that directory.
+1. On **VN1-SRV5**, sign in as **ad\\Administrator**.
 1. On **CL1**, sign in as **ad\\Administrator**.
 1. On **VN1-SRV9**, sign in as **ad\\Administrator**.
-1. Open **Terminal**.
-1. In Terminal, run the script ````C:\WindowsServerLab\Resources\Solutions\Install-Service.ps1````
+1. On **CL1**, open **Terminal** and create the disposable service account. Enter and privately retain a unique password when prompted; do not put it in the repository or command history.
+
+    ````powershell
+    $ou = Get-ADOrganizationalUnit -LDAPFilter '(ou=Service accounts)' |
+        Select-Object -First 1
+    if (!$ou) {
+        $ou = New-ADOrganizationalUnit `
+            -Name 'Service accounts' `
+            -Path 'DC=ad,DC=lab,DC=test' `
+            -PassThru
+    }
+    $password = Read-Host 'Password for ad\\PSService' -AsSecureString
+    New-ADUser `
+        -Name 'PowerShell Service' `
+        -SamAccountName 'PSService' `
+        -UserPrincipalName 'PSService@ad.lab.test' `
+        -Path $ou.DistinguishedName `
+        -AccountPassword $password `
+        -Enabled $true `
+        -PasswordNeverExpires $true
+    ````
+
+1. On **VN1-SRV9**, open an elevated **Terminal** and run `C:\WindowsServerLab\Resources\Solutions\Install-Service.ps1`.
+1. On **VN1-SRV9**, open **Services**, open **PSService**, select the **Log On** tab, choose **This account**, and configure `ad\PSService` with the private password created above. Apply the change and restart the service.
+1. Confirm **PSService** is running and that `C:\Logs\Policies.log` receives a new entry. If it does not, review the service logon event and the account's **Log on as a service** right before continuing.
 
 ## Introduction
 
@@ -25,7 +49,7 @@ To evaluate delegated managed service accounts, you want to migrate the service 
 
 ## Exercise: Validate delegated managed service accounts
 
-1. [Inspect the service](#task-1-inspect-the-service) PSService on VN1-SRV9 and the file c:\LabResources\service.ps1
+1. [Inspect the service](#task-1-inspect-the-service) PSService on VN1-SRV9 and the file `C:\WindowsServerLab\Resources\service.ps1`
 
     > Which account uses the service to log on?
     > What does the service do?
@@ -93,7 +117,7 @@ Perform this task on CL1.
 1. In Terminal, create a delegated managed service account with the name dMSA_PSService in the organizational unit Service accounts for VN1-SRV9
 
     ```powershell
-    New-ADServiceAccount -Path 'ou=Service accounts, dc=ad, dc=adatum, dc=com' -Name dMSA_PSService -DNSHostName vn1-srv9.ad.lab.test -CreateDelegatedServiceAccount -KerberosEncryptionType AES256
+    New-ADServiceAccount -Path 'ou=Service accounts, DC=ad,DC=lab,DC=test' -Name dMSA_PSService -DNSHostName vn1-srv9.ad.lab.test -CreateDelegatedServiceAccount -KerberosEncryptionType AES256
     ````
 
 ### Task 4: Add the registry value DelegatedMSAEnabled
@@ -123,9 +147,9 @@ Perform this task on CL1.
 
     ````powershell
     $identity = `
-        'cn=dMSA_PSService, ou=Service accounts, dc=ad, dc=adatum, dc=com'
+        'cn=dMSA_PSService, ou=Service accounts, DC=ad,DC=lab,DC=test'
     $supersededAccount = `
-        'cn=Powershell Service, ou=Service accounts, dc=ad, dc=adatum, dc=com'
+        'cn=Powershell Service, ou=Service accounts, DC=ad,DC=lab,DC=test'
 
     Start-ADServiceAccountMigration `
         -Identity $identity -SupersededAccount $supersededAccount

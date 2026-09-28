@@ -5,7 +5,7 @@
 
 
 
-## Reuqired VMs
+## Required VMs
 
 * VN1-SRV1
 * VN2-SRV1
@@ -1116,7 +1116,7 @@ Perform this task on CL1.
 
     ````powershell
     Invoke-Command -ComputerName VN1-SRV1 -ScriptBlock { Register-DnsClient }
-    ```
+    ````
 
 ### Task 6: Verify the PTR records
 

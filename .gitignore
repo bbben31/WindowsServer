@@ -1,1 +1,27 @@
 .DS_Store
+Thumbs.db
+
+# Operating-system and virtual-machine media/state
+*.iso
+*.vhd
+*.vhdx
+*.vmdk
+*.vmem
+*.vmss
+*.vmsn
+*.nvram
+*.lck/
+
+# Credentials, certificates with private keys, and local configuration
+.env
+.env.*
+*.pfx
+*.p12
+*.key
+*.pem
+secrets.json
+credentials.json
+
+# Local validation output
+reports/
+*.validation.json

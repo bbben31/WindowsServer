@@ -113,7 +113,7 @@ Perform these steps on CL1.
     ````powershell
     $organizationalUnit = New-ADOrganizationalUnit `
         -Name 'Devices' `
-        -Path 'dc=ad,dc=adatum,dc=com' `
+        -Path 'DC=ad,DC=lab,DC=test' `
         -PassThru
     ````
 
@@ -217,6 +217,7 @@ Perform this task on CL1.
             $auditFlags
     
     $acl.AddAuditRule($auditRule)
+    ````
 
 1. Write back the acl.
 

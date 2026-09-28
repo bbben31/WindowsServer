@@ -19,9 +19,9 @@
 1. On **VN1-SRV1**, sign in as **ad\\Administrator**.
 1. On **VN1-SRV5**, sign in as **ad\\Administrator**.
 
-You must have completed the lab [Deploying domain controllers](../Labs/Deploying-domain-controllers.md). If you skipped the practice, on **CL1**, in Terminal, run ````C:\WindowsServerLab\Resources\Solutions\Install-DomainControllers.ps1````. However, be aware that this script may need some time to complete and you need to wait at least one hour after running the script before proceeding with this lab.
+Complete [Deploying domain controllers](../Labs/Deploying-domain-controllers.md), then allow AD DS replication to converge and verify `dcdiag` and `repadmin /replsummary` before continuing.
 
-You must have completed the practice [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md). If you skipped the practice, on **VN1-SRV4**, sign in as **ad\Administrator**, and run ````C:\WindowsServerLab\Resources\Solutions\Install-AdminCenter.ps1````.
+Complete [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md) on **VN1-SRV4** before continuing.
 
 ## Introduction
 
@@ -106,7 +106,7 @@ After deploying the new domain controllers running the latest version of Windows
 
 ## Exercise 3: Enable database 32K pages
 
-1. On CL1, verify the that the domain **DC=ad, DC=adatum, DC=com** has a 32k page capable database.
+1. On CL1, verify the that the domain **DC=ad,DC=lab,DC=test** has a 32k page capable database.
 
     [Verifying a 32k page capable database](../General/Verifying-a-32k-page-capable-database.md)
 

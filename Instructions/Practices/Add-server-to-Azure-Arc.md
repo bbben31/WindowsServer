@@ -3,20 +3,15 @@
 ## Required VMs
 
 * VN1-SRV1
+* VN1-SRV4
 * VN1-SRV8
 * CL1
 
 ## Setup
 
-Your instructor will tell you which tenant, subscription, and resource group to use.
+Use your existing tenant, Azure for Students subscription, disposable `<AZURE_RESOURCE_GROUP>`, and UK South when the service is available there. Confirm the current Azure Connected Machine onboarding permissions and budget before continuing.
 
-If you skipped the lab [Windows Admin Center](../Labs/Windows-Admin-Center.md):
-
-1. On VN1-SRV4, execute ````c:\LabResources\Solutions\Install-AdminCenter.ps1````.
-1. Create connections in Windows Admin Center.
-1. Register Windows Admin Center with Azure.
-
-Detailed instructions can be found in the lab.
+Complete the local installation and connection exercises in [Windows Admin Center](../Labs/Windows-Admin-Center.md) before using its Azure integration. Azure Arc onboarding itself can be completed directly on VN1-SRV8 as described below.
 
 ## Task
 

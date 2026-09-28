@@ -1,4 +1,4 @@
-﻿# Verifying a 32k page capable database
+# Verifying a 32k page capable database
 
 1. Open a terminal.
 1. Verify the msDs-JetDBpageSize property.
@@ -7,7 +7,7 @@
 
     <#
         Between the quotes, insert the DN of the domain, e.g.,
-        DC=ad, DC=adatum, DC=com
+        DC=ad,DC=lab,DC=test
     #>
     $domainDN = ''
 

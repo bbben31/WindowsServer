@@ -1,6 +1,6 @@
 # Milestone D: member servers and clients
 
-Milestone D starts only after [Milestone C](AD-DNS-Foundation.md) has passed its first-DC DNS checks. It creates disposable domain members without cloning an AD identity. The examples target Windows Server 2025 Evaluation and Windows 10 on VMware Workstation Pro 17; use Server 2022 only when the selected curriculum item requires it.
+Milestone D starts only after [Milestone C](AD-DNS-Foundation.md) has passed its first-DC DNS checks. It creates disposable domain members without cloning an AD identity. The examples target Windows Server 2025 Evaluation and Windows 11 on VMware Workstation Pro 17; use Server 2022 only when the selected curriculum item requires it.
 
 ## Prerequisites, capacity, and checkpoints
 
@@ -16,7 +16,7 @@ VMnet10 and VMnet20/30 do not route by themselves. A member that must reach AD D
 | --- | --- | --- | --- | --- |
 | `VN1-SRV20` | Primary member server | `10.10.10.30/24` | VMnet20: `10.10.20.20/24` | `10.10.10.10`, then `10.10.10.11` |
 | `VN1-SRV21` | Optional second member server | `10.10.10.31/24` | VMnet20: `10.10.20.21/24` | `10.10.10.10`, then `10.10.10.11` |
-| `CL1` | Primary Windows 10 client | VMnet10: `10.10.10.40/24` | VMnet30: `10.10.30.20/24` or one DHCP reservation | `10.10.10.10`, then `10.10.10.11` on the VMnet10 path |
+| `CL1` | Primary Windows 11 client | VMnet10: `10.10.10.40/24` | VMnet30: `10.10.30.20/24` or one DHCP reservation | `10.10.10.10`, then `10.10.10.11` on the VMnet10 path |
 | `CL3` | Optional second client | VMnet10: `10.10.10.41/24` | VMnet30: `10.10.30.21/24` or one DHCP reservation | AD DNS only |
 
 Use no default gateway on the isolated VMnet10 and VMnet20 NICs. Use `<VMNET30_GATEWAY>` only if a selected client lab supplies an intentional router/NAT design. Do not configure two gateways on a dual-homed member. If VMnet8 is temporarily attached for updates, record `<VMNET8_GATEWAY>` privately and disconnect it before domain administration. Never use VMnet8 DNS as the domain DNS server.
@@ -47,7 +47,7 @@ Add-Computer -ComputerName 'VN1-SRV20' -DomainName 'ad.lab.test' -Credential (Ge
 
 ## Create and prepare `CL1`
 
-1. Full-clone the clean Windows 10 template as `CL1`; do not use a personal Microsoft account or a domain-joined source template.
+1. Full-clone the clean Windows 11 template as `CL1`; do not use a personal Microsoft account or a domain-joined source template.
 2. Attach VMnet30 for client traffic and a second NIC on VMnet10 for AD/DNS and management reachability. Use `10.10.30.20/24` (or the single documented VMnet30 DHCP reservation) and `10.10.10.40/24`; leave gateways blank unless a deliberate router is documented.
 3. Set DNS on the VMnet10 path to `10.10.10.10`, then optionally `10.10.10.11` after the second DC is healthy. Do not accept a public DNS server from an accidental DHCP service.
 4. Rename the client through **Settings > System > About > Rename this PC** or an elevated PowerShell prompt, then restart:
@@ -64,7 +64,7 @@ Use the same sequence for optional `VN1-SRV21`/`CL3`, substituting the table’s
 
 ## Management from `CL1`
 
-Install only the management tools required by the selected exercise. [RSAT](../Practices/Install-Remote-Server-Administration-Tools.md) on Windows 10 provides Server Manager, MMC snap-ins, and role tools. Add `VN1-SRV20` to Server Manager using [Adding servers to Server Manager](Adding-servers-to-Server-Manager.md), by AD search or DNS name. For Windows Admin Center, follow [Adding servers to Windows Admin Center](Adding-servers-to-Windows-Admin-Center.md); use a local administrator only when the connection requires it and do not save credentials in a shared connection file.
+Install only the management tools required by the selected exercise. [RSAT](../Practices/Install-Remote-Server-Administration-Tools.md) on Windows 11 provides Server Manager, MMC snap-ins, and role tools. Add `VN1-SRV20` to Server Manager using [Adding servers to Server Manager](Adding-servers-to-Server-Manager.md), by AD search or DNS name. For Windows Admin Center, follow [Adding servers to Windows Admin Center](Adding-servers-to-Windows-Admin-Center.md); use a local administrator only when the connection requires it and do not save credentials in a shared connection file.
 
 For remoting, use the existing [PowerShell remoting practice](../Practices/PowerShell-remoting.md). A safe read-only test from `CL1` is:
 

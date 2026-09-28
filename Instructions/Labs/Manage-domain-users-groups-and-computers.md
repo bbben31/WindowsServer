@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -22,11 +22,11 @@ On **CL1**, logon as **ad\Administrator**.
 
 On **CL2**, logon as **.\LocalAdmin**.
 
-If you skipped the practice [Manage local groups](../Practices/Manage-local-groups.md), on CL1, run ````C:\WindowsServerLab\Resources\Solutions\Add-LocalAdministratorsMember.ps1````.
+Complete [Manage local groups](../Practices/Manage-local-groups.md) before continuing.
 
-If you skipped the practice [Enable the Active Directory Recycle Bin](../Practices/Enable-the-Active-Directory-Recycle-Bin.md), on CL1, run ````C:\WindowsServerLab\Resources\Solutions\Enable-ADRecycleBin.ps1````.
+Complete [Enable the Active Directory Recycle Bin](../Practices/Enable-the-Active-Directory-Recycle-Bin.md) before continuing.
 
-If you skipped the lab [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), on VN1-SRV4, run ````C:\WindowsServerLab\Resources\Solutions\Add-WACServers.ps1````.
+Complete [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), including adding the required server connections, before continuing.
 
 ## Introduction
 
@@ -152,7 +152,7 @@ Perform this task on CL1.
 1. Set up parameter variables for the new user.
 
     ````powershell
-    # TODO: Fill the data of the new user between the quotes
+    # Learner input: Fill the data of the new user between the quotes
     $ouName = ''
     $firstName = ''
     $lastName = ''
@@ -200,7 +200,7 @@ Rename the users according to the table above. Use the different administration 
 Perform this task on CL1.
 
 1. From the desktop, open **Basic Administration**.
-1. In Basic Ãdministration, expand **Active Directory Users and Computer**, **ad.lab.test**.
+1. In Basic Administration, expand **Active Directory Users and Computer**, **ad.lab.test**.
 1. In the context-menu of **ad.lab.test**, click **Find...**.
 1. In Find Users, Contacts, and Groups, in **Name**, enter the first name.
 1. In the context-menu of the found user, click **Rename**.
@@ -240,7 +240,7 @@ Perform this task on CL1.
 1. Set the parameter values for the user.
 
     ````powershell
-    # TODO: Fill the user data in the quotes
+    # Learner input: Fill the user data in the quotes
     $firstName = ''
     $oldLastName = ''
     $newLastname = ''
@@ -270,7 +270,7 @@ Reset the password of the users from the list above. Use the different administr
 Perform this task on CL1.
 
 1. From the desktop, open **Basic Administration**.
-1. In Basic Ãdministration, expand **Active Directory Users and Computer**, **ad.lab.test**.
+1. In Basic Administration, expand **Active Directory Users and Computer**, **ad.lab.test**.
 1. In the context-menu of **ad.lab.test**, click **Find...**.
 1. In Find Users, Contacts, and Groups, in **Name**, enter user's name.
 1. In the context-menu of the found user, click **Reset Password...**
@@ -310,7 +310,7 @@ Perform this task on CL1.
 1. Set up parameter variables for the user.
 
     ````powershell
-    # TODO: Fill the data of the new user between the quotes
+    # Learner input: Fill the data of the new user between the quotes
     $firstName = ''
     ````
 
@@ -464,7 +464,7 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. From the desktop, open **Basic Administration**.
-1. In Basic Ãdministration, expand **Active Directory Users and Computer**, **ad.lab.test**.
+1. In Basic Administration, expand **Active Directory Users and Computer**, **ad.lab.test**.
 1. In the context-menu of **ad.lab.test**, click **New**, **Organizational Unit**.
 1. In New Object - Organizational Unit, in **Name**, enter **Organizational Groups** and click **OK**.
 
@@ -484,7 +484,7 @@ Perform this task on CL1.
 1. In Windows Admin Center, click **VN1-SRV1.ad.lab.test**.
 1. Connected to VN1-SRV1.ad.lab.test, under Tools, click **Active Directory**.
 1. Under Active Directory Domain Services, click the tab **Browse**.
-1. Click **DC=ad, DC=adatum, DC=com**.
+1. Click **DC=ad,DC=lab,DC=test**.
 1. In the right pane, click **Create**, **OU**.
 1. In the pane Add Organizational Unit, in **Name**, enter **Organizational Groups** and click **Create**.
 
@@ -497,7 +497,7 @@ Perform this task on CL1.
 
     ````powershell
     New-ADOrganizationalUnit `
-        -Path 'DC=ad, DC=adatum, DC=com' `
+        -Path 'DC=ad,DC=lab,DC=test' `
         -Name 'Organizational Groups'
     ````
 
@@ -571,7 +571,7 @@ Perform this task on CL1.
 1. Define the location for the new group.
 
     ````powershell
-    $path = 'OU=Organizational Groups, DC=ad, DC=adatum, DC=com'
+    $path = 'OU=Organizational Groups, DC=ad,DC=lab,DC=test'
     ````
 
 1. Define the parameters for the new group.
@@ -637,7 +637,7 @@ Perform this task on CL1.
     Remove-ADGroup 'Pilot Users'
     ````
 
-1. Under the message **Performing the operation "Remove" on target "CN=Pilot Users,OU=Organizational Groups,DC=ad,DC=adatum,DC=com".**, enter **Y**.
+1. Under the message **Performing the operation "Remove" on target "CN=Pilot Users,OU=Organizational Groups,DC=ad,DC=lab,DC=test".**, enter **Y**.
 
 ### Task 5: Restore a domain group
 

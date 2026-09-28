@@ -1,6 +1,6 @@
 # Milestone A: VMware Workstation Pro 17 segmented networking
 
-This is the operational runbook for **Milestone A**. It defines the local VMware network used by the self-learner edition. These are **VMware VMnet segments**, not Azure virtual networks. VMware segments connect local Windows Server and Windows 10 VMs on the Windows 11 host; Azure VNets are separate cloud resources with their own subnets, routing, security rules, and billing.
+This is the operational runbook for **Milestone A**. It defines the core local VMware network. Advanced procedures use the isolated [enterprise expansion profile](Environment-Profiles.md#profile-2-enterprise-expansion). These are **VMware VMnet segments**, not Azure virtual networks.
 
 ## Prerequisites and safety checkpoint
 
@@ -14,7 +14,7 @@ This guide contains no network-mutating script. The Virtual Network Editor chang
 | --- | --- | --- | --- | --- | --- |
 | `VMnet10` | `10.10.10.0/24` | Enabled | Disabled | None | Management and AD/DNS |
 | `VMnet20` | `10.10.20.0/24` | Enabled | Disabled | None | Server workloads |
-| `VMnet30` | `10.10.30.0/24` | Enabled | Enabled, `10.10.30.100-199` | `10.10.30.1` only if using NAT | Windows 10 clients |
+| `VMnet30` | `10.10.30.0/24` | Enabled | Enabled, `10.10.30.100-199` | `10.10.30.1` only if using NAT | Windows 11 clients |
 | `VMnet8` | VMware NAT | Existing VMware adapter | VMware-managed | VMware NAT gateway | Temporary updates and approved Internet access |
 
 The address ranges are private examples dedicated to this lab. Do not bridge them to a home or corporate LAN. If they overlap with another local network, change the entire range and update the static addresses consistently.
@@ -45,7 +45,7 @@ Use this concrete default plan. Values marked as placeholders are host-specific 
 | `VN1-SRV1` AD DS/DNS | `10.10.10.10/24` | VMnet10 |
 | `VN1-SRV5` additional DC/DNS | `10.10.10.11/24` | VMnet10 |
 | `VN1-SRV4` management/WAC | `10.10.10.20/24` | VMnet10, optional VMnet20 |
-| `CL1` Windows 10 management client | `10.10.30.20/24` or DHCP reservation | VMnet30 |
+| `CL1` Windows 11 management client | `10.10.30.20/24` or DHCP reservation | VMnet30 |
 | Server workload pool | `10.10.20.50-199/24` | VMnet20 |
 | Client static pool | `10.10.30.20-80/24` | VMnet30 |
 

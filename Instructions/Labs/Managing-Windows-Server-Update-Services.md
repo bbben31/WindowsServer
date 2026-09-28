@@ -2,9 +2,11 @@
 
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
+> **Lifecycle note:** WSUS remains available in Windows Server but is no longer actively developed. Retain this isolated lab for enterprise update-management concepts, limit synchronized products/languages to control disk and bandwidth use, and evaluate current management alternatives separately.
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
+
 
 
 
@@ -34,15 +36,15 @@ You may revisit this lab and complete these tasks later.
 
 ## Setup
 
-1. On the host computer, open **Terminal**.
-1. In Terminal, run this command:
+1. On WIN-CL3, sign in with the local Administrator account and verify that its DNS server is the AD DNS server.
+1. From an elevated PowerShell session inside WIN-CL3, join the domain with an authorized credential supplied interactively:
 
     ````powershell
-    c:\Labs\WS2025\LabResources\Add-VMToDomain.ps1 -VMName WIN-CL3
-    `````
-
-1. In the dialog Enter the password of the local Administrator account of WIN-CL3, enter the password for **.\Adminstrator**.
-1. In the dialog Enter credentials of an account with permissions to join the computer to domain ad.lab.test, enter the credentials for **Administrator@ad.lab.test**.
+    Add-Computer `
+        -DomainName 'ad.lab.test' `
+        -Credential (Get-Credential -Message 'Authorized domain-join account') `
+        -Restart
+    ````
 1. On CL1, sign in as **Administrator@ad.lab.test**.
 1. Open **Active Directory Administrative Center**.
 1. In Active Directory Administrative Center, click **ad (local)**.
@@ -69,7 +71,7 @@ You may revisit this lab and complete these tasks later.
 
 ## Introduction
 
-To finish configuration of Windows Server Update Services, you need to configure the clients. To save on bandwith, Adatum decides to install a replica server in the branch office (VNet2). Because Adatum does not want to have a Windows Server Update Services server in the remote office VNet3, clients in this location should use Windows Update for Business. To validate the benefits of Windows Server Update Services, you want to test the manual approval of a critical updates, as well as the reporting features.
+To finish configuration of Windows Server Update Services, you need to configure the clients. To save bandwidth, Adatum decides to install a replica server in the branch office (VNet2). Because Adatum does not want to have a Windows Server Update Services server in the remote office VNet3, clients in this location should use Windows Update for Business. To validate the benefits of Windows Server Update Services, you want to test manual approval of critical updates and the reporting features.
 
 ## Exercises
 
@@ -137,7 +139,7 @@ Perform this task on CL1.
 
     ```powershell
     $aDComputerClients = Get-ADComputer `
-        -Filter * -SearchBase 'ou=Clients, ou=devices, dc=ad, dc=adatum, dc=com'
+        -Filter * -SearchBase 'ou=Clients, ou=devices, DC=ad,DC=lab,DC=test'
     ````
 
 1. Update the group policies on the computers found in the previous step.

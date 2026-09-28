@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -41,7 +41,6 @@ Because of the growing complexity of managing IP addresses and host names, you m
 1. [Mananaging IP address blocks, ranges, and subnets](#exercise-2-mananaging-ip-address-blocks-ranges-and-subnets)
 1. [Managing DHCP and DNS servers using IPAM](#exercise-3-managing-dhcp-and-dns-servers-using-ipam)
 1. [Managing IP addresses](#exercise-4-managing-ip-addresses)
-1. [Tracking IP addresses](#exercise-5-tracking-ip-addresses)
 
 ## Exercise 1: Configuring the IP Address Management server
 

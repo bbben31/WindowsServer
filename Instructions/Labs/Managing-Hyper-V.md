@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -60,7 +60,7 @@ Perform this task on CL1.
 1. On page Choose Disk type, click **Differencing** and click **Next >**.
 1. On page Specify Name and Location, In **Name** type **PM-SRV21** and click **Next >**.
 1. On page Configure Disk, under **Specify the virtual hard disk that you want to use as the parent for the new differencing virtual hard disk**, click **Browse...**.
-1. In Open, expand **pm-srv1.ad.lab.test**, **Local Disk (C:)** and click **LabResources**.
+1. In Open, expand **pm-srv1.ad.lab.test**, **Local Disk (C:)**, **WindowsServerLab**, and click **Resources**.
 1. Click **TinyCorePure64.vhdx** and click **Open**.
 1. In New Virtual Hard Disk Wizard, on page **Configure Disk**, click **Next >**.
 1. On page Summary, click **Finish**.
@@ -87,7 +87,7 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **Terminal**.
-1. On PM-SRV1, move **C:\\LabResources\\TinyCorePure64.vhdx** to **C:\\Hyper-V\\Virtual Hard Disks\\**.
+1. On PM-SRV1, move **C:\\WindowsServerLab\\Resources\\TinyCorePure64.vhdx** to **C:\\Hyper-V\\Virtual Hard Disks\\**.
 
     ````powershell
     Invoke-Command -ComputerName PM-SRV1 -ScriptBlock {

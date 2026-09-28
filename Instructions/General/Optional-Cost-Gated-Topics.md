@@ -11,12 +11,12 @@ For one selected topic, complete these steps in order:
 1. **Preflight:** run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with only the relevant VM names, ISO paths, subnet, DNS, and explicit Azure placeholders.
 2. **Budget/quota/permission check:** verify current Azure cost, £10 headroom, UK South service/SKU availability, quota, required providers, and least-privilege role assignments. Confirm local CPU, RAM, storage, disks, and network capacity.
 3. **Snapshot/backup:** snapshot disposable VMs and export/copy only disposable data. Use a supported backup or export for any data that must survive. Do not rely on snapshots for AD, clustered, replicated, PKI, or database state.
-4. **Go/no-go:** proceed only when the objective, topology, support/licensing boundary, rollback, and cleanup owner are written in private notes. Stop when any value is `TBD` and cannot be resolved from current product documentation.
+4. **Go/no-go:** proceed only when the objective, topology, support/licensing boundary, rollback, and cleanup owner are written in private notes. Stop when any value is `unverified` and cannot be resolved from current product documentation.
 5. **Lab:** perform only the linked source procedure and only against disposable resources. Never broaden scope to the whole tenant, subscription, forest, or physical network.
 6. **Verify:** run the source lab checks plus the read-only commands below. Record success/failure without secrets or identifiers.
 7. **Deallocate/delete:** remove cloud resources, role assignments, identities, certificates, agents, data, VMs, disks, and public endpoints in the supported order. Deallocate is not deletion and may not stop all charges.
 8. **Inventory check:** list the resource group and local VMs/disks, confirm no unexpected resources or recurring services remain, and verify the £10 limit is not at risk.
-9. **Record outcome:** note the topic, date, product versions, checkpoint, result, cleanup result, and unresolved `TBD` items privately.
+9. **Record outcome:** note the topic, date, product versions, checkpoint, result, cleanup result, and unresolved items privately.
 
 **No-go conditions:** unknown cost, no cleanup path, unsupported nested/cluster topology, missing quorum or witness, public endpoint required without a justified boundary, broad directory permission requirement, unverified certificate/private-key handling, or any request for instructor-style bulk accounts, invitations, password resets, tenant creation, or tenant deletion.
 
@@ -24,22 +24,22 @@ For one selected topic, complete these steps in order:
 
 | Category | Objective | Class / estimated cost | Typical prerequisites and resources | Primary risk |
 | --- | --- | --- | --- | --- |
-| Azure managed databases and data services | Compare managed data platforms with local Windows administration | Cost-gated, **TBD** price | Existing subscription, region/SKU/quota check, dedicated resource group, service-specific permissions | Recurring compute, storage, backup, and transaction charges |
-| Hosted compute, containers, AKS, and serverless | Understand cloud hosting and orchestration | Cost-gated/dedicated, **TBD** | VNet/subnets, registry/images, quotas, multiple nodes for AKS, current support matrix | Cluster/node and egress costs; privileged access |
-| AI, search, and advanced Azure services | Explore source AI/search/automation concepts | Optional/cost-gated, **TBD** | Service availability, model quota, data classification, API permissions | Token/index/storage charges and sensitive data exposure |
-| Multi-region and disaster recovery | Practice recovery objectives and failover design | Dedicated/cost-gated, **TBD** | Two supported regions, duplicated resources, backup/replication, documented RPO/RTO | Cost multiplication and destructive failover |
+| Azure managed databases and data services | Compare managed data platforms with local Windows administration | Cost-gated, **unverified** price | Existing subscription, region/SKU/quota check, dedicated resource group, service-specific permissions | Recurring compute, storage, backup, and transaction charges |
+| Hosted compute, containers, AKS, and serverless | Understand cloud hosting and orchestration | Cost-gated/dedicated, **unverified** | VNet/subnets, registry/images, quotas, multiple nodes for AKS, current support matrix | Cluster/node and egress costs; privileged access |
+| AI, search, and advanced Azure services | Explore source AI/search/automation concepts | Optional/cost-gated, **unverified** | Service availability, model quota, data classification, API permissions | Token/index/storage charges and sensitive data exposure |
+| Multi-region and disaster recovery | Practice recovery objectives and failover design | Dedicated/cost-gated, **unverified** | Two supported regions, duplicated resources, backup/replication, documented RPO/RTO | Cost multiplication and destructive failover |
 | PKI, certificates, AD CS, AD FS/federation | Learn trust, certificate lifecycle, and federation | Dedicated local / optional cloud | Separate CA/AD FS VMs, disposable forest, private keys, time/DNS | Trust compromise, key loss, identity lockout |
 | Multi-domain/forest and AD migration | Learn trusts, sites, schema, and migration | Dedicated | Multiple isolated forests/domains, additional DCs, migration backups | Cross-forest identity and rollback complexity |
 | Advanced clustering/large storage | Extend Milestone F to production-shaped topologies | Dedicated | Several nodes, disks, witness/quorum, separate networks, high storage | Data loss, split brain, unsupported snapshots |
-| Specialized Windows services | Explore RMS, FSLogix, RDS HA, WDS/MDT, DHCP/IPAM, advanced security | Expanded/dedicated, cost/support TBD | Extra servers/clients, deployment media, certificates, policy boundaries | Licensing, external exposure, destructive policy changes |
+| Specialized Windows services | Explore RMS, FSLogix, RDS HA, WDS/MDT, DHCP/IPAM, advanced security | Expanded/dedicated, cost/support unverified | Extra servers/clients, deployment media, certificates, policy boundaries | Licensing, external exposure, destructive policy changes |
 
-The matrix is a planning classification, not live pricing or a promise of regional availability. Use `TBD` until current service documentation and the subscription portal establish the facts.
+The matrix is a planning classification, not live pricing or a promise of regional availability. Use `unverified` until current service documentation and the subscription portal establish the facts.
 
 ## H1. Azure managed databases and data services
 
 **Objective:** compare Azure-managed database, storage, messaging, or data-platform responsibilities with local Windows administration. Source material may name a service without proving that the Azure for Students subscription supports it at no cost.
 
-**Prerequisites/resources:** existing tenant/subscription, a dedicated `<AZURE_RESOURCE_GROUP>`, UK South availability, current SKU/quota/pricing, service-specific provider registration, and a disposable schema/data set. Required permissions are **TBD** per service; do not assume Owner is necessary or sufficient.
+**Prerequisites/resources:** existing tenant/subscription, a dedicated `<AZURE_RESOURCE_GROUP>`, UK South availability, current SKU/quota/pricing, service-specific provider registration, and a disposable schema/data set. Required permissions are **unverified** per service; do not assume Owner is necessary or sufficient.
 
 **Go/no-go:** reject the topic if the service has no current student entitlement, cost cannot be capped below £10, private access is unavailable where required, or cleanup cannot remove databases, backups, private endpoints, keys, and diagnostic data.
 
@@ -50,7 +50,7 @@ az resource list --resource-group '<AZURE_RESOURCE_GROUP>' --subscription '<AZUR
 az monitor activity-log list --resource-group '<AZURE_RESOURCE_GROUP>' --subscription '<AZURE_SUBSCRIPTION_ID>' --max-events 20 --query "[].{operation:operationName.value,status:status.value}" -o table
 ```
 
-Support, free-tier eligibility, backup retention, and exact service commands are **TBD** until checked for the selected service. Do not invent a database SKU or price.
+Support, free-tier eligibility, backup retention, and exact service commands are **unverified** until checked for the selected service. Do not invent a database SKU or price.
 
 ## H2. Hosted compute, containers, AKS, and serverless
 
@@ -67,7 +67,7 @@ az resource list --resource-group '<AZURE_RESOURCE_GROUP>' --subscription '<AZUR
 az vm list --resource-group '<AZURE_RESOURCE_GROUP>' --subscription '<AZURE_SUBSCRIPTION_ID>' --show-details --query "[].{name:name,power:powerState}" -o table
 ```
 
-AKS support, quota, node minimums, control-plane billing, and regional availability are **TBD** until checked. Never place registry credentials, kubeconfig files, tokens, or private keys in Git.
+AKS support, quota, node minimums, control-plane billing, and regional availability are **unverified** until checked. Never place registry credentials, kubeconfig files, tokens, or private keys in Git.
 
 ## H3. AI, search, and advanced services
 
@@ -75,7 +75,7 @@ AKS support, quota, node minimums, control-plane billing, and regional availabil
 
 **Prerequisites/resources:** a documented synthetic dataset, service availability and quota, content/data classification, approved region, least-privilege identity, and an explicit request for any service outside the core G scope.
 
-**Go/no-go:** do not upload personal, tenant, customer, or copyrighted datasets; stop when token/index/page/transaction costs cannot be bounded; treat `TBD` model availability and pricing as no-go until resolved.
+**Go/no-go:** do not upload personal, tenant, customer, or copyrighted datasets; stop when token/index/page/transaction costs cannot be bounded; treat `unverified` model availability and pricing as no-go until resolved.
 
 **Safe sequence:** create the smallest disposable service/index/deployment; use synthetic records; set usage limits where supported; test one query or document; inspect resource/usage metadata; remove deployments, indexes, data sources, keys, diagnostic settings, and the service.
 
@@ -84,7 +84,7 @@ az resource list --resource-group '<AZURE_RESOURCE_GROUP>' --subscription '<AZUR
 az monitor activity-log list --resource-group '<AZURE_RESOURCE_GROUP>' --subscription '<AZURE_SUBSCRIPTION_ID>' --max-events 20 --query "[].{operation:operationName.value,status:status.value}" -o table
 ```
 
-Do not store prompts containing secrets, API keys, embeddings, search indexes, model deployment keys, or uploaded documents in Git. Current quotas, model/service availability, and exact cost are **TBD** until verified.
+Do not store prompts containing secrets, API keys, embeddings, search indexes, model deployment keys, or uploaded documents in Git. Current quotas, model/service availability, and exact cost are **unverified** until verified.
 
 ## H4. Multi-region and disaster recovery
 
@@ -100,7 +100,7 @@ Do not store prompts containing secrets, API keys, embeddings, search indexes, m
 az resource list --resource-group '<AZURE_RESOURCE_GROUP>' --subscription '<AZURE_SUBSCRIPTION_ID>' --query "[].{name:name,type:type,location:location}" -o table
 ```
 
-RPO/RTO results are workload-specific. Record them as `TBD` until measured; do not claim disaster recovery from a single-region deployment.
+RPO/RTO results are workload-specific. Record them as `unverified` until measured; do not claim disaster recovery from a single-region deployment.
 
 ## H5. PKI, certificates, AD CS, AD FS, and federation
 
@@ -163,7 +163,7 @@ Do not use snapshots as cluster/replication backups, delete VHDX files to simula
 
 ## H8. Other support-sensitive Windows topics
 
-Use the source labs for RDS HA/external access, FSLogix, RMS, IPAM, DHCP fault tolerance, WDS/MDT, advanced DNS security, delegated service accounts, and similar topics. Classify them as **Expanded** or **Dedicated** when they require multiple roles, deployment media, certificates, clients, public access, or policy changes. Review [Milestone F](Advanced-Infrastructure.md) first, then apply the same go/no-go, snapshot, verification, and cleanup workflow. Exact support matrix, licensing, and resource requirements are `TBD` until checked for the selected Windows build and lab.
+Use the source labs for RDS HA/external access, FSLogix, RMS, IPAM, DHCP fault tolerance, WDS/MDT, advanced DNS security, delegated service accounts, and similar topics. Classify them as **Expanded** or **Dedicated** when they require multiple roles, deployment media, certificates, clients, public access, or policy changes. Review [Milestone F](Advanced-Infrastructure.md) first, then apply the same go/no-go, snapshot, verification, and cleanup workflow. Exact support matrix, licensing, and resource requirements are `unverified` until checked for the selected Windows build and lab.
 
 ## Final curriculum completion checklist
 
@@ -175,6 +175,6 @@ The curriculum is complete only when:
 - Azure checks use the existing tenant/subscription, UK South default, placeholders, and a hard £10 stop limit.
 - No instructor automation, credentials, tokens, tenant/subscription identifiers, private keys, invitations, or secrets were added.
 - Every selected local/cloud resource is deallocated or deleted, and the final inventory is empty or explicitly explained.
-- The outcome and unresolved `TBD` items are recorded privately.
+- The outcome and unresolved items are recorded privately.
 
 Run the repository validator and `git diff --check` before committing documentation changes. This runbook does not claim any live service deployment or support certification.

@@ -26,36 +26,15 @@ If you skipped the practice [Install Remote Server Administration Tools](../Prac
 
 1. On **VN1-SRV2**, sign in as **ad\Administrator**.
 1. Open **Windows PowerShell** as Administrator.
-1. Execute these commands:
+1. Complete [Create an exportable web server certificate template](../Practices/Create-an-exportable-web-server-certificate-template.md). Grant CL1 Enroll permission on `WebServerExportable` through the Certificate Templates console and issue the template on the enterprise CA.
+1. Create the KDS root key:
 
     ````powershell
     Add-KdsRootKey -EffectiveTime (Get-Date).AddHours(-10)
-    C:\WindowsServerLab\Resources\Solutions\New-CertTemplateWebServerExportable.ps1
-    C:\WindowsServerLab\Resources\Solutions\Set-CertTemplatePermissions.ps1 `
-        -Template WebServerExportable `
-        -ComputerName CL1
     ````
 
 1. On CL1, sign in as **ad\Administrator**.
-1. Open **Terminal** as Administrator.
-1. In Terminal, execute this command:
-
-    ````powershell
-    C:\WindowsServerLab\Resources\Solutions\New-Shares.ps1
-    ````
-
-    Note: You can safely ignore the following warnings:
-
-    ````text
-    WARNING: Certificate cannot be requested!
-    Please run Install-AdminCenter.ps1 on VN1-SRV4.
-    Windows Admin Center was not installed.
-    ````
-
-    ````text
-    WARNING: Junction cannot be created.
-    Please run New-Volumes.ps1 on VN1-SRV10.
-    ````
+1. Complete [Install prerequisites for file server](../Practices/Install-prerequisites-for-file-serving.md), [Manage local storage](Manage-local-storage.md), and [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md). Verify the required shares, volumes, and Windows Admin Center endpoint before continuing.
 
 1. On CL3, sign in as **.\Administrator**.
 1. On VN1-SRV8, sign in as **ad\Administrator**.
@@ -81,7 +60,7 @@ Adatum introduces a new web application. The new web application will support mo
 1. [Configure remote administration for IIS Manager](#task-3-configure-remote-administration-for-iis-manager) on PM-SRV2
 1. [Deploy the web application](#task-4-deploy-the-web-application) by copying the files from C:\WindowsServerLab\Resources\Authpage
 
-### Task 1: Install Internet Information ServicesÂ´
+### Task 1: Install Internet Information Services
 
 #### Desktop experience
 
@@ -140,6 +119,7 @@ Perform this task on CL1.
     ````powershell
     Enable-WindowsOptionalFeature `
         -Online -FeatureName IIS-ManagementConsole -All
+    ````
 
 ### Task 3: Configure remote administration for IIS Manager
 
@@ -323,7 +303,7 @@ Perform this task on CL1.
         -Location $location `
         -Filter "$filter/anonymousAuthentication" `
         -Name $name `
-        -Value $false `
+        -Value $false
     ````
 
 1. For Default Web Site, enable Windows authentication
@@ -334,7 +314,7 @@ Perform this task on CL1.
         -Location $location `
         -Filter "$filter/windowsAuthentication" `
         -Name $name `
-        -Value $true `
+        -Value $true
     ````
 
 1. Exit from the remote PowerShell session.
@@ -892,6 +872,7 @@ Perform this task on CL1.
     New-Item $path -Force
     Set-ItemProperty -Path $path -Name DisabledByDefault -Value 1
     Set-ItemProperty -Path $path -Name Enabled -Value 0
+    ````
 
 1. Exit and remove the remote PowerShell session.
 

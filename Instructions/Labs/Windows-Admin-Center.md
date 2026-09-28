@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -23,19 +23,13 @@
 ## Setup
 
 1. On **CL1**, sign in as **ad\Administrator**.
-1. Open **Terminal**.
-1. Set permissions on the Web Server certificate template.
-
-    ````powershell
-    C:\WindowsServerLab\Resources\Solutions\Set-CertTemplatePermissions.ps1 `
-        -Template 'WebServer' -ComputerName 'VN1-SRV4'
-    ````
+1. On the enterprise CA, open the Certificate Templates console and grant the VN1-SRV4 computer account **Read** and **Enroll** on the Web Server template. Confirm that the CA issues the template before requesting the certificate later in this lab.
 
 1. On **CL2**, sign in as **ad\Pia**.
 1. On **VN1-SRV4**, sign in as **ad\Administrator**.
 1. In SConfig, enter **15**.
 
-You need sign-in credentials for an active Azure Subscription in which you have the permissions to create resources. Moreover, you need to have the Global Administrator role in Microsoft Entra ID. Ask your instructor for help, if you are unsure.
+Exercises 1 and the local portions of exercises 2-3 do not require Azure. For optional Azure integration, use the existing tenant and subscription. The signed-in user must be a Windows Admin Center gateway administrator and must have authority to create or consent to the Microsoft Entra application permissions shown by the current guided registration flow. Do not grant Global Administrator merely to complete this lab; skip the Azure integration tasks if the required delegated approval is unavailable.
 
 ## Introduction
 
@@ -112,7 +106,7 @@ Perform these steps on CL1.
 Perform these steps on CL1.
 
 1. Open **Terminal**.
-1. On **VN1-SRV4**, download Windows Admin Center from **https://aka.ms/WACDownload** and save it as **C:\LabResource\WindowsAdminCenter.exe**.
+1. On **VN1-SRV4**, download Windows Admin Center from **https://aka.ms/WACDownload** and save it as **C:\WindowsServerLab\Resources\WindowsAdminCenter.exe**.
 
     ````powershell
     Invoke-Command -ComputerName VN1-SRV4 -ScriptBlock {
@@ -259,7 +253,7 @@ Perform this task on VN1-SRV4.
 
 1. Start the WAC service.
 
-    `````powershell
+    ````powershell
     Start-WACService
     ````
 
@@ -564,7 +558,7 @@ Perform this task on CL1.
 
     ````powershell
     $aDorganizationalUnit = New-ADOrganizationalUnit `
-        -Path 'DC=ad, DC=adatum, DC=com' `
+        -Path 'DC=ad,DC=lab,DC=test' `
         -Name 'Entitling groups' `
         -PassThru
     ````

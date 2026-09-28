@@ -406,7 +406,7 @@ Perform this task on CL1.
 
 From **\\\VN2-SRV1\\C$\\Temp** open the report in a browser.
 
-> Discuss the results of the report with other students in the class.
+> Record which checks passed, which warnings are expected in the isolated lab, and what remediation is required before this design would be production-ready.
 
 ## Exercise 3: Create a stretched Hyper-V cluster
 
@@ -721,7 +721,7 @@ Perform this task on CL1.
 
 Perform these steps on CL1.
 
-1. In File Explorer, copy **\\\\vn2-srv1\\c$\\LabResources\\TinyCorePure64.vhdx** to **\\\\vn2-srv1\\c$\\ClusterStorage\\Volume1\\Hyper-V\\Virtual Hard Disks**
+1. In File Explorer, copy **\\\\vn2-srv1\\c$\\WindowsServerLab\\Resources\\TinyCorePure64.vhdx** to **\\\\vn2-srv1\\c$\\ClusterStorage\\Volume1\\Hyper-V\\Virtual Hard Disks**
 1. Open **Failover Cluster Manager**.
 1. In Failover Cluster Manager, expand **VN2-VN3-CLST1.ad.lab.test** and click **Roles**.
 1. In the context-menu of **Roles**, click **Virtual Machines...**, **New Hard Disk...**

@@ -19,11 +19,13 @@ On **CL1**, logon as **ad\Administrator**.
 
 On **VN1-SRV10**, logon as **ad\Administrator**.
 
-If you skipped the lab [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), on VN1-SRV4, run ````C:\WindowsServerLab\Resources\Solutions\Add-WACServers.ps1````.
+Complete [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), including adding the required server connections, before continuing.
 
-If you skipped the practice [Install roles using Server Manager](../Practices/Install-roles-using-Server-Manager.md), on CL1, run ````C:\WindowsServerLab\Resources\Solutions\Install-FileServer.ps1````.
+Complete [Install roles using Server Manager](../Practices/Install-roles-using-Server-Manager.md) and verify the File Server role on VN1-SRV10 before continuing.
 
-If you skipped the lab [Manage local storage](../Labs/Manage-local-storage.md), on VN1-SRV10, run ````C:\WindowsServerLab\Resources\Solutions\New-Volumes.ps1````.
+Complete [Manage local storage](../Labs/Manage-local-storage.md) and verify the required VN1-SRV10 volumes before continuing.
+
+Verify `C:\WindowsServerLab\Resources\Sample Documents` exists on VN1-SRV10. If it does not, copy the repository `Resources` directory and run `Solutions\Initialize-SampleDocuments.ps1` there before continuing.
 
 ## Introduction
 
@@ -57,7 +59,7 @@ You want to create shares for Finance, IT, and Marketing and configure permissio
     | IT         | IT Modify          | IT Read          |
     | Marketing  | Marketing Modify   | Marketing Read   |
 
-1. [Copy the contents of the folders with the respective names](#task-4-copy-the-contents-of-the-folders-with-the-respective-names) from c:\Sample Documents to the file shares
+1. [Copy the contents of the folders with the respective names](#task-4-copy-the-contents-of-the-folders-with-the-respective-names) from `C:\WindowsServerLab\Resources\Sample Documents` to the file shares
 1. [Verify access to the file shares](#task-5-verify-access-to-the-file-shares) using the test users from the table below
 
     | User | Finance permissions | IT permissions | Marketing permissions |
@@ -73,7 +75,7 @@ You want to create shares for Finance, IT, and Marketing and configure permissio
 Perform this task on CL1.
 
 1. From the desktop, open **Basic Administration**.
-1. In Basic Ãdministration, expand **Active Directory Users and Computer**, **ad.lab.test**.
+1. In Basic Administration, expand **Active Directory Users and Computer**, **ad.lab.test**.
 1. In the context-menu of **ad.lab.test**, click **New**, **Organizational Unit**.
 1. In New Object - Organizational Unit, in **Name**, type **Entitling groups** and click **OK**.
 
@@ -94,7 +96,7 @@ Perform this task on CL1.
 
     ````powershell
     New-ADOrganizationalUnit `
-        -Path 'DC=ad, DC=adatum, DC=com' `
+        -Path 'DC=ad,DC=lab,DC=test' `
         -Name 'Entitling groups'
     ````
 
@@ -142,7 +144,7 @@ Perform this task on CL1.
 1. Define the location for the new group.
 
     ````powershell
-    $path = 'OU=Entitling Groups, DC=ad, DC=adatum, DC=com'
+    $path = 'OU=Entitling Groups, DC=ad,DC=lab,DC=test'
     ````
 
 1. Define the parameters for the new group.
@@ -248,7 +250,7 @@ Perform this task on CL1.
 1. Create the folder.
 
     ````powershell
-    # TODO: Fill the share name between the quotes, e.g., 'Finance'
+    # Learner input: Fill the share name between the quotes, e.g., 'Finance'
     $shareName = ''
     $path = "D:\Shares\$shareName"
     New-Item $path -ItemType Directory
@@ -339,7 +341,7 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **File Explorer**.
-1. In File Explorer, copy the contents of the respective folder in \\\\VN1-SRV10\\c$\LabResources\\Sample Documents to the share with the same name on VN1-SRV10.
+1. In File Explorer, copy the contents of the respective folder in \\\\VN1-SRV10\\c$\WindowsServerLab\\Resources\\Sample Documents to the share with the same name on VN1-SRV10.
 
 #### Windows Admin Center
 
@@ -365,10 +367,10 @@ Perform this task on CL1.
     Enter-PSSession VN1-SRV10
     ````
 
-1. On VN1-SRV10, copy the contents of the respective folder in **C:\\LabResources\\Sample Documents** to **D:\\Shares\\...**.
+1. On VN1-SRV10, copy the contents of the respective folder in **C:\\WindowsServerLab\\Resources\\Sample Documents** to **D:\\Shares\\...**.
 
     ````powershell
-    # TODO: Fill the share name between the quotes, e.g., 'Finance'
+    # Learner input: Fill the share name between the quotes, e.g., 'Finance'
     $shareName = ''
     Copy-Item `
         -Path "C:\WindowsServerLab\Resources\Sample Documents\$shareName\*" `
@@ -450,7 +452,7 @@ Perform this task on CL1.
 
     ````powershell
     <# 
-        TODO: Fill the share name and the caching mode from the table between 
+        Learner input: Fill the share name and the caching mode from the table between
         the quotes
     #>
     $shareName = ''
