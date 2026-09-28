@@ -15,8 +15,7 @@
 
 ## Setup
 
-1. In the menu of **"WIN-CL1" on "..." - Virtual Machine Connection**, click **Media**, **DVD Drive**, **Insert disk...**
-1. In **Open**, open **C:\WindowsServerLab\ISOs\2022_x64_EN_Eval.iso**.
+1. In VMware Workstation, open the settings for **CL1**, select **CD/DVD**, choose **Use ISO image file**, and select `C:\WindowsServerLab\ISOs\2022_x64_EN_Eval.iso`. Connect the drive only for the import steps that require it.
 1. On **CL1**, sign in as **ad\administrator**.
 1. On **VN1-SRV8**, sign in as **ad\administrator**.
 
@@ -174,38 +173,36 @@ Perform this task on CL1.
 
 ### Task 1: Prepare a new virtual machine
 
-Perform this task on the host.
+Perform the VMware configuration on the host and the authenticated file copy on CL1.
 
-1. Create a remote PowerShell to the virtual machine **WIN-VN1-SRV8** and store it in a variable.
-
-    ````powershell
-    $pSSession = New-PSSession -VMName WIN-VN1-SRV8
-    ````
-
-1. At the prompt for credentials, enter the credentials of **ad\\Administrator**.
-1. From the virtual machine, copy **C:\\Shares\\MDT\Boot\\LiteTouchPE_x64.iso** to the host's **C:\\WindowsServerLab\\ISOs**.
+1. On the host, create `C:\WindowsServerLab\ISOs` if it does not exist. In the powered-off **CL1** VM settings, temporarily add that folder under **Options > Shared Folders** with the name `LabISOs`, then start CL1.
+1. On **CL1**, copy the Lite Touch ISO from the deployment share into the temporary VMware shared folder.
 
     ````powershell
-    Copy-Item -FromSession $pSSession -Path R:\Shares\MDT\Boot\LiteTouchPE_x64.iso -Destination C:\WindowsServerLab\ISOs
+    Copy-Item `
+        -Path '\\VN1-SRV8\mdt\Boot\LiteTouchPE_x64.iso' `
+        -Destination '\\vmware-host\Shared Folders\LabISOs\LiteTouchPE_x64.iso'
     ````
 
-1. Remove the remote PowerShell session
+1. On the host, verify that the file exists and record its SHA-256 in private lab notes.
 
     ````powershell
-    Remove-PSSession -Session $pSSession
+    Get-FileHash `
+        -Path C:\WindowsServerLab\ISOs\LiteTouchPE_x64.iso `
+        -Algorithm SHA256
     ````
 
-1. In VMware Workstation, create **VN1-SRV20** with the CPU, memory, firmware, disk, and mapped enterprise network required by this exercise. Leave the disk blank and configure network boot before local-disk boot so the deployment workflow remains the subject of the lab.
+1. Shut down CL1 and disable or remove the temporary `LabISOs` VMware shared folder before continuing.
+
+1. In VMware Workstation, create **WIN-VN1-SRV20** with 2 vCPUs, 4 GB RAM, UEFI firmware, a blank 127 GB thin-provisioned disk, and the VMware custom network mapped to this exercise's enterprise `VNet1` segment. The VMware display name is `WIN-VN1-SRV20`; the operating system will receive the hostname `VN1-SRV20` during deployment.
+1. Keep local-disk boot ahead of network boot for the ISO-based deployment. Take a powered-off snapshot named `MDT-blank-target` before attaching the Lite Touch ISO; the optional redeployment and WDS exercises reuse this clean state.
 
 ### Task 2: Run the Microsoft Deployment Kit Wizard
 
 Perform this task on the host.
 
-1. Open **Hyper-V Manager**.
-1. In Hyper-V Manager, double-click **WIN-VN1-SRV20** to open the console.
-1. In WIN-VN1-SRV20 on ... - Virtual Machine Connection, in the menu, click **Media**, **DVD Drive**, **Insert Disk...**
-1. In Open, open **C:\\WindowsServerLab\\ISOs\\LiteTouchPE_x64.iso**.
-1. Click **Start**.
+1. In VMware Workstation, open **WIN-VN1-SRV20** settings. Select **CD/DVD**, choose **Use ISO image file**, open `C:\WindowsServerLab\ISOs\LiteTouchPE_x64.iso`, and enable **Connect at power on**.
+1. Open the VMware console and power on **WIN-VN1-SRV20**.
 1. As soon as the message Press any key to boot from CD or DVD appears, press any key.
 
     You have a few seconds time only to press the key. If you fail to press the key on time, restart the virtual machine.
@@ -226,16 +223,13 @@ Perform this task on the host.
 
     Observe the steps the Lite Touch Installation takes to install Windows Server 2022. This will take a few minutes.
 
-1. Close dialog box **Connect to "WIN-VN-SRV20"** (do not use enhanced session mode for now).
-
-    Lite Touch Installation will take some final steps.
+1. Keep the VMware console open while Lite Touch Installation performs its final steps.
 
 1. In the message box Successful Deployment, click **OK**.
 
     You are automatically signed in as local administrator.
 
-1. In WIN-VN1-SRV20 on ... - Virtual Machine Connection, in the menu, click **View**, **Enhanced Session**.
-1. In Connect to "WIN-VN1-SRV20", select a resolution and click **Connect**.
+1. Continue through the VMware console. After deployment is complete, install VMware Tools if the clean compatibility snapshot does not already provide the required drivers.
 
 ### Task 3: Review logs
 
@@ -295,22 +289,9 @@ Perform this task on CL1.
 
 Perform this task on the host computer.
 
-1. Turn off the virtual machine **WIN-VN1-SRV20**.
+1. Shut down **WIN-VN1-SRV20** in VMware Workstation and revert it to the powered-off `MDT-blank-target` snapshot. Confirm the blank 127 GB disk is present; do not delete VMDK files manually.
 
-    ````powershell
-    $vMName = 'WIN-VN1-SRV20'
-    Stop-VM -VMName $vMName -Force
-    ````
-
-1. Delete and recreate the virtual hard disk drive.
-
-    ````powershell
-    $vMHardDiskDrive = Get-VMHardDiskDrive -VMName $vMName
-    Remove-Item -Path $vMHardDiskDrive.Path
-    New-VHD -Dynamic -Path $vMHardDiskDrive.Path -SizeBytes 127GB
-    ````
-
-1. Perform [Task 2: Run the Microsoft Deployment Kit Wizard](#task-2-run-the-microsoft-deployment-kit-wizard) again. You may skip steps 3 - 5.
+1. Perform [Task 2: Run the Microsoft Deployment Kit Wizard](#task-2-run-the-microsoft-deployment-kit-wizard) again.
 
     During the deployment, the computer should remain locked now.
 
@@ -339,25 +320,9 @@ Perform this task on VN1-SRV8.
 
 Perform these steps on the host computer.
 
-1. Run **Windows PowerShell** as Administrator.
-1. Turn off the virtual machine **WIN-VN1-SRV20**.
-
-    ````powershell
-    $vMName = 'WIN-VN1-SRV20'
-    Stop-VM -VMName $vMName -Force
-    ````
-
-1. Delete and recreate the virtual hard disk drive.
-
-    ````powershell
-    $vMHardDiskDrive = Get-VMHardDiskDrive -VMName $vMName
-    Remove-Item -Path $vMHardDiskDrive.Path
-    New-VHD -Dynamic -Path $vMHardDiskDrive.Path -SizeBytes 127GB
-    ````
-
-1. In **Hyper-V Manager**, double-click **WIN-VN1-SRV20** to open the console.
-1. In WIN-VN1-SRV20 on ... - Virtuam Machine Connection, on the menu, click **Media**, **DVD Drive**, **Eject "LiteTouchPE_x64.iso"**.
-1. Click **Start**.
+1. In VMware Workstation, shut down **WIN-VN1-SRV20** and revert it to `MDT-blank-target`.
+1. Open the VM settings, disconnect `LiteTouchPE_x64.iso`, and place network/PXE boot ahead of the blank local disk for this exercise only. Confirm the network adapter is attached to the isolated enterprise `VNet1` VMware segment served by WDS.
+1. Open the VMware console and power on **WIN-VN1-SRV20**.
 1. After a few seconds, you should see a screen with this information (the **Client IP** may vary):
 
     ````txt

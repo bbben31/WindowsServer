@@ -67,7 +67,7 @@ Currently, Contoso users cannot access resources in Adatum. Because Contoso coll
     * Sales
 
 1. [Verify the login with the user principal name](#task-3-verify-the-login-with-the-user-principal-name) Larry@lab.test
-1. [Add an UPN suffix](#task-1-add-an-upn-suffix) contoso.com to the forest ad.contoso.com
+1. [Add the Contoso UPN suffix](#task-4-add-the-contoso-upn-suffix) contoso.com to the forest ad.contoso.com
 1. [Create a new user with an alternative UPN suffix](#task-5-create-a-new-user-with-an-alternative-upn-suffix) in ad.contoso.com
 
 ### Task 1: Add an UPN suffix
@@ -146,21 +146,48 @@ Perform this task on CL2.
 
 1. Sign out.
 
+### Task 4: Add the Contoso UPN suffix
+
+#### Desktop experience
+
+Perform this task on VN2-SRV2 while signed in as **contoso\Administrator**.
+
+1. Open **Active Directory Domains and Trusts**.
+1. In the context menu of **Active Directory Domains and Trusts**, click **Properties**.
+1. On the **UPN Suffixes** tab, under **Alternative UPN suffixes**, enter **contoso.com**, click **Add**, and click **OK**.
+
+#### PowerShell
+
+Perform this task on VN2-SRV2 while signed in as **contoso\Administrator**.
+
+1. Open **Terminal** and add `contoso.com` to the `ad.contoso.com` forest.
+
+    ````powershell
+    Set-ADForest `
+        -Identity ad.contoso.com `
+        -UPNSuffixes @{ Add = 'contoso.com' }
+    ````
+
+1. Verify the suffix before creating the user.
+
+    ````powershell
+    (Get-ADForest -Identity ad.contoso.com).UPNSuffixes
+    ````
+
 ### Task 5: Create a new user with an alternative UPN suffix
 
 #### Desktop experience
 
-Perform this task on CL1.
+Perform this task on VN2-SRV2 while signed in as **contoso\Administrator**.
 
 1. Open **Active Directory Administrative Center**.
-1. In Active Directory Administrative Center, click **ad (local)**.
-1. In ad (local), double-click **IT**.
-1. In the pane **Tasks**, under **IT**, click **New**, **User**.
-1. Create User, in **First name**, type **Wil**. In **Last name**, type **Ruiz**. In **User UPN logon**, type **Wil** and, beside **@**, click **lab.test**. In User SamAccountName logon, before the backslash, ensure **ad** is typed in, and after the backslash, ensure **Wil** is typed in. In **Password** and **Confirm password**, type a secure password and take a note. Click **OK**.
+1. In Active Directory Administrative Center, click **ad (local)** and then **Users**.
+1. In the **Tasks** pane under **Users**, click **New**, **User**.
+1. In Create User, set **First name** to **Wil**, **Last name** to **Ruiz**, **User UPN logon** to **Wil@contoso.com**, and **User SamAccountName logon** to **CONTOSO\Wil**. Enter a unique lab-only password, require password change at next sign-in, and click **OK**.
 
 #### PowerShell
 
-Perform this task on CL1.
+Perform this task on VN2-SRV2 while signed in as **contoso\Administrator**.
 
 1. In the context menu of **Start**, click **Terminal**.
 1. In Terminal, set up parameter variables for the new user.
@@ -170,14 +197,14 @@ Perform this task on CL1.
     $lastName = 'Ruiz'
 
     $name = "$firstName $lastName"
-    $userPrincipalName = "$firstname@lab.test"
+    $userPrincipalName = "$firstName@contoso.com"
     ````
 
 1. Create the new user.
 
     ````powershell
     $aDUser = New-ADUser `
-        -Path 'ou=IT, DC=ad,DC=lab,DC=test' `
+        -Path 'CN=Users,DC=ad,DC=contoso,DC=com' `
         -Name $name `
         -GivenName $firstName `
         -Surname $lastName `
@@ -1218,7 +1245,7 @@ Perform this task on CL1.
 1. Under Members, click **Add...**.
 1. In Select Users, Contacts, or Other Objects, click **Locations...**.
 1. In Locations, click **ad.contoso.com** and click **OK**.
-1. In **Select Users, Contacts, or Other Objects**, in **Enter the object names to select**, type Administrator and click **Check Names**.
+1. In **Select Users, Contacts, or Other Objects**, in **Enter the object names to select**, type **Wil** and click **Check Names**.
 1. In **Select Users, Contacts, or Other Objects**, click **OK**.
 1. In **Marketing Read**, click **OK**.
 
@@ -1226,7 +1253,7 @@ Perform this task on CL1.
 
 Perform this task on CL3.
 
-1. Sign in as **Administrator@ad.contoso.com**.
+1. Sign in as **Wil@contoso.com**.
 1. Using **File Explorer**, navigate to \\\\VN1-SRV10.ad.lab.test.
 
     > You will receive an error message like in [figure 1].
@@ -1235,7 +1262,7 @@ Perform this task on CL3.
 
 Perform this task on CL4.
 
-1. Sign in as **Administrator@ad.contoso.com**.
+1. Sign in as **Wil@contoso.com**.
 
     > You will receive an error message like in [figure 2].
 
@@ -1260,15 +1287,15 @@ Perform this task on CL1.
 1. In Extensions, on tab **Security**, click **Add...**.
 1. In Select Users, Computers, Service Accounts, or Groups, click **Locations...**.
 1. In Locations, click **ad.contoso.com** and click **OK**.
-1. In **Select Users, Contacts, or Other Objects**, in **Enter the object names to select**, type Administrator and click **Check Names**.
+1. In **Select Users, Contacts, or Other Objects**, in **Enter the object names to select**, type **Wil** and click **Check Names**.
 1. In **Select Users, Contacts, or Other Objects**, click **OK**.
-1. In **CL4**, under **Permissions for Administrator**, in column **Allow**, activate the checkbox **Allowed to authenticate** and click **OK**.
+1. In **CL4**, under **Permissions for Wil**, in column **Allow**, activate the checkbox **Allowed to authenticate** and click **OK**.
 
 ### Task 9: Verify sign in and resource access over a forest trust
 
 Perform this task on CL4.
 
-1. Sign in as **Administrator@ad.contoso.com**.
+1. Sign in as **Wil@contoso.com**.
 
     > You should be able sign in.
 

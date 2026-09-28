@@ -287,4 +287,16 @@ if ($containerLab -notmatch 'raw\.githubusercontent\.com/microsoft/Windows-Conta
     throw 'Windows container installer must use a pinned commit and verify SHA-256 before execution.'
 }
 
-Write-Output 'PASS: manifest file and VM coverage; metadata and uniqueness; Markdown links, images, anchors, and fences; standalone and embedded PowerShell syntax; script dependencies; self-learner language; legacy identity values; pinned container installer.'
+$mdtLab = Get-Content -LiteralPath (Join-Path $RepositoryRoot 'Instructions\Labs\Microsoft-Deployment-Toolkit.md') -Raw
+if ($mdtLab -match '(?i)Hyper-V Manager|Virtual Machine Connection|New-PSSession\s+-VMName|Stop-VM|Get-VMHardDiskDrive|New-VHD') {
+    throw 'The MDT lab must use VMware consistently for outer VM lifecycle operations.'
+}
+
+$multiDomainLab = Get-Content -LiteralPath (Join-Path $RepositoryRoot 'Instructions\Labs\Multi-domain-environments.md') -Raw
+if ($multiDomainLab -notmatch '#task-4-add-the-contoso-upn-suffix' -or
+    $multiDomainLab -notmatch '(?is)Task 4: Add the Contoso UPN suffix.{0,1200}Set-ADForest.{0,300}ad\.contoso\.com.{0,300}contoso\.com' -or
+    $multiDomainLab -notmatch '(?is)Task 5: Create a new user.{0,1800}Wil@contoso\.com.{0,1000}CN=Users,DC=ad,DC=contoso,DC=com') {
+    throw 'The multi-domain lab must configure the Contoso UPN suffix and create Wil in ad.contoso.com.'
+}
+
+Write-Output 'PASS: manifest file and VM coverage; metadata and uniqueness; Markdown links, images, anchors, and fences; standalone and embedded PowerShell syntax; script dependencies; self-learner language; legacy identity values; pinned container installer; VMware MDT and Contoso scenario integrity.'
