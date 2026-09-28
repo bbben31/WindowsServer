@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -48,10 +48,15 @@ Perform this task on VN1-SRV13.
 
     ````powershell
     Set-Location C:\WindowsServerLab\Resources\Downloads
-    Invoke-WebRequest `
-        -Uri 'https://raw.githubusercontent.com/microsoft/Windows-Containers/Main/helpful_tools/Install-DockerCE/install-docker-ce.ps1' `
-        -OutFile install-docker-ce.ps1 `
-        -UseBasicParsing
+    $uri = 'https://raw.githubusercontent.com/microsoft/Windows-Containers/9fd4c4d85597ce75834f4e1cd21695c34642de3d/helpful_tools/Install-DockerCE/install-docker-ce.ps1'
+    $expectedHash = '09DED921D046EE98723ED533E6E517691C744A916769C181AA1C4A2DC784E63E'
+    Invoke-WebRequest -Uri $uri -OutFile install-docker-ce.ps1 -UseBasicParsing
+    $actualHash = (Get-FileHash .\install-docker-ce.ps1 -Algorithm SHA256).Hash
+    if ($actualHash -ne $expectedHash) {
+        throw "Installer hash mismatch. Expected $expectedHash; received $actualHash."
+    }
+    Get-Content .\install-docker-ce.ps1
+    # Continue only after reviewing the pinned script.
     .\install-docker-ce.ps1 -HyperV
     ````
 
@@ -107,7 +112,7 @@ Perform this task on VN1-SRV13.
 
     This command starts a new container using the Nano server image. The -i or --interactive option tells Docker to keep STDIN open even if not attached. The -t or --tty option tells Docker to allocate a pseudo-TTY. Within the container, cmd.exe is executed.
 
-    Now, your are in a cmd.exe session within the container.
+    You are now in a `cmd.exe` session inside the container.
 
 1. In the container, create a simple text file **Hello.txt** in **C:\\Users\\ContainerUser** and exit from the container.
 
@@ -201,7 +206,7 @@ Perform this task on CL1.
 1. In Visual Studio Code, on the menu, click **View**, **Command Palette...** or press CTRL + SHIFT + P.
 1. In the command palette, search for and click **Git: Clone**.
 1. In Provide repository URL or pick a repository source, enter **https://github.com/MicrosoftDocs/Virtualization-Documentation.git**.
-1. In Choose a folder to clone https://github.com/MicrosoftDocs/Virtualization-Documentation.git into, navigate to **C:\\LabResources** and click **Select as Repository Destination**.
+1. In Choose a folder to clone https://github.com/MicrosoftDocs/Virtualization-Documentation.git into, navigate to **C:\\WindowsServerLab\\Resources** and click **Select as Repository Destination**.
 
     Wait for the cloning to finish. This takes a few seconds.
 
@@ -216,7 +221,7 @@ Peform this task on CL1.
 1. In Visual Studio Code, if the repository **VIRTUALIZATION-DOCUMENTATION** is not open:
 
     1. On the menu, click **File**, **Open Folder...**
-    1. In Open Folder, navigate to **C:\\LabResources\Virtualization-Documentation** and click **Select Folder**.
+    1. In Open Folder, navigate to **C:\\WindowsServerLab\Resources\Virtualization-Documentation** and click **Select Folder**.
     1. In Do you trust the authors of the files in the folder, click **Yes, I trust the authors**
 
 1. In Explorer view, click **windows-container-samples**, **asp-net-getting-started** and **dockerfile**.
@@ -245,7 +250,7 @@ Peform this task on CL1.
         -Path `
             C:\WindowsServerLab\Resources\Virtualization-Documentation\windows-container-samples\asp-net-getting-started\ `
         -ToSession $psSession `
-        -Destination c:\LabResources\ `
+        -Destination C:\WindowsServerLab\Resources\ `
         -Container `
         -Recurse
     ````

@@ -2,6 +2,8 @@
 
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
+> **Legacy compatibility gate:** Microsoft has [retired MDT](https://learn.microsoft.com/en-us/troubleshoot/mem/configmgr/mdt/mdt-retirement). Preserve this lab for task-sequence and deployment-share concepts only. Run it, if at all, in an isolated disposable Server 2022 snapshot with the exact legacy ADK/WinPE combination; it is not a supported Windows 11 or Windows Server 2025 deployment path.
+
 
 
 
@@ -20,7 +22,7 @@
 
 ## Introduction
 
-Adatum wants to automate some steps when deploying new servers. For this reason, you install and configure Microsoft Deployment Toolkit.
+Adatum wants to automate some steps when deploying new servers. This historical scenario demonstrates how MDT deployment shares and task sequences worked before the product was retired.
 
 ## Exercices
 
@@ -181,7 +183,7 @@ Perform this task on the host.
     ````
 
 1. At the prompt for credentials, enter the credentials of **ad\\Administrator**.
-1. From the virtual machine, copy **C:\\Shares\\MDT\Boot\\LiteTouchPE_x64.iso** to the host's **C:\\Labs\ISOs**.
+1. From the virtual machine, copy **C:\\Shares\\MDT\Boot\\LiteTouchPE_x64.iso** to the host's **C:\\WindowsServerLab\\ISOs**.
 
     ````powershell
     Copy-Item -FromSession $pSSession -Path R:\Shares\MDT\Boot\LiteTouchPE_x64.iso -Destination C:\WindowsServerLab\ISOs
@@ -193,11 +195,7 @@ Perform this task on the host.
     Remove-PSSession -Session $pSSession
     ````
 
-1. Create the virtual machine.
-
-    ````powershell
-    C:\WindowsServerLab\Resources\New-VM.ps1 -Name VN1-SRV20
-    ````
+1. In VMware Workstation, create **VN1-SRV20** with the CPU, memory, firmware, disk, and mapped enterprise network required by this exercise. Leave the disk blank and configure network boot before local-disk boot so the deployment workflow remains the subject of the lab.
 
 ### Task 2: Run the Microsoft Deployment Kit Wizard
 
@@ -206,7 +204,7 @@ Perform this task on the host.
 1. Open **Hyper-V Manager**.
 1. In Hyper-V Manager, double-click **WIN-VN1-SRV20** to open the console.
 1. In WIN-VN1-SRV20 on ... - Virtual Machine Connection, in the menu, click **Media**, **DVD Drive**, **Insert Disk...**
-1. In Open, open **C:\\Labs\\ISOs\\LiteTouchPE_x64.iso**.
+1. In Open, open **C:\\WindowsServerLab\\ISOs\\LiteTouchPE_x64.iso**.
 1. Click **Start**.
 1. As soon as the message Press any key to boot from CD or DVD appears, press any key.
 

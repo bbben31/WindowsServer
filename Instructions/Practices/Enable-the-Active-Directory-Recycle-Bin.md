@@ -30,9 +30,9 @@ Perform these steps on CL1.
 Perform these steps on CL1
 
 1. Open **Terminal**.
-1. Enable Athe Active Directory Recycle Bin.
+1. Enable the Active Directory Recycle Bin.
 
-    `````powershell
+    ````powershell
     $domainFQDN = 'ad.lab.test'
     $domainDN = 'DC=ad, DC=lab, DC=test'
     Enable-ADOptionalFeature `

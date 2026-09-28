@@ -218,6 +218,7 @@ Peform this task on CL1.
    Invoke-Command -ComputerName $computerName -ScriptBlock { 
       Restart-Service LanmanServer
    }
+   ````
 
 ### Task 2: Start a continuous copy process
 
@@ -235,7 +236,7 @@ Perform this task on the host.
    ````
 
 1. Enter the credentials of **Administrator** on VN1-SRV10.
-1. Copy **C:\\Labs\\ISOs\\2022_x64_EN_Eval** from the host to **V:\\** in an infinite loop.
+1. Copy **C:\\WindowsServerLab\\ISOs\\2022_x64_EN_Eval.iso** from the host to **V:\\** in an infinite loop.
 
    ````powershell
    while ($true) { 
@@ -600,6 +601,7 @@ Perform these steps on CL1.
          -MediaType $PSItem `
          -CimSession $cimSession
    }
+   ````
 
 1. In the storage pool, create a new mirrored virtual disk with **32 GB** in the SSD and **64 GB** in the HDD tier and the name **Tiered Disk 1**.
 

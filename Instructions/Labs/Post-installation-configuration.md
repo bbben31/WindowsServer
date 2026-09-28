@@ -167,7 +167,7 @@ Perform this task on CL1.
 1. [Set the default Administrator password on Windows Server](#task-1-set-the-default-administrator-password-on-windows-server)
 1. [Configure the Ethernet adapter on Windows Server](#task-2-configure-the-ethernet-adapter-on-windows-server) with the IPv4 address 10.1.1.168/24, default gateway 10.1.1.1 and DNS server 10.1.1.8
 1. [Set the computer name and join the domain on Windows Server](#task-3-set-the-computer-name-and-join-the-domain-on-windows-server): the computername should be VN1-SRV21
-1. [Set the time zone on Windows Server](#task-5-set-the-time-zone-on-windows-server)
+1. [Set the time zone on Windows Server](#task-4-set-the-time-zone-on-windows-server)
 
 ### Task 1: Set the default Administrator password on Windows Server
 

@@ -20,9 +20,9 @@
 1. Open **Terminal**.
 1. In Terminal, run the script ````C:\WindowsServerLab\Resources\Solutions\Install-Service.ps1````
 
-You must have completed the practice [Explore Server Manager](../Practices/Explore-Server-Manager.md). If you skipped the practice, on **CL1**, in Terminal, run ````C:\WindowsServerLab\Resources\Solutions\Add-ServerManagerServers.ps1````.
+Complete [Explore Server Manager](../Practices/Explore-Server-Manager.md) on **CL1** before continuing.
 
-You must have completed the practice [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md). If you skipped the practice, on **VN1-SRV4**, sign in as **ad\Administrator**, and run ````C:\WindowsServerLab\Resources\Solutions\Install-AdminCenter.ps1````.
+Complete [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md) on **VN1-SRV4** before continuing.
 
 ## Introduction
 
@@ -175,7 +175,7 @@ The domain controller still running Windows Server 2022 must be replaced by a Wi
     }
     ````
 
-    If any records, are missing, wait for at least 15 minutes and check again. If the problem persists, ask the instructor.
+    If any records are missing, wait at least 15 minutes and check again. If the problem persists, run `dcdiag /test:dns /v`, `repadmin /replsummary`, and an SRV-record lookup; correct DNS client settings or replication before continuing.
 
 1. On CL1, verify that the shares **NETLOGON** and **SYSVOL** are present on **VN1-SRV5**.
 
@@ -286,7 +286,7 @@ The domain controller still running Windows Server 2022 must be replaced by a Wi
 
 ## Exercise 7: Enable database 32K pages
 
-1. On CL1, verify the that the domain **DC=ad, DC=adatum, DC=com** has a 32k page capable database.
+1. On CL1, verify the that the domain **DC=ad,DC=lab,DC=test** has a 32k page capable database.
 
     [Verifying a 32k page capable database](../General/Verifying-a-32k-page-capable-database.md)
 
@@ -296,7 +296,7 @@ The domain controller still running Windows Server 2022 must be replaced by a Wi
 
 ## Exercise 8: Validate delegated managed service accounts
 
-1. On VN1-SRV9, inspect the service **PSService** and the file c:\LabResources\service.ps1. Verify, the startup type is Automatic and the service is running. Verify the executable.
+1. On VN1-SRV9, inspect the service **PSService** and `C:\WindowsServerLab\Resources\service.ps1`. Verify that the startup type is Automatic, the service is running, and the executable path is correct.
 
     > Which account does the service use?
 
@@ -313,7 +313,7 @@ The domain controller still running Windows Server 2022 must be replaced by a Wi
 1. On CL1, create a delegated managed service account:
 
     ```powershell
-    $path = 'ou=Service accounts, dc=ad, dc=adatum, dc=com'
+    $path = 'ou=Service accounts, DC=ad,DC=lab,DC=test'
     $name = 'dMSA_PSService'
     $dNSHostname = 'vn1-srv9.ad.lab.test'
     ```
@@ -337,9 +337,9 @@ The domain controller still running Windows Server 2022 must be replaced by a Wi
 
     ```powershell
     $identity = `
-        'cn=dMSA_PSService, ou=Service accounts, dc=ad, dc=adatum, dc=com'
+        'cn=dMSA_PSService, ou=Service accounts, DC=ad,DC=lab,DC=test'
     $supersededAccount = `
-        'cn=Powershell Service, ou=Service accounts, dc=ad, dc=adatum, dc=com'
+        'cn=Powershell Service, ou=Service accounts, DC=ad,DC=lab,DC=test'
     ```
 
     [Migrating a service account to a dMSA](../General/Migrating-a-service-account-to-a-dMSA.md)

@@ -29,7 +29,7 @@ Perform these steps on CL1.
 1. On page Configure Networking, in **Connection**, click **External** and click **Next >**.
 1. On page Connect virtual hard disk, ensure **Create a virtual hard disk** is selected. In **Name**, ensure **PM-SRV20.vhdx**, and, in location **C:\\hyper-v\\Virtual Hard Disks\\** is filled in. Click **Next >**.
 1. On page Installation Options, click **Install an operating system from a bootable image file** and click **Browse...**
-1. In Open, expand **pm-srv1.ad.lab.test**, **Local Disk (C:)** and click **LabResources**.
+1. In Open, expand **pm-srv1.ad.lab.test**, **Local Disk (C:)**, **WindowsServerLab**, and click **Resources**.
 1. Click **2025_x64_EN_Eval.iso** and click **Open**.
 1. In **New Virtual Machine Wizard**, on page **Installation Options**, click **Next >**.
 1. On page Summary, click **Finish**.

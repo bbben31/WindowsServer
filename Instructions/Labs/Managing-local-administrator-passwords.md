@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -94,7 +94,7 @@ Perform this task on CL1.
 1. Grant the managed device password update permission.
 
     ````powershell
-    $identity = 'ou=Devices, dc=ad, dc=adatum, dc=com'
+    $identity = 'ou=Devices, DC=ad,DC=lab,DC=test'
     Set-LapsADComputerSelfPermission -Identity $identity
     ````
 

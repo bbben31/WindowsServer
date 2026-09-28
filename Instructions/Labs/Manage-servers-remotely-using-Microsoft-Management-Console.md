@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -22,9 +22,9 @@
 On **CL1**, logon as **ad\Administrator**.
 On **CL2**, logon as **.\Administrator**.
 
-If you skipped the practice [Create a custom Microsoft Management Console](../Practices/Create-a-custom-Microsoft-Management-Console.md), on CL1, run ````C:\WindowsServerLab\Resources\Solutions\New-CustomMMC.ps1````.
+Complete [Create a custom Microsoft Management Console](../Practices/Create-a-custom-Microsoft-Management-Console.md) on CL1 before continuing.
 
-If you skipped the lab [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), on VN1-SRV4, run ````C:\WindowsServerLab\Resources\Solutions\Add-WACServers.ps1````.
+Complete [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), including adding the required server connections, before continuing.
 
 ## Introduction
 

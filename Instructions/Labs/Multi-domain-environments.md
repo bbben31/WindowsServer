@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -26,47 +26,14 @@ If you did not complete the lab [Deploying domain controllers](Deploying-domain-
 ## Setup
 
 1. On **CL1**, sign in as **ad\\Administrator**.
-1. In the context menu of **Start**, click **Terminal**.
-1. In Terminal, execute ````C:\WindowsServerLab\Resources\Solutions\New-Shares.ps1````.
-
-    You do not have to wait for the script to finish. You can safely ignore the following warnings and error messages:
-
-    ````text
-    WARNING: Certificate cannot be requested!
-    ````
-
-    ````text
-    Copy-Item : Cannot find path 'C:\Program Files\Windows Admin Center\PowerShell\Modules\*\' because it does not exist.
-    ````
-
-    ````text
-    Import-Connection : The term 'Import-Connection' is not recognized as the name of a cmdlet, function, script file, or   operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
-    ````
-    
-    ````text
-    WARNING: This script cannot add computers to Windows Admin Center
-    ````
-
-    ````text
-    WARNING: Extension cannot be installed by script.
-    ````
-
-    ````text
-    New-CimSession: WinRM cannot complete the operation.
-    ````
-
-    ````text
-    WARNING: Junction cannot be created.
-    ````
-
-    You do not have to wait for the command to complete until exercise 2, task 3.
+1. Complete [Install prerequisites for file server](../Practices/Install-prerequisites-for-file-serving.md) and verify the IT, Users, and Finance shares before continuing.
 
 1. On **CL4**, sign in as **.\\Administrator**.
 1. On **VN2-SRV2** sign in as **contoso\\Administrator**.
 
 You must have completed the lab [Deploying Domain Controllers](Deploying-domain-controllers.md). If you skipped the lab, on **CL3**, in **Terminal**, run ````Get-WindowsCapability -Online -Name 'Rsat.Dns.Tools*' | Add-WindowsCapability -Online````. You do not have to wait for the command to complete until exercise 2, task 3.
 
-For exercises 5 and 6, if you skipped exercise 5 of the lab [Deploying Domain Controllers](Deploying-domain-controllers.md#exercise-6-deploy-a-new-forest) (meaning, you do not have the CONTOSO domain), on **CL3**, in **Terminal**, on **CL3**, sign in as **.\\Administrator** and, in **Terminal**, run run ````C:\WindowsServerLab\Resources\Solutions\Install-DomainControllers.ps1````. You do not have to wait for the command to complete until exercise 5. However, the script will need 30 - 60 minutes to complete.
+Exercises 5 and 6 require the CONTOSO forest created in [Exercise 2: Deploy a new forest](Deploying-domain-controllers.md#exercise-2-deploy-a-new-forest). Complete that prerequisite and validate its DNS before continuing; no classroom provisioning shortcut is available.
 
 ## Introduction
 
@@ -100,7 +67,7 @@ Currently, Contoso users cannot access resources in Adatum. Because Contoso coll
     * Sales
 
 1. [Verify the login with the user principal name](#task-3-verify-the-login-with-the-user-principal-name) Larry@lab.test
-1. [Add an UPN suffix](#task-4-add-an-upn-suffix) contoso.com to the forest ad.contoso.com
+1. [Add an UPN suffix](#task-1-add-an-upn-suffix) contoso.com to the forest ad.contoso.com
 1. [Create a new user with an alternative UPN suffix](#task-5-create-a-new-user-with-an-alternative-upn-suffix) in ad.contoso.com
 
 ### Task 1: Add an UPN suffix
@@ -156,7 +123,7 @@ Perform this task on CL1.
     ````powershell
     @('Development', 'IT', 'Marketing', 'Research', 'Sales') | ForEach-Object { 
         Get-ADUser `
-            -SearchBase "ou=$PSItem, dc=ad, dc=adatum, dc=com" `
+            -SearchBase "ou=$PSItem, DC=ad,DC=lab,DC=test" `
             -Filter * | 
         ForEach-Object { 
             $PSItem | Set-ADUser `
@@ -210,7 +177,7 @@ Perform this task on CL1.
 
     ````powershell
     $aDUser = New-ADUser `
-        -Path 'ou=IT, dc=ad, dc=adatum, dc=com' `
+        -Path 'ou=IT, DC=ad,DC=lab,DC=test' `
         -Name $name `
         -GivenName $firstName `
         -Surname $lastName `
@@ -327,60 +294,36 @@ Perform this task on CL1.
     ````
 
 1. At the prompt **Directory Services Restore Mode (DSRM) password** enter a secure password and take a note.
-1. Store the credentials for the Enterprise admin in variables.
+1. Prompt for the Enterprise Admin credential without converting it to plaintext.
 
     ````powershell
-    $username = "Administrator@ad.lab.test"
-    $securePassword = Read-Host -Prompt "Password for $username" -AsSecureString
+    $credential = Get-Credential `
+        -UserName 'Administrator@ad.lab.test' `
+        -Message 'Enterprise Admin credential for the child-domain deployment'
     ````
 
 1. When prompted, enter the credentials for **Administrator@ad.lab.test**.
 1. Install a child domain **clients** with the parent domain **ad.lab.test** on VN1-SRV7. Install DNS at the same time, but do not make it a Global Catalog server.
 
     ````powershell
-    # Convert the secure strings back to a plain text string
-
-    $password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
-        [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR(
-            $securePassword
-        )
-    ) 
-
-    $safeModeAdministratorPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
-        [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR(
-            $safeModeAdministratorPasswordSecure
-        )
-    ) 
-
     $job = Invoke-Command `
         -ComputerName VN1-SRV7.ad.lab.test `
         -AsJob `
+        -ArgumentList $credential, $safeModeAdministratorPasswordSecure `
         -ScriptBlock {
-        # Convert the passwords into a secure strings
-        
-        $securePassword = `
-            ConvertTo-SecureString -String $using:password -AsPlainText -Force
-        $secureSafeModeAdministratorPassword = `
-            ConvertTo-SecureString `
-                -String $using:safeModeAdministratorPassword `
-                -AsPlainText `
+            param(
+                [pscredential]$Credential,
+                [securestring]$SafeModeAdministratorPassword
+            )
+            Install-ADDSDomain `
+                -DomainType ChildDomain `
+                -ParentDomainName ad.lab.test `
+                -NewDomainName clients `
+                -Credential $Credential `
+                -SafeModeAdministratorPassword $SafeModeAdministratorPassword `
+                -InstallDns `
                 -Force
-
-        # Create credentials
-        $credential = New-Object `
-            -TypeName pscredential `
-            -ArgumentList $using:username, $securePassword
-
-        Install-ADDSDomain `
-            -DomainType ChildDomain `
-            -ParentDomainName ad.lab.test `
-            -NewDomainName clients `
-            -Credential $credential `
-            -SafeModeAdministratorPassword `
-                $secureSafeModeAdministratorPassword `
-            -InstallDns `
-            -Force
-    }
+        }
     ````
 
 1. Wait for the job to complete.
@@ -731,58 +674,36 @@ Perform this task on CL1.
     ````
 
 1. At the prompt **Directory Services Restore Mode (DSRM) password** enter a secure password and take a note.
-1. Store the credentials for the Enterprise admin in variables.
+1. Prompt for the Enterprise Admin credential without converting it to plaintext.
 
     ````powershell
-    $username = "Administrator@ad.lab.test"
-    $securePassword = Read-Host -Prompt "Password for $username" -AsSecureString
+    $credential = Get-Credential `
+        -UserName 'Administrator@ad.lab.test' `
+        -Message 'Enterprise Admin credential for the tree-domain deployment'
     ````
 
 1. When prompted, enter the credentials for **Administrator@ad.lab.test**.
 1. Install a new tree **extranet.lab.test** with the parent domain **ad.lab.test** on VN1-SRV7. Install DNS at the same time, but do not make it a Global Catalog server.
 
     ````powershell
-    # Convert the secure strings back to a plain text string
-
-    $password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
-        [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR(
-            $securePassword
-        )
-    ) 
-
-    $safeModeAdministratorPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
-        [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR(
-            $safeModeAdministratorPasswordSecure
-        )
-    ) 
-
-    $job = Invoke-Command -ComputerName PM-SRV1 -AsJob -ScriptBlock {
-        # Convert the passwords into a secure strings
-        
-        $securePassword = `
-            ConvertTo-SecureString -String $using:password -AsPlainText -Force
-        $secureSafeModeAdministratorPassword = `
-            ConvertTo-SecureString `
-                -String $using:safeModeAdministratorPassword `
-                -AsPlainText `
+    $job = Invoke-Command `
+        -ComputerName PM-SRV1 `
+        -AsJob `
+        -ArgumentList $credential, $safeModeAdministratorPassword `
+        -ScriptBlock {
+            param(
+                [pscredential]$Credential,
+                [securestring]$SafeModeAdministratorPassword
+            )
+            Install-ADDSDomain `
+                -DomainType TreeDomain `
+                -ParentDomainName ad.lab.test `
+                -NewDomainName extranet.lab.test `
+                -Credential $Credential `
+                -SafeModeAdministratorPassword $SafeModeAdministratorPassword `
+                -InstallDns `
                 -Force
-
-        # Create credentials
-
-        $credential = New-Object `
-            -TypeName pscredential `
-            -ArgumentList $using:username, $securePassword
-
-
-        Install-ADDSDomain `
-            -DomainType TreeDomain `
-            -ParentDomainName ad.lab.test `
-            -NewDomainName extranet.lab.test `
-            -Credential $credential `
-            -SafeModeAdministratorPassword $secureSafeModeAdministratorPassword `
-            -InstallDns `
-            -Force
-    }
+        }
     ````
 
 1. Wait for the job to complete.
@@ -1153,7 +1074,7 @@ Perform this task on the host.
 ## Exercise 5: Create and validate a forest trust
 
 1. [Implement DNS name resolution of ad.contoso.com](#task-1-implement-dns-name-resolution-of-adcontosocom)
-1. [Implement DNS name resolution of ad.lab.test and extranet.lab.test](#task-2-implement-dns-name-resolution-of-adadatumcom)
+1. [Implement DNS name resolution of ad.lab.test and extranet.lab.test](#task-2-implement-dns-name-resolution-of-adlabtest)
 1. [Verify DNS name resolution between the forests](#task-3-verify-dns-name-resolution-between-the-forests)
 1. [Create a forest trust](#task-4-create-a-forest-trust)
 1. [Add a principal from an external forest to a domain-local group](#task-5-add-a-principal-from-an-external-forest-to-a-domain-local-group): Add Wil to Marketing Read.

@@ -15,7 +15,7 @@ If you did not complete the lab [Deploying domain controllers](../Labs/Deploying
 
 If you skipped the practice [Install Remote Server Administration Tools](Install-Remote-Server-Administration-Tools.md), on **CL1**, in **Terminal**, execute ````C:\WindowsServerLab\Resources\Solutions\Install-RemoteServerAdministrationTools.ps1````.
 
-If you skipped the practice [Install Windows Admin Center using a script](Install-Windows-Admin-Center-using-a-script.md), on **VN1-SRV4**, run ````C:\WindowsServerLab\Resources\Solution\Install-AdminCenter.ps1````.
+Complete [Install Windows Admin Center using a script](Install-Windows-Admin-Center-using-a-script.md) on **VN1-SRV4** before continuing.
 
 If you skipped exercise 2 of the lab [Multi domain environments](../Labs/Multi-domain-environments.md#exercise-2-deploy-a-child-domain) (meaning, you do not have the clients.ad.lab.test domain),  join **CL4** to the domain **ad.lab.test**. Moreover, in the command ````Set-ADComputer```` remove the parameter ````-Server````.
 

@@ -16,7 +16,7 @@
 
 ## Setup
 
-Your instructor will tell you which tenant, subscription, and resource group to use.
+Use your existing tenant, Azure for Students subscription, disposable `<AZURE_RESOURCE_GROUP>`, and UK South where supported. Verify current Azure Arc provider, policy, monitoring, update-management, role, quota, and cost requirements before starting.
 
 You need to complete the practices before starting with the lab.
 
@@ -29,7 +29,7 @@ To increase manageability and security of servers, Adatum wants to add on-premis
 
 ## Known issues
 
-In some cases, the permissions to create policies must be assigned in the Azure subscription. the role **Resource Policy Contributor** must be assigned to the student's account. It can take 5 - 15 minutes until the change is applied. See <https://learn.microsoft.com/en-us/answers/questions/8713/what-is-the-min-iam-role-required-to-create-azure>.
+Policy assignment requires appropriate authorization at the selected scope. If the current account lacks it, assign the narrowest documented Azure Policy role temporarily, wait for role propagation, and remove the assignment during cleanup. Do not broaden directory roles to solve a subscription-scope permission error.
 
 ## Exercises
 

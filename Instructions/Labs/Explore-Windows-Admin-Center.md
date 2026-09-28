@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -38,7 +38,7 @@
 
 On **CL1**, logon as **ad\Administrator**.
 
-If you skipped the practice [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md), on VN1-SRV4, run ````C:\WindowsServerLab\Resources\Solutions\Install-AdminCenter.ps1````.
+Complete [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md) on VN1-SRV4 before continuing.
 
 ## Introduction
 
@@ -54,7 +54,7 @@ After you installed Windows Admin Center, you want to find out, what you can do 
 
 ## Exercise 1: Connect
 
-[Using Microsoft Edge, navigate to https://admincenter.ad.lab.test](#task-using-microsoft-edge-navigate-to-httpsadmincenteradadatumcom).
+[Using Microsoft Edge, navigate to https://admincenter.ad.lab.test](#task-using-microsoft-edge-navigate-to-httpsadmincenteradlabtest).
 
     > Why do you need to enter username and password?
 

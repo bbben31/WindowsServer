@@ -89,6 +89,7 @@ Perform these steps on CL1.
     Invoke-Command -Session $pSSession { 
         New-Item -Path C:\Certs -ItemType Directory
     }
+    ````
 
 1. Copy the certificate file to the remote PowerShell session.
 

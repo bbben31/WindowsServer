@@ -95,7 +95,7 @@ This can be performed locally only.
         ````powershell
         $iPAddress = '' # Between the quotes insert the IP address
         $prefixLength = 24 # Change this if required.
-        $defaultGateway = '' Between the quotes, insert the default gateway
+        $defaultGateway = '' # Between the quotes, insert the default gateway
         New-NetIPAddress `
             -InterfaceAlias $interfaceAlias `
             -IPAddress $ipAddress `

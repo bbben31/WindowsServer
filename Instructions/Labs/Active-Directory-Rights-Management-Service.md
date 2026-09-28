@@ -2,9 +2,11 @@
 
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
+> **Legacy technology note:** AD RMS remains available for compatibility but is no longer actively developed. Retain this isolated lab to learn persistent rights-management architecture; do not treat it as the default design for a new enterprise deployment.
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
+
 
 
 
@@ -22,15 +24,11 @@
 ## Setup
 
 1. On **CL1**, sign in as **ad\\Administrator**.
+1. On the enterprise CA, open the Certificate Templates console and grant the VN2-SRV1 and VN2-SRV2 computer accounts **Read** and **Enroll** on the Web Server template. Confirm that the CA issues the template.
 1. Run **Terminal** as Administrator.
-1. Execute the following commands:
+1. Populate disposable lab mail attributes:
 
     ````powershell
-    C:\WindowsServerLab\Resources\Solutions\Set-CertTemplatePermissions.ps1 `
-        -Template WebServer `
-        -ComputerName 'VN2-SRV1', 'VN2-SRV2' `
-        -Verbose
-    
     Get-ADUser -Filter * | ForEach-Object { 
         $PSItem | 
         Set-ADUser -EmailAddress "$($PSItem.SamAccountName)@lab.test" 
@@ -92,7 +90,7 @@ Perform this task on CL1.
 
     ````powershell
     $organizationalUnit = New-ADOrganizationalUnit `
-        -Path 'DC=ad, DC=adatum, DC=com' `
+        -Path 'DC=ad,DC=lab,DC=test' `
         -Name 'Service Accounts' `
         -PassThru
     ````
@@ -236,7 +234,7 @@ Perform this task on CL1.
 1. Link the group policy object to the domain.
 
     ````powershell
-    $gpo | New-GPLink -Target 'dc=ad, dc=adatum, dc=com'
+    $gpo | New-GPLink -Target 'DC=ad,DC=lab,DC=test'
     ````
 
 ### Task 4: Install Active Directory Rights Managment Server Role

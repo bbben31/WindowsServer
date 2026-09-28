@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -103,7 +103,7 @@ Perform this task on CL1.
     Remove-ADObject -Recursive
     ````
 
-1. At the prompt Performing recursive remove on Target: 'CN=VN3-SRV1,CN=Computers,DC=ad,DC=adatum,DC=com', enter **y**.
+1. At the prompt Performing recursive remove on Target: 'CN=VN3-SRV1,CN=Computers,DC=ad,DC=lab,DC=test', enter **y**.
 
 ### Task 3: Create a group for administrators
 
@@ -127,7 +127,7 @@ Perform this task on CL1.
 
     ````powershell
     $aDGroup = New-ADGroup `
-        -Path 'ou=Entitling Groups, dc=ad, dc=adatum, dc=com `
+        -Path 'OU=Entitling Groups,DC=ad,DC=lab,DC=test' `
         -Name 'VNet3 RODC Administrators' `
         -GroupCategory Security `
         -GroupScope DomainLocal `
@@ -441,7 +441,7 @@ Perform this task on CL1.
     ````powershell
     $server = 'ad.lab.test'
     $aDGroup = New-ADGroup `
-        -Path 'OU=Entitling groups, DC=ad, DC=adatum, DC=com' `
+        -Path 'OU=Entitling groups, DC=ad,DC=lab,DC=test' `
         -Name 'VNet3 RODC password replication allowed' `
         -GroupCategory Security `
         -GroupScope DomainLocal `

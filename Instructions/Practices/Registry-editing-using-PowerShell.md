@@ -7,7 +7,7 @@
 
 ## Task
 
-On CL1, list the keys and values of the registry key â€˜HKLM:\system\CurrentControlSet\services\Tcpip\Parametersâ€™. Within that key, set the value IPEnableRouter to 1 and verify the change. Remove the value IPEnablerouter and verify the change again.
+On CL1, list the keys and values of the registry key `HKLM:\system\CurrentControlSet\services\Tcpip\Parameters`. Within that key, set the value IPEnableRouter to 1 and verify the change. Remove the value IPEnableRouter and verify the change again.
 
 ## Instructions
 

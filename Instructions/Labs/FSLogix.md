@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -95,7 +95,7 @@ Perform this task on CL1.
 
     ````powershell
     $adOrganizationalUnit = New-ADOrganizationalUnit `
-        -Path 'DC=ad, DC=adatum, DC=com' `
+        -Path 'DC=ad,DC=lab,DC=test' `
         -Name 'Servers' `
         -Passthru
     ````

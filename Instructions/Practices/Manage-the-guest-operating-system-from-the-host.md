@@ -120,7 +120,7 @@ Perform these steps on CL1.
 1. Under Integration Services, activate  **Guest services** and click **OK**.
 
 1. Switch to **Terminal**.
-1. In Terminal, copy **C:\\LabResources\\2022_x64_EN_Eval.iso** from **PM-SRV1** to **C:\WindowsServerLab\Resources** on the disconnected virtual machine **PM-SRV20**
+1. In Terminal, copy **C:\\WindowsServerLab\\Resources\\2022_x64_EN_Eval.iso** from **PM-SRV1** to **C:\WindowsServerLab\Resources** on the disconnected virtual machine **PM-SRV20**
 
     ````powershell
     Copy-VMFile `

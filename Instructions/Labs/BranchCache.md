@@ -18,25 +18,16 @@
 ## Setup
 
 1. On the host, run **Windows PowerShell** as Administrator.
-1. In Windows PowerShell, connect WIN-CL3, and WIN-CL4 to VNet3.
+1. Shut down CL3 and CL4. In VMware Workstation, attach each lab NIC to the custom VMnet mapped to source **VNet3**, then start both guests.
+1. Sign in to each guest with its local Administrator account and verify that it received or was assigned the VNet3 address, can reach the AD DNS server, and resolves `ad.lab.test`.
+1. On each guest, run the following from an elevated PowerShell session and provide an authorized domain-join credential interactively:
 
     ````powershell
-    C:\WindowsServerLab\WS2025\LabResources\Move-VMtoVNet.ps1 `
-        -VMName WIN-CL3 -SwitchName VNet2 -NewSwitchName VNet3 -SubnetValue 3
-    C:\WindowsServerLab\WS2025\LabResources\Move-VMtoVNet.ps1 `
-        -VMName WIN-CL4 -SwitchName VNet1 -NewSwitchName VNet3 -SubnetValue 3
+    Add-Computer `
+        -DomainName 'ad.lab.test' `
+        -Credential (Get-Credential -Message 'Authorized domain-join account') `
+        -Restart
     ````
-
-1. At the prompt Enter the password of the local Administrator account of WIN-CL*, enter the local Administrator password of CL*.
-1. Join CL3 and CL4 to the domain.
-
-    ````powershell
-    C:\WindowsServerLab\WS2025\LabResources\Add-VMToDomain.ps1 -VMName WIN-CL3
-    C:\WindowsServerLab\WS2025\LabResources\Add-VMToDomain.ps1 -VMName WIN-CL4
-    ````
-
-1. At the prompt Enter the password of the local Administrator account of WIN-CL*, enter the local Administrator password of CL*.
-1. At the prompt Enter credentials of an account with permissions to join the computer to domain ad.lab.test, enter the credentials of **Administrator@ad.lab.test**.
 1. Limit the bandwidth of VN1-SRV10's network adapter to 8 MB/s.
 
     ````powershell

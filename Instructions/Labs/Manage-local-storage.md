@@ -17,10 +17,11 @@
 
 1. On **CL1**, sign in as **ad\Administrator**.
 1. On **VN1-SRV10**, sign in as **ad\Administrator**.
+1. Copy the repository `Resources` directory to `C:\WindowsServerLab\Resources` on VN1-SRV10, then run `C:\WindowsServerLab\Resources\Solutions\Initialize-SampleDocuments.ps1`. Verify the Finance, IT, Marketing, and Travel Packages folders were created before continuing.
 
-If you skipped the lab [Manage servers remotely using Microsoft Management Console](../Labs/Manage-servers-remotely-using-Microsoft-Management-Console.md), on CL1, run ````C:\WindowsServerLab\Resources\Solutions\Enable-ComputerRemoteManagement.ps1````.
+Complete [Manage servers remotely using Microsoft Management Console](../Labs/Manage-servers-remotely-using-Microsoft-Management-Console.md) and verify remote management before continuing.
 
-If you skipped the lab [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), on VN1-SRV4, run ````C:\WindowsServerLab\Resources\Solutions\Add-WACServers.ps1````.
+Complete [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), including adding the required server connections, before continuing.
 
 ## Introduction
 
@@ -89,7 +90,7 @@ Perform these steps on CL1.
 1. Create a remote PowerShell session to the respective server.
 
     ````powershell
-    # TODO: Fill the server name in the quotes
+    # Learner input: Fill the server name in the quotes
     $computerName = ''
 
     Enter-PSSession $computerName
@@ -188,7 +189,7 @@ Perform these steps on CL1.
 1. Create a remote PowerShell session to the respective server.
 
     ````powershell
-    # TODO: Fill the server name in the quotes
+    # Learner input: Fill the server name in the quotes
     $computerName = ''
     Enter-PSSession $computerName
     ````
@@ -202,7 +203,7 @@ Perform these steps on CL1.
 1. Create a a partition.
 
     ````powershell
-    # TODO: Change the disk number, the size, and the drive letter
+    # Learner input: Change the disk number, the size, and the drive letter
     $diskNumber = 1
     $size = 1TB
     $driveLetter = 'D'
@@ -213,10 +214,10 @@ Perform these steps on CL1.
 1. Format the new partition.
 
     ````powershell
-    # TODO: Change the file system to NTFS or ReFS
+    # Learner input: Change the file system to NTFS or ReFS
     $fileSystem = 'ReFS'
 
-    # TODO: Fill the label between the quotes
+    # Learner input: Fill the label between the quotes
     $label = ''
 
     Format-Volume `
@@ -349,7 +350,7 @@ Perform these steps on CL1.
 
 Perform these steps on CL1.
 
-1. Using **File Explorer**, copy the contents of the folder **\\\\VN1-SRV10\\c$\\LabResources\\Sample Documents\\IT** to **\\\\VN1-SRV10\\d$\\ITData**.
+1. Using **File Explorer**, copy the contents of the folder **\\\\VN1-SRV10\\c$\\WindowsServerLab\\Resources\\Sample Documents\\IT** to **\\\\VN1-SRV10\\d$\\ITData**.
 1. Open a second instance of **File Explorer**, navigate to **\\\\VN1-SRV10\\e$** and compare the contents with **\\\\VN1-SRV10\\d$\\ITData**.
 
 #### PowerShell
@@ -360,7 +361,7 @@ Perform these steps on CL1.
     Enter-PSSession VN1-SRV10
     ````
 
-1. Copy the contents of **C:\WindowsServerLab\Resources\\Sample Documents\IT** to **D:\ITData**.
+1. Copy the contents of **C:\WindowsServerLab\Resources\Sample Documents\IT** to **D:\ITData**.
 
     ````powershell
     $path = 'D:\ITData'
@@ -388,6 +389,8 @@ Perform these steps on CL1.
     ````
 
 ## Exercise 4: Manage links and junctions
+
+Before Task 1, copy `C:\WindowsServerLab\Resources\Samples\BootStrap.ps1` on VN1-SRV10 to `C:\BootStrap\BootStrap.ps1`. Create `C:\BootStrap` first if necessary. This disposable sample is the target for the link exercises.
 
 1. [Create a hard link](#task-1-create-a-hard-link) targeting C:\BootStrap\BootStrap.ps1
 1. [Compare contents of the hard link with the original file](#task-2-compare-contents-of-the-hard-link-with-the-original-file)

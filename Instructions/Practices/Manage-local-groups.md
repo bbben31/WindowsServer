@@ -10,9 +10,9 @@
 
 ## Setup
 
-If you skipped the practice [Manage local users](Manage-local-users.md), on CL1, run ````C:\WindowsServerLab\Resources\New-LocalAdmins.ps1````
+Complete [Manage local users](Manage-local-users.md) on CL1, CL2, and VN1-SRV5 before continuing.
 
-If you skipped the lab [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), on VN1-SRV4, run ````C:\WindowsServerLab\Resources\Solutions\Add-WACServers.ps1````.
+Complete [Explore Windows Admin Center](../Labs/Explore-Windows-Admin-Center.md), including adding the required server connections, before continuing.
 
 ## Task
 

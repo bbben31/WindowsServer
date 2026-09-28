@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -18,8 +18,9 @@
 ## Setup
 
 1. On **CL1**, sign in as **ad\\Administrator**.
-2. Run **c:\\LabResources\\Solutions\\New-UsersShare.ps1**.
+2. Complete [Install prerequisites for file server](../Practices/Install-prerequisites-for-file-serving.md) and verify the `Users` share on VN1-SRV10.
 3. On **CL2**, sign in as **ad\Lara**.
+4. On VN1-SRV10, verify `C:\WindowsServerLab\Resources\Sample Documents\Travel Packages` contains more than 100 MB of disposable data. If it does not, copy the repository `Resources` directory and run `Solutions\Initialize-SampleDocuments.ps1` there.
 
 ## Introduction
 
@@ -116,10 +117,10 @@ Perform this task on CL1.
 
     # @" "@ declares a multi-line string in PowerShell
 
-    $body = @"
-    User [Source Io Owner] has exceed the [Quota Threshold]% quota threshold for quota on [Quota Path] on server [Server].
-    The quota limit is [Quota Limit MB] MB and the current usage is [Quota Used MB] MB ([Quota Used Percent]% of limit).'
-    "@
+    $body = @(
+        'User [Source Io Owner] has exceeded the [Quota Threshold]% quota threshold for quota on [Quota Path] on server [Server].'
+        'The quota limit is [Quota Limit MB] MB and the current usage is [Quota Used MB] MB ([Quota Used Percent]% of limit).'
+    ) -join [Environment]::NewLine
     ````
 
 1. Create one action to send a mail to the user and to log an event, and another action to send a mail to the admins and the user and log an event.
@@ -311,11 +312,11 @@ Perform this task on CL1.
 
     > The copy process should work now.
 
-1. Copy **\\\\VN1-SRV10\\c$\\LabResources\\Sample Documents\\Travel Packages** to **\\\\VN1-SRV10\\IT**. Use either File Explorer, or in **Terminal**, PowerShell.
+1. Copy **\\\\VN1-SRV10\\c$\\WindowsServerLab\\Resources\\Sample Documents\\Travel Packages** to **\\\\VN1-SRV10\\IT**. Use either File Explorer, or in **Terminal**, PowerShell.
 
     ````powershell
     Copy-Item `
-        -Path '\\VN1-SRV10\c$\LabResources\Sample Documents\Travel Packages\' `
+        -Path '\\VN1-SRV10\c$\WindowsServerLab\Resources\Sample Documents\Travel Packages\' `
         -Destination \\VN1-SRV10\IT\ `
         -Recurse `
         -Force
@@ -323,11 +324,11 @@ Perform this task on CL1.
 
     > You should receive error messages, that not enough space is on the disk. Even if you try to repeat the copy command, the error message will not disappear.
 
-1. Copy **\\\\VN1-SRV10\\c$\\LabResources\\Sample Documents\\Travel Packages** to **U:**. Use either File Explorer, or in **Terminal**, PowerShell.
+1. Copy **\\\\VN1-SRV10\\c$\\WindowsServerLab\\Resources\\Sample Documents\\Travel Packages** to **U:**. Use either File Explorer, or in **Terminal**, PowerShell.
 
     ````powershell
     Copy-Item `
-        -Path '\\VN1-SRV10\c$\LabResources\Sample Documents\Travel Packages\' `
+        -Path '\\VN1-SRV10\c$\WindowsServerLab\Resources\Sample Documents\Travel Packages\' `
         -Destination U:\ `
         -Recurse `
         -Force
@@ -347,11 +348,11 @@ Perform this task on CL1.
     Exit-PSSesseion
     ````
 
-1. Retry to copy **\\\\VN1-SRV10\\c$\\LabResources\\Sample Documents\\Travel Packages** to **U:**. Use either File Explorer, or in **Terminal**, PowerShell.
+1. Retry to copy **\\\\VN1-SRV10\\c$\\WindowsServerLab\\Resources\\Sample Documents\\Travel Packages** to **U:**. Use either File Explorer, or in **Terminal**, PowerShell.
 
     ````powershell
     Copy-Item `
-        -Path '\\VN1-SRV10\c$\LabResources\Sample Documents\Travel Packages\' `
+        -Path '\\VN1-SRV10\c$\WindowsServerLab\Resources\Sample Documents\Travel Packages\' `
         -Destination U:\ `
         -Recurse `
         -Force
@@ -363,6 +364,7 @@ Perform this task on CL1.
 
     ````powershell
     Remove-Item '\\VN1-SRV10\IT\Travel Packages' -Recurse
+    ````
 
 1. Switch to **Terminal** and remove the mapped network drive.
 
@@ -432,7 +434,7 @@ Perform this task on CL1.
 
 Perform this task on CL1.
 
-1. Copy some ps1-files from **C:\\LabResources\\Solutions** to **\\\\VN1-SRV10\\Marketing**.
+1. Copy some ps1-files from **C:\\WindowsServerLab\\Resources\\Solutions** to **\\\\VN1-SRV10\\Marketing**.
 
     > You will receive an 'Access denied' error message.
 
@@ -440,7 +442,7 @@ Perform this task on CL1.
 
     > The process should succeed, which proves, that permissions are not the problem.
 
-1. Copy some ps1-files from **C:\\LabResources\\Solutions** to **\\\\VN1-SRV10\\IT**.
+1. Copy some ps1-files from **C:\\WindowsServerLab\\Resources\\Solutions** to **\\\\VN1-SRV10\\IT**.
 
     > The process should succeed.
 
@@ -729,7 +731,7 @@ Perform this task on CL1.
 1. Create the classification rule with the values from the table.
 
     ````powershell
-    # TODO: Fill the values from the table
+    # Learner input: Fill the values from the table
     $name = '' # Rule name
     $propertyValue = '' # Confidentiality
     $contentString = '' # Expression

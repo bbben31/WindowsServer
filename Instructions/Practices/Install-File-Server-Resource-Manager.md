@@ -41,6 +41,7 @@ Perform these steps on CL1.
             -Enabled True `
             -Profile Domain
     }
+    ````
 
 1. Open **File Server Resource Manager**.
 1. In File Server Resource Manager, in the left pane, in the context menu of **File Server Resource Manager**, click **Connect to Another Computer...**

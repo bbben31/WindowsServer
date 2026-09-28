@@ -9,7 +9,7 @@
 
 ## Setup
 
-If you skipped the practice [Install prerequisites for file server](./Install-prerequisites-for-file-serving.md), on CL1, run ````C:\WindowsServerLab\Resources\Solutions\New-Shares.ps1````.
+Complete [Install prerequisites for file server](./Install-prerequisites-for-file-serving.md) before continuing.
 
 ## Task
 

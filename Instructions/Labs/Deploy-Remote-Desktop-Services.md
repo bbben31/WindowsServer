@@ -19,7 +19,7 @@
 
 On **CL1**, sign in as **ad\\Administrator**.
 
-If you skipped the practice [Explore Server Manager](../Practices/Explore-Server-Manager.md), on CL1, run ````C:\WindowsServerLab\Resources\Solutions\Add-ServerManagerServers.ps1````.
+Complete [Explore Server Manager](../Practices/Explore-Server-Manager.md) on CL1 before continuing.
 You must have completed the practice [Request and export certificates for the connection broker and RD web](../Practices/Request-and-export-certificates-for-the-connection-broker-and-RD-web.md)
 
 ## Introduction

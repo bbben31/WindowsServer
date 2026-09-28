@@ -109,6 +109,7 @@ Perform this task on CL1.
     Invoke-Command -ComputerName $computerName -ScriptBlock {
         Add-DhcpServerSecurityGroup 
     }
+    ````
 
 1. Notify Server Manager that post-install DHCP configuration is complete.
 

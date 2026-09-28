@@ -2,9 +2,11 @@
 
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
+> **Legacy compatibility gate:** Microsoft's [WDS support matrix](https://learn.microsoft.com/en-us/windows/deployment/wds-boot-support) blocks end-to-end deployment of Windows Server 2025 and Windows 11 through install-media `boot.wim`. Use an isolated Server 2022 WDS server and Server 2022 target only to study the deprecated workflow. Keep PXE on a dedicated VMware custom network, and treat unattended steps as conceptual when current security hardening blocks them.
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
+
 
 
 
@@ -31,20 +33,14 @@ Note: Most VMs are required during the setup only. After setup, only these VMs a
 
 ## Setup
 
-1. Connect to the virtual machine **WIN-CL1**.
-1. In the WIN-CL1 Virtual Machine Connect, on the menu click **Media**, **DVD Drive**, **Insert Disk...**
-1. In Open, open **C:\\Labs\\ISOs\\2022_x64_EN_Eval.iso**.
+1. In VMware Workstation, mount a verified Windows Server 2022 evaluation ISO on **CL1** and leave it connected only for the image-management tasks that require it.
 1. On **CL1**, sign in as **ad\Administrator**.
-1. Run **Terminal** as Administrator.
-1. In Terminal, execute ````C:\WindowsServerLab\Resources\Solutions\Authorize-DHCP.ps1````.
-1. Connect to the virtual machine **WIN-VN1-SRV8**.
-1. In the WIN-VN1-SRV8 Virtual Machine Connect, on the menu click **Media**, **DVD Drive**, **Insert Disk...**
-1. In Open, open **C:\\Labs\\ISOs\\2022_x64_EN_Eval.iso**.
+1. Run **VN1-SRV8** as an isolated Windows Server 2022 compatibility VM. Mount the same verified Server 2022 ISO on it.
 1. On **VN1-SRV8**, sign in as **ad\Administrator**.
 
 ## Introduction
 
-Adatum does not want to handle ISO images or physical media anymore to deploy operating systems. For this reason, Windows Deployment Services should be implemented to enable boot from the network.
+Adatum does not want to handle ISO images or physical media anymore to deploy operating systems. This historical scenario uses Windows Deployment Services to demonstrate isolated PXE boot and image management without presenting it as a supported Server 2025 deployment solution.
 
 ## Exercises
 
@@ -132,7 +128,7 @@ Perform this task on VN1-SRV8.
 
 ## Exercise 2: Creating answer files
 
-1. [Install the Windows ADK](#task-1-install-the-windows-adk) for Windows 10, version 2004
+1. [Install the Windows ADK](#task-1-install-the-windows-adk) version selected in the Microsoft Deployment Toolkit prerequisite
 2. [Create an answer file for Windows Server setup](#task-2-create-an-answer-file-for-windows-server-setup) to configure input, system, and user locale
 3. [Create an answer file for Windows PE](#task-3-create-an-answer-file-for-windows-pe) to configure partitions as follows
 
@@ -424,15 +420,8 @@ Install a new server using WDS.
 
 Perform these steps on the host computer.
 
-1. Run **Windows PowerShell** as Administrator.
-1. In Windows PowerShell, execute
-
-    ````powershell
-    C:\WindowsServerLab\Resources\New-VM.ps1 -Name VN1-SRV21
-    ````
-
-1. In **Hyper-V Manager**, double-click **WIN-VN1-SRV21** to open the virtual machine connection.
-1. In WIN-VN1-SRV21 on ... - Virtual Machine Connection, click **Start**.
+1. In VMware Workstation, create **VN1-SRV21** with a blank disk and attach it to the isolated custom VMnet used by the WDS server. Configure network boot before local-disk boot.
+1. Open **VN1-SRV21** and start it.
     After a few seconds, you should see a screen with this information (the **Client IP** may vary):
 
     ````txt

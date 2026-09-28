@@ -24,11 +24,11 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 ## Stage B — Base Windows images and templates
 
-**Objective:** Create clean, reusable Windows Server 2025 Evaluation and Windows 10 base images.
+**Objective:** Create clean, reusable Windows Server 2025 Evaluation and Windows 11 base images.
 
-**Prerequisites:** Stage A and official Windows Server 2025 Evaluation ISO plus Windows 10 ISO.
+**Prerequisites:** Stage A and official Windows Server 2025 Evaluation ISO plus Windows 11 ISO.
 
-**VMs/networks:** One temporary Server VM and one temporary Windows 10 VM, disconnected from the domain. Use VMnet10 for management and VMnet8 only for controlled updates.
+**VMs/networks:** One temporary Server VM and one temporary Windows 11 VM, disconnected from the domain. Use VMnet10 for management and VMnet8 only for controlled updates.
 
 **Practices/labs:** [Install Windows Server manually](../Practices/Install-Windows-Server-manually.md), [Install Windows Server with Desktop Experience manually](../Practices/Install-Windows-Server-with-Desktop-Experience-manually.md), and [Create and install a virtual machine](../Practices/Create-and-install-a-virtual-machine.md). Follow the full [Milestone B base-image runbook](Base-Images-and-Templates.md).
 
@@ -136,7 +136,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **Prerequisites:** All relevant earlier stages, current pricing/quota review, and an explicit decision that the topic fits the £10 safety limit.
 
-**VMs/networks:** **Extra capacity:** use the manifest's topology and `TBD` values where source evidence is insufficient. Keep optional services isolated from the core foundation.
+**VMs/networks:** **Extra capacity:** use the manifest's declared topology; stop when source evidence is insufficient. Keep optional services isolated from the core foundation.
 
 **Practices/labs:** Follow the [Milestone H optional and cost-gated guide](Optional-Cost-Gated-Topics.md), then filter the manifest for `compatibility.optional=true` or `riskCost.cost=cost-gated`.
 

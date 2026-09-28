@@ -4,7 +4,7 @@
 
 
 
-> **Azure safety:** This lab can create or modify Azure resources. Use only your own subscription and tenant, substitute <AZURE_SUBSCRIPTION_ID>, <AZURE_TENANT_ID>, <AZURE_RESOURCE_GROUP>, and <AZURE_REGION>, apply least privilege and a budget, and remove disposable resources afterward.
+
 
 
 
@@ -198,6 +198,7 @@ Perform this task on CL1.
     Get-ADObject `
         -SearchBase "CN=Servers, $($adReplicationSite.DistinguishedName)" `
         -Filter 'ObjectClass -eq "server"'
+    ````
 
 1. Delete VN1-SRV1.
 
@@ -213,7 +214,7 @@ Perform this task on CL1.
     ````text
     Are you sure you want to perform this action?
     Performing the operation "Remove" on target
-    "CN=VN1-SRV1,CN=Servers,CN=VNet1,CN=Sites,CN=Configuration,DC=ad,DC=adatum,DC=com".
+    "CN=VN1-SRV1,CN=Servers,CN=VNet1,CN=Sites,CN=Configuration,DC=ad,DC=lab,DC=test".
     ````
 
     enter **y**.
@@ -330,7 +331,7 @@ Perform this task on CL1.
     ````powershell
     Set-ADObject `
         -Identity "CN=NTDS Settings, $($server.distinguishedName)" `
-        -Replace @{ options='0'} `
+        -Replace @{ options='0'}
     ````
 
 ## Exercise 3: Create site links
@@ -417,12 +418,12 @@ Perform this task on CL1.
     Remove-ADReplicationSiteLink -Identity DEFAULTIPSITELINK
     ````
 
-1. At the prompt Performing the operation "Remove" on target "CN=DEFAULTIPSITELINK,CN=IP,CN=Inter-Site Transports,CN=Sites,CN=Configuration,DC=ad,DC=adatum,DC=com", enter **Y**.
+1. At the prompt Performing the operation "Remove" on target "CN=DEFAULTIPSITELINK,CN=IP,CN=Inter-Site Transports,CN=Sites,CN=Configuration,DC=ad,DC=lab,DC=test", enter **Y**.
 
 1. Store the **IP** object including the property **options** of **Inter-Site Transports** in a variable.
 
     ````powershell
-    $configurationNamingContext = 'CN=Configuration, DC=ad, DC=adatum,DC=com'
+    $configurationNamingContext = 'CN=Configuration, DC=ad,DC=lab,DC=test'
     $aDObject = Get-ADObject `
         -Identity `
             "CN=IP,CN=Inter-Site Transports,CN=Sites,$configurationNamingcontext" `

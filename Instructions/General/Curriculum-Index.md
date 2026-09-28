@@ -11,10 +11,10 @@ Example:
 ```powershell
 .\tools\Preflight-LearnerLab.ps1 `
   -ServerIsoPath '<PATH_TO_WINDOWS_SERVER_2025_EVALUATION_ISO>' `
-  -Windows10IsoPath '<PATH_TO_WINDOWS_10_ISO>' `
+  -ClientIsoPath '<PATH_TO_WINDOWS_11_ISO>' `
   -VmName VN1-SRV1,VN1-SRV4,CL1 `
   -ExpectedDnsServer 10.10.10.10 `
-  -ExpectedSubnet 10.10.10 `
+  -ExpectedSubnet 10.10.10.0/24 `
   -AzureSubscriptionId '<AZURE_SUBSCRIPTION_ID>' `
   -AzureRegion 'UK South' `
   -AzureResourceGroup '<AZURE_RESOURCE_GROUP>' `

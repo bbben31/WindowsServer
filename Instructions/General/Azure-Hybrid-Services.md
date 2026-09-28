@@ -49,7 +49,7 @@ Do not run these commands with real values in a committed document or report. Th
 ```powershell
 Get-Service -Name himds,ExtensionService -ErrorAction SilentlyContinue
 Get-NetIPConfiguration
-Test-NetConnection <AZURE_ARC_ENDPOINT> -Port 443
+Test-NetConnection '<AZURE_ARC_ENDPOINT>' -Port 443
 ```
 
 From an existing CLI context, verify metadata without printing secrets:
@@ -120,7 +120,7 @@ Automation identities and policy assignments can grant access or incur charges. 
 ```powershell
 Get-SmbShare -CimSession VN1-SRV20
 Get-Volume -CimSession VN1-SRV20
-Test-NetConnection <AZURE_STORAGE_ENDPOINT> -Port 443
+Test-NetConnection '<AZURE_STORAGE_ENDPOINT>' -Port 443
 ```
 
 Cloud storage, transactions, bandwidth, and retained snapshots are cost-gated. Do not use sync as a backup or revert a local snapshot while synchronization is active.
