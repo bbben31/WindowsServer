@@ -6,7 +6,62 @@ $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) { $RepositoryRoot = Split-Path $scriptRoot -Parent }
 $RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
 $manifestPath = Join-Path $RepositoryRoot 'metadata\curriculum-manifest.json'
-$manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false, $true)
+
+function Read-Utf8Text([string]$Path) {
+    return [System.IO.File]::ReadAllText($Path, $utf8NoBom)
+}
+
+function Format-Json([string]$Json) {
+    $builder = New-Object System.Text.StringBuilder
+    $indent = 0
+    $inString = $false
+    $escaped = $false
+
+    for ($index = 0; $index -lt $Json.Length; $index++) {
+        $character = $Json[$index]
+        if ($inString) {
+            [void]$builder.Append($character)
+            if ($escaped) { $escaped = $false }
+            elseif ($character -eq '\') { $escaped = $true }
+            elseif ($character -eq '"') { $inString = $false }
+            continue
+        }
+
+        if ($character -eq '"') {
+            $inString = $true
+            [void]$builder.Append($character)
+        }
+        elseif ($character -eq '{' -or $character -eq '[') {
+            $closingCharacter = if ($character -eq '{') { '}' } else { ']' }
+            if ($index + 1 -lt $Json.Length -and $Json[$index + 1] -eq $closingCharacter) {
+                [void]$builder.Append($character).Append($closingCharacter)
+                $index++
+            }
+            else {
+                $indent++
+                [void]$builder.Append($character).Append("`n").Append('  ' * $indent)
+            }
+        }
+        elseif ($character -eq '}' -or $character -eq ']') {
+            $indent--
+            [void]$builder.Append("`n").Append('  ' * $indent).Append($character)
+        }
+        elseif ($character -eq ',') {
+            [void]$builder.Append($character).Append("`n").Append('  ' * $indent)
+        }
+        elseif ($character -eq ':') {
+            [void]$builder.Append(': ')
+        }
+        elseif (![char]::IsWhiteSpace($character)) {
+            [void]$builder.Append($character)
+        }
+    }
+
+    return $builder.ToString()
+}
+
+$manifest = Read-Utf8Text $manifestPath | ConvertFrom-Json
 
 $azureServices = @{
     'Instructions/Practices/Add-server-to-Azure-Arc.md' = @('Azure Arc-enabled servers')
@@ -30,7 +85,7 @@ $azurePermission = @{
 
 foreach ($entry in $manifest.entries) {
     $documentPath = Join-Path $RepositoryRoot $entry.path
-    $content = Get-Content -LiteralPath $documentPath -Raw
+    $content = Read-Utf8Text $documentPath
 
     $requiredVms = @(
         [regex]::Matches($content, '(?i)\b(?:VN[123]-SRV\d+|PM-SRV\d+|CL\d+|WIN-[A-Z0-9-]+)\b') |
@@ -109,7 +164,7 @@ foreach ($entry in $manifest.entries) {
         $entry.azure.services = @($azureServices[$entry.path])
         $entry.azure.region = 'UK South when supported; verify current regional availability'
         $entry.azure.scope = 'Existing Azure for Students tenant/subscription; disposable per-lab resource group'
-        $entry.riskCost.cost = 'Azure cost-gated; stop at the £10 monthly safety limit'
+        $entry.riskCost.cost = "Azure cost-gated; stop at the $([char]0x00A3)10 monthly safety limit"
     }
     elseif ($entry.path -eq 'Instructions/Practices/Create-an-Azure-Subscription.md' -or
         $entry.path -eq 'Instructions/Practices/Create-an-Entra-ID-tenant.md') {
@@ -141,9 +196,13 @@ foreach ($entry in $manifest.entries) {
 }
 
 $manifest.schemaVersion = 2
-$json = $manifest | ConvertTo-Json -Depth 12
+$json = $manifest | ConvertTo-Json -Depth 12 -Compress
+# Windows PowerShell 5.1 escapes HTML-sensitive characters that PowerShell 7
+# leaves readable. Normalize them before applying repository-standard layout.
+$json = $json.Replace('\u0026', '&').Replace('\u0027', "'").Replace('\u003c', '<').Replace('\u003e', '>')
+$json = Format-Json $json
 if ($PSCmdlet.ShouldProcess($manifestPath, 'Write regenerated curriculum metadata')) {
-    Set-Content -LiteralPath $manifestPath -Value $json -Encoding utf8
+    [System.IO.File]::WriteAllText($manifestPath, $json + "`n", $utf8NoBom)
 }
 
 Write-Output "Updated $(@($manifest.entries).Count) manifest entries."

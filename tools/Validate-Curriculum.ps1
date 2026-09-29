@@ -7,6 +7,15 @@ if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
     $RepositoryRoot = Split-Path $scriptRoot -Parent
 }
 $RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false, $true)
+
+function Read-Utf8Text([string]$Path) {
+    return [System.IO.File]::ReadAllText($Path, $utf8NoBom)
+}
+
+function Read-Utf8Lines([string]$Path) {
+    return [System.IO.File]::ReadAllLines($Path, $utf8NoBom)
+}
 
 function Get-MarkdownSlug([string]$Heading) {
     $slug = $Heading.Trim().ToLowerInvariant()
@@ -20,7 +29,7 @@ function Get-MarkdownHeadings([string]$Path) {
     if ($headingCache.ContainsKey($Path)) { return $headingCache[$Path] }
     $counts = @{}
     $headings = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-    foreach ($line in Get-Content -LiteralPath $Path) {
+    foreach ($line in Read-Utf8Lines $Path) {
         if ($line -match '^#{1,6}\s+(.+?)\s*#*\s*$') {
             $base = Get-MarkdownSlug $Matches[1]
             if (!$counts.ContainsKey($base)) {
@@ -39,7 +48,7 @@ function Get-MarkdownHeadings([string]$Path) {
 }
 
 $manifestPath = Join-Path $RepositoryRoot 'metadata\curriculum-manifest.json'
-$manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+$manifest = Read-Utf8Text $manifestPath | ConvertFrom-Json
 $entries = @($manifest.entries)
 $practices = @($entries | Where-Object category -eq 'Practices')
 $labs = @($entries | Where-Object category -eq 'Labs')
@@ -63,7 +72,7 @@ foreach ($entry in $entries) {
     if (!(Test-Path -LiteralPath $entryPath -PathType Leaf)) {
         throw "Missing manifest path: $($entry.path)"
     }
-    $heading = Get-Content -LiteralPath $entryPath | Where-Object { $_ -match '^#\s+' } | Select-Object -First 1
+    $heading = Read-Utf8Lines $entryPath | Where-Object { $_ -match '^#\s+' } | Select-Object -First 1
     if ($heading -notmatch '^#\s+(.+)$' -or $Matches[1] -ne $entry.title) {
         throw "Manifest title does not match first heading: $($entry.path)"
     }
@@ -72,7 +81,7 @@ foreach ($entry in $entries) {
     if ($entry.azure.required -and (@($entry.azure.services) -join ' ') -match '(?i)^None(?: identified)?$') {
         throw "Azure-required entry has no Azure service: $($entry.path)"
     }
-    $content = Get-Content -LiteralPath $entryPath -Raw
+    $content = Read-Utf8Text $entryPath
     $documentVms = @(
         [regex]::Matches($content, '(?i)\b(?:VN[123]-SRV\d+|PM-SRV\d+|CL\d+|WIN-[A-Z0-9-]+)\b') |
             ForEach-Object { $_.Value.ToUpperInvariant() } |
@@ -90,7 +99,7 @@ $linkErrors = [System.Collections.Generic.List[string]]::new()
 foreach ($file in $markdownFiles) {
     $lineNumber = 0
     $insideComment = $false
-    foreach ($line in Get-Content -LiteralPath $file.FullName) {
+    foreach ($line in Read-Utf8Lines $file.FullName) {
         $lineNumber++
         $scanLine = $line
         if ($insideComment) {
@@ -139,7 +148,7 @@ foreach ($file in $markdownFiles) {
     $markerLength = 0
     $openingLine = 0
     $lineNumber = 0
-    foreach ($line in Get-Content -LiteralPath $file.FullName) {
+    foreach ($line in Read-Utf8Lines $file.FullName) {
         $lineNumber++
         if ($null -eq $markerCharacter) {
             $opening = [regex]::Match($line, '^\s*(`{3,}|~{3,}).*$')
@@ -168,14 +177,14 @@ foreach ($scriptFile in Get-ChildItem -LiteralPath $RepositoryRoot -Recurse -Fil
     Where-Object FullName -NotMatch '[\\/]\.git[\\/]') {
     $tokens = $null
     $parseErrors = $null
-    [System.Management.Automation.Language.Parser]::ParseFile($scriptFile.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
+    [System.Management.Automation.Language.Parser]::ParseInput((Read-Utf8Text $scriptFile.FullName), [ref]$tokens, [ref]$parseErrors) | Out-Null
     foreach ($parseError in $parseErrors) {
         $powerShellErrors.Add("$($scriptFile.FullName):$($parseError.Extent.StartLineNumber) $($parseError.Message)")
     }
 }
 
 foreach ($file in $markdownFiles) {
-    $lines = @(Get-Content -LiteralPath $file.FullName)
+    $lines = @(Read-Utf8Lines $file.FullName)
     for ($index = 0; $index -lt $lines.Count; $index++) {
         $open = [regex]::Match($lines[$index], '^\s*(`{3,})\s*(powershell|ps1)\s*$', 'IgnoreCase')
         if (!$open.Success) { continue }
@@ -213,7 +222,7 @@ foreach ($scriptFile in Get-ChildItem -LiteralPath $RepositoryRoot -Recurse -Fil
 }
 $missingScripts = [System.Collections.Generic.List[string]]::new()
 foreach ($file in $markdownFiles) {
-    $content = Get-Content -LiteralPath $file.FullName -Raw
+    $content = Read-Utf8Text $file.FullName
     foreach ($reference in [regex]::Matches($content, '(?i)(?<![\w-])([\w.-]+\.ps1)')) {
         $name = $reference.Groups[1].Value
         if ($availableScripts.Contains($name)) { continue }
@@ -234,7 +243,7 @@ if ($missingScripts.Count) { throw "Missing script dependencies:`n$($missingScri
 
 $unsafeText = [System.Collections.Generic.List[string]]::new()
 foreach ($file in $markdownFiles | Where-Object FullName -Match '[\\/]Instructions[\\/](Labs|Practices)[\\/]') {
-    $content = Get-Content -LiteralPath $file.FullName -Raw
+    $content = Read-Utf8Text $file.FullName
     foreach ($pattern in @(
         '(?i)ask (the |your )?instructor',
         '(?i)your instructor will',
@@ -260,39 +269,39 @@ $azureSafetyAllowed = @(
     'Managing-hybrid-servers-using-Azure-Arc.md'
 )
 foreach ($file in $markdownFiles | Where-Object FullName -Match '[\\/]Instructions[\\/]Labs[\\/]') {
-    $content = Get-Content -LiteralPath $file.FullName -Raw
+    $content = Read-Utf8Text $file.FullName
     if ($content -match '> \*\*Azure safety:' -and $file.Name -notin $azureSafetyAllowed) {
         throw "Local-only lab contains an Azure safety classification: $($file.FullName)"
     }
 }
 
 $encodingErrors = @($markdownFiles | Where-Object {
-    (Get-Content -LiteralPath $_.FullName -Raw) -match 'Ã|Â|â€|â€™|â€œ|â€�|�'
+    (Read-Utf8Text $_.FullName) -match '[\u00C2\u00C3\uFFFD]|\u00E2\u20AC'
 })
 if ($encodingErrors.Count) {
     throw "Possible mojibake in Markdown files:`n$($encodingErrors.FullName -join "`n")"
 }
 
 $unfinishedMarkers = @($markdownFiles | Where-Object {
-    (Get-Content -LiteralPath $_.FullName -Raw) -match '(?i)\b(?:TBD|TODO|FIXME)\b'
+    (Read-Utf8Text $_.FullName) -match '(?i)\b(?:TBD|TODO|FIXME)\b'
 })
 if ($unfinishedMarkers.Count) {
     throw "Unresolved documentation markers:`n$($unfinishedMarkers.FullName -join "`n")"
 }
 
-$containerLab = Get-Content -LiteralPath (Join-Path $RepositoryRoot 'Instructions\Labs\Windows-containers.md') -Raw
+$containerLab = Read-Utf8Text (Join-Path $RepositoryRoot 'Instructions\Labs\Windows-containers.md')
 if ($containerLab -notmatch 'raw\.githubusercontent\.com/microsoft/Windows-Containers/[0-9a-f]{40}/' -or
     $containerLab -notmatch "expectedHash\s*=\s*'[0-9A-Fa-f]{64}'" -or
     $containerLab -notmatch 'Get-FileHash') {
     throw 'Windows container installer must use a pinned commit and verify SHA-256 before execution.'
 }
 
-$mdtLab = Get-Content -LiteralPath (Join-Path $RepositoryRoot 'Instructions\Labs\Microsoft-Deployment-Toolkit.md') -Raw
+$mdtLab = Read-Utf8Text (Join-Path $RepositoryRoot 'Instructions\Labs\Microsoft-Deployment-Toolkit.md')
 if ($mdtLab -match '(?i)Hyper-V Manager|Virtual Machine Connection|New-PSSession\s+-VMName|Stop-VM|Get-VMHardDiskDrive|New-VHD') {
     throw 'The MDT lab must use VMware consistently for outer VM lifecycle operations.'
 }
 
-$multiDomainLab = Get-Content -LiteralPath (Join-Path $RepositoryRoot 'Instructions\Labs\Multi-domain-environments.md') -Raw
+$multiDomainLab = Read-Utf8Text (Join-Path $RepositoryRoot 'Instructions\Labs\Multi-domain-environments.md')
 if ($multiDomainLab -notmatch '#task-4-add-the-contoso-upn-suffix' -or
     $multiDomainLab -notmatch '(?is)Task 4: Add the Contoso UPN suffix.{0,1200}Set-ADForest.{0,300}ad\.contoso\.com.{0,300}contoso\.com' -or
     $multiDomainLab -notmatch '(?is)Task 5: Create a new user.{0,1800}Wil@contoso\.com.{0,1000}CN=Users,DC=ad,DC=contoso,DC=com') {
