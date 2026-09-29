@@ -5057,10 +5057,7 @@
         "VN1-SRV20",
         "VN1-SRV21",
         "VN1-SRV8",
-        "WIN-CL1",
-        "WIN-VN-SRV20",
-        "WIN-VN1-SRV20",
-        "WIN-VN1-SRV8"
+        "WIN-VN1-SRV20"
       ],
       "networks": [
         "Enterprise expansion profile: isolated source 10.1.x.0/24 segments mapped to dedicated VMware custom VMnets"
