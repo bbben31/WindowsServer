@@ -7,7 +7,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); CL4 (VMware display: CL4; accepted display aliases: WIN-CL4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing).  Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); CL4 (VMware display: CL4; accepted display aliases: WIN-CL4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
 
 **Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup.
 
@@ -17,7 +17,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Success verification:** Get-BCStatus shows the intended hosted/distributed mode, SCP registration and imported cache data; timing improvement is optional.
 
-**Rollback and cleanup:** Restore coordinated pre-lab guests; remove only the exercise BranchCache GPOs, exported/imported packages and copied client data. No outer bandwidth limit was applied. Remove temporary outbound access.
+**Rollback and cleanup:** Restore coordinated pre-lab guests; remove only the exercise BranchCache GPOs, exported/imported packages and copied client data. No outer bandwidth limit was applied.
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
@@ -473,4 +473,4 @@ Perform this task on CL4.
 
 ## Cleanup
 
-Restore the coordinated pre-lab VMware snapshots of the file server, cache server, clients, and affected domain controllers. Remove the two lab BranchCache GPOs only if they were created by this exercise; verify their links no longer apply. Remove the exported/imported package and copied client files. No outer bandwidth setting was changed. Disconnect any temporary VMnet8 adapter.
+Restore the coordinated pre-lab VMware snapshots of the file server, cache server, clients, and affected domain controllers. Remove the two lab BranchCache GPOs only if they were created by this exercise; verify their links no longer apply. Remove the exported/imported package and copied client files. No outer bandwidth setting was changed.

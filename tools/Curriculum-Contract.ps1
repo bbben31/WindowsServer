@@ -9,14 +9,24 @@ function Get-CurriculumContract {
     $lines.Add('')
     $lines.Add('**Prerequisites (in order):** ' + (@($Entry.dependencies) -join '; ') + '. ' + (@($Entry.prerequisiteState) -join ' '))
     $machines = @($Entry.vmTopology | ForEach-Object {
-        $aliases = if (@($_.displayNameAliases).Count) { '; accepted display aliases: ' + ($_.displayNameAliases -join ', ') } else { '' }
+        $aliasNames = @($_.displayNameAliases | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+        $aliases = if ($aliasNames.Count) { 'accepted display aliases: ' + ($aliasNames -join ', ') } else { '' }
         $display = if ($_.layer -eq 'inner-hyper-v') { 'Hyper-V name: ' + $_.hyperVName } else { 'VMware display: ' + $_.vmwareDisplayName }
-        $_.guestHostname + ' (' + $display + $aliases + '; ' + $_.phase + ')'
+        $details = @($display, $aliases, $_.phase) | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() }
+        $_.guestHostname.Trim() + ' (' + ($details -join '; ') + ')'
     })
     $machineText = if ($machines.Count) { $machines -join '; ' } else { 'No dedicated guest; use the host/browser or existing tenant context specified by this reference.' }
-    $alternatives = @($Entry.alternativeVmGroups | ForEach-Object { 'At least ' + $_.minimum + ' of [' + ($_.names -join ', ') + ']: ' + $_.reason })
+    $alternatives = @($Entry.alternativeVmGroups | Where-Object { $_ } | ForEach-Object {
+        $alternativeNames = @($_.names | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+        if ($alternativeNames.Count) {
+            $alternativeParts = @('At least ' + $_.minimum + ' of [' + ($alternativeNames -join ', ') + ']:', $_.reason)
+            (@($alternativeParts | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() }) -join ' ')
+        }
+    })
     $lines.Add('')
-    $lines.Add('**Machines and network profile:** ' + $machineText + '. ' + ($alternatives -join ' ') + ' ' + (@($Entry.networks) -join ' '))
+    $machineParts = @($machineText + '.') + @($alternatives) + @($Entry.networks)
+    $machineParts = @($machineParts | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
+    $lines.Add('**Machines and network profile:** ' + ($machineParts -join ' '))
     $lines.Add('')
     $lines.Add('**Permissions:** ' + (@($Entry.permissions) -join ' '))
     $lines.Add('')

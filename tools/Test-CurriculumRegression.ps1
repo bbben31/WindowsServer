@@ -32,6 +32,13 @@ try {
         @{ Name='invalid domain'; Expect='known invalid domain'; Append="`n<!-- https://admincenter.smart.etc -->`n" },
         @{ Name='admin permissions'; Expect='administrative commands paired only with standard-user permissions'; Edit={param($e) $e.permissions=@('Standard lab user')}; Append="`nNew-NetLbfoTeam -Name Test -TeamMembers Ethernet1,Ethernet2`n" },
         @{ Name='outbound omission'; Expect='download/install without declared outbound access'; Append="`nInstall-Module Microsoft.Graph.Authentication -Scope CurrentUser`n" },
+        @{ Name='shared RSAT download omission'; Expect='download/install without declared outbound access'; Append="`nRun C:\WindowsServerLab\Resources\Solutions\Install-RemoteServerAdministrationTools.ps1 during setup.`n" },
+        @{ Name='required outbound missing cleanup'; Expect='incomplete outbound access/cleanup contract'; Edit={param($e) $e.outbound.required=$true; $e.outbound.endpoints=@('https://www.powershellgallery.com'); $e.networks+= 'Temporary VMnet8 NAT for PowerShell Gallery'; $e.cleanup='Restore guest settings. VMnet8 was used for downloads.'} },
+        @{ Name='non-required outbound cleanup'; Expect='non-required outbound access has unconditional or undocumented network cleanup'; Edit={param($e) $e.cleanup='Remove temporary VMnet8 access and restore recorded DNS.'} },
+        @{ Name='non-required procedure cleanup'; Expect='non-required outbound access has unconditional or undocumented network cleanup'; Append="`n## Cleanup`nDisconnect temporary NAT access.`n" },
+        @{ Name='undocumented conditional cleanup'; Expect='non-required outbound access has unconditional or undocumented network cleanup'; Edit={param($e) $e.cleanup='If temporary VMnet8 access was attached, disconnect it.'} },
+        @{ Name='non-optional generic warning'; Expect='non-optional entry has generic optional-product compatibility warning'; Edit={param($e) $e.compatibility.optional=$false; $e.compatibility.notes='Verify current support for optional products before execution.'} },
+        @{ Name='doubled topology separator'; Expect='doubled topology separator spaces'; Text={param($t) $t.Replace('**Machines and network profile:** ', '**Machines and network profile:** A.  ')} },
         @{ Name='filter vocabulary'; Expect='invalid manifest filter value'; Edit={param($e) $e.riskCost.costClass='unrecognized'} },
         @{ Name='boolean flags'; Expect='filter flags must be JSON booleans'; Edit={param($e) $e.compatibility.optional='true'} },
         @{ Name='external workaround'; Expect='external known issue lacks local adapted explanation'; Append="`n<https://github.com/EnterpriseTrainingCenter/WindowsServer/issues/201>`n" }
@@ -48,6 +55,17 @@ try {
         $passed++
     }
     [IO.File]::WriteAllText($documentPath, $original, $utf8)
+    $conditionalEntry = $manifest.entries | Where-Object path -eq 'Instructions/Practices/Configure-a-guest-operating-system.md'
+    if (@(Test-CurriculumRules @($conditionalEntry) $fixtureRoot).Count) { throw 'Documented optional VMnet8 cleanup was rejected.' }
+    $passed++
+    . (Join-Path $scriptRoot 'Curriculum-Contract.ps1')
+    $renderEntry = $entryJson | ConvertFrom-Json
+    $renderEntry.alternativeVmGroups = @($null)
+    $renderEntry.networks = @('', '  Isolated lab.  ', $null)
+    $renderEntry.vmTopology[0].displayNameAliases = @('', '  WIN-CL1  ', $null)
+    $rendered = Get-CurriculumContract $renderEntry
+    if ($rendered -match '\S[ \t]{2,}\S' -or $rendered -notmatch 'accepted display aliases: WIN-CL1;' -or $rendered -notmatch '\. Isolated lab\.') { throw 'Empty topology parts or whitespace aliases broke contract rendering.' }
+    $passed++
     $preflight = Join-Path $scriptRoot 'Preflight-LearnerLab.ps1'
     $tokens = $null; $parseErrors = $null
     $ast = [Management.Automation.Language.Parser]::ParseInput([IO.File]::ReadAllText($preflight), [ref]$tokens, [ref]$parseErrors)

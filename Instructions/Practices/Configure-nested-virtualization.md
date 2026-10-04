@@ -5,9 +5,9 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Provision a dedicated VMware guest as an intermediate Hyper-V host with two inner WIN-PM-SRV1/WIN-PM-SRV2 VMs. These commands run inside that host, never on the outer Windows VMware host. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.  HV-MGMT is the dedicated outer VMware Windows guest hosting the two inner PM VMs; enable its VMware virtualization extensions and install Hyper-V before this optional practice.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Provision a dedicated VMware guest as an intermediate Hyper-V host with two inner WIN-PM-SRV1/WIN-PM-SRV2 VMs. These commands run inside that host, never on the outer Windows VMware host. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer. HV-MGMT is the dedicated outer VMware Windows guest hosting the two inner PM VMs; enable its VMware virtualization extensions and install Hyper-V before this optional practice.
 
-**Machines and network profile:** PM-SRV1 (Hyper-V name: WIN-PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing-inner); PM-SRV2 (Hyper-V name: WIN-PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing-inner); HV-MGMT (VMware display: HV-MGMT; existing).  Dedicated isolated VMware custom VMnet for HV-MGMT and the inner PM hosts; map their inner Hyper-V switches explicitly. This separate optional topology does not replace the direct VMware PM hosts used elsewhere.
+**Machines and network profile:** PM-SRV1 (Hyper-V name: WIN-PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing-inner); PM-SRV2 (Hyper-V name: WIN-PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing-inner); HV-MGMT (VMware display: HV-MGMT; existing). Dedicated isolated VMware custom VMnet for HV-MGMT and the inner PM hosts; map their inner Hyper-V switches explicitly. This separate optional topology does not replace the direct VMware PM hosts used elsewhere.
 
 **Permissions:** Local Administrator on the explicitly declared nested Hyper-V hosts and inner guests; cluster administrator for cluster changes. VMware settings permission on the outer host.
 
@@ -17,7 +17,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Success verification:** The explicitly named inner Hyper-V VMs show fixed 4 GB memory, exposed extensions and MAC spoofing; inner virtualization starts.
 
-**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 

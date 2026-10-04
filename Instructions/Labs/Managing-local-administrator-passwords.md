@@ -17,7 +17,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Success verification:** LAPS backs up/rotates the intended client password and only authorized delegated readers can retrieve it; never copy it to reports.
 
-**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 

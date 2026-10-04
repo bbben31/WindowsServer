@@ -7,13 +7,13 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Optional-Cost-Gated-Topics.md. Use an existing authorized Azure for Students subscription, an approved disposable resource group, the declared scoped Azure role, and a named budget/cleanup plan. Confirm current regional availability before deployment.
 
-**Machines and network profile:** No dedicated guest; use the host/browser or existing tenant context specified by this reference..  No dedicated guest segment is required for host-browser portal work; use temporary VMnet8 if using a VMware guest browser. Keep all lab segments isolated.
+**Machines and network profile:** No dedicated guest; use the host/browser or existing tenant context specified by this reference.. No dedicated guest segment is required for host-browser portal work; use temporary VMnet8 if using a VMware guest browser. Keep all lab segments isolated.
 
 **Permissions:** Standard lab user for local read-only queries and user-owned files; no local elevation. If the explicitly documented system-help prerequisite is selected under Windows PowerShell 5.1, use a separate authorized elevated session. Automation Contributor at disposable resource-group scope
 
 **Outbound access:** Approved host-browser outbound access to Azure endpoints, or temporary VMware NAT VMnet8 for a guest browser; disconnect guest NAT afterward. Endpoints: login.microsoftonline.com; management.azure.com; Service-specific endpoints in the linked Microsoft product requirements.
 
-**Risk, cost and optional status:** low; cost-gated; optional=false. Estimate current service charges before deployment; stop at the GBP 10 monthly safety limit. Confirm deletion and billing after completion. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution.
+**Risk, cost and optional status:** low; cost-gated; optional=false. Estimate current service charges before deployment; stop at the GBP 10 monthly safety limit. Confirm deletion and billing after completion. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
 
 **Success verification:** The Automation account exists in the approved resource group and no unintended runbook schedules or jobs are active.
 

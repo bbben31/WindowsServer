@@ -20,6 +20,9 @@ function Test-CurriculumRules {
         }
         if ($entry.azure.required -isnot [bool] -or $entry.compatibility.optional -isnot [bool] -or $entry.outbound.required -isnot [bool] -or $entry.hyperVTeaching -isnot [bool]) { $failures.Add("${label}: filter flags must be JSON booleans") }
         if ($entry.azure.required -and $entry.riskCost.costClass -ne 'cost-gated') { $failures.Add("${label}: Azure exercise must be cost-gated") }
+        if (!$entry.compatibility.optional -and $entry.compatibility.notes -match '(?i)Verify current support for optional products') { $failures.Add("${label}: non-optional entry has generic optional-product compatibility warning") }
+        $contract = [regex]::Match($content, '(?s)<!-- BEGIN GENERATED COMPLETION CONTRACT -->.*?<!-- END GENERATED COMPLETION CONTRACT -->').Value
+        if ($contract -match '\S[ \t]{2,}\S') { $failures.Add("${label}: doubled topology separator spaces in generated contract") }
         if (!@($entry.verification).Count -or !@($entry.permissions).Count -or !@($entry.dependencies).Count -or [string]::IsNullOrWhiteSpace($entry.cleanup)) {
             $failures.Add("${label}: incomplete completion contract")
         }
@@ -70,8 +73,19 @@ function Test-CurriculumRules {
         $adminPattern = '(?im)^\s*(?:Install-WindowsFeature|Enable-ADOptionalFeature|New-NetLbfoTeam|Set-NetIPInterface|Add-DhcpServer\w*|Set-DhcpServer\w*|Set-VMProcessor|Install-ADDS\w*|Set-ADForest|Set-ADDomain|Set-ItemProperty|Set-OSConfigDesiredConfiguration)\b'
         if ($procedure -match $adminPattern -and (@($entry.permissions) -join ' ') -notmatch '(?i)Administrator|Admin\b|delegated|authorization|Schema') { $failures.Add("${label}: administrative commands paired only with standard-user permissions") }
         $downloadPattern = '(?im)^\s*(?:Install-Module|Find-Module|Update-Module|Update-Help|Invoke-WebRequest|Add-WindowsCapability|git\s+(?:clone|pull)|winget\s+(?:install|upgrade))\b|^\s*1\. [^\n]*(?:download and install|Microsoft Store|Download .* from|download .*installer|Download .*<https?://)|docker image pull|wsl --install'
+        $downloadPattern += '|Install-RemoteServerAdministrationTools\.ps1|install the optional feature \*\*RSAT|install (?:the )?(?:Active Directory )?extension'
         if ($procedure -match $downloadPattern -and !$entry.outbound.required) { $failures.Add("${label}: download/install without declared outbound access") }
-        if ($entry.outbound.required -and ((@($entry.networks) -join ' ') -notmatch 'VMnet8' -or !@($entry.outbound.endpoints).Count -or $entry.cleanup -notmatch '(?i)VMnet8|NAT|outbound')) { $failures.Add("${label}: incomplete outbound access/cleanup contract") }
+        $networkCleanupPattern = '(?i)\b(?:remove|disconnect|detach|disable|restore)\b[^.\r\n]*(?:VMnet8|\bNAT\b|(?:temporary )?outbound(?: access| connectivity)?)|(?:VMnet8|\bNAT\b|outbound access)[^.\r\n]*\b(?:remove(?:d)?|disconnect(?:ed)?|detach(?:ed)?|disable(?:d)?|restore(?:d)?)\b'
+        if ($entry.outbound.required -and ((@($entry.networks) -join ' ') -notmatch 'VMnet8' -or !@($entry.outbound.endpoints | Where-Object { ![string]::IsNullOrWhiteSpace($_) }).Count -or $entry.cleanup -notmatch $networkCleanupPattern)) { $failures.Add("${label}: incomplete outbound access/cleanup contract") }
+        if (!$entry.outbound.required) {
+            $cleanupText = $entry.cleanup + "`n" + (([regex]::Matches($procedure, '(?ms)^## (?:Rollback[^\n]*|Cleanup[^\n]*)\n(.*?)(?=^## |\z)') | ForEach-Object { $_.Groups[1].Value }) -join "`n")
+            foreach ($sentence in [regex]::Split($cleanupText, '(?<=[.!?])\s+|\r?\n')) {
+                if ($sentence -notmatch $networkCleanupPattern) { continue }
+                $conditional = $sentence -match '(?i)^\s*If temporary VMnet8 access was attached\b'
+                $documentedOptional = $procedure -match '(?i)(?:attach|connect)[^.\r\n]*VMnet8[^.\r\n]*(?:only when|optional|if)|(?:optional|if)[^.\r\n]*(?:attach|connect)[^.\r\n]*VMnet8'
+                if (!$conditional -or !$documentedOptional) { $failures.Add("${label}: non-required outbound access has unconditional or undocumented network cleanup") }
+            }
+        }
         foreach ($issue in [regex]::Matches($procedure, '(?im)^.*https://github\.com/[^/\s)]+/[^/\s)]+/issues/\d+.*$')) {
             if ($issue.Value.Length -lt 180) { $failures.Add("${label}: external known issue lacks local adapted explanation") }
         }
