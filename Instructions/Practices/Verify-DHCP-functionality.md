@@ -1,10 +1,37 @@
 # Practice: Verify DHCP functionality
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Authorize-DHCP-server-and-activate-scope.md; Instructions/Practices/Configure-DHCP-server-options.md; Instructions/Practices/Add-DHCP-reservations.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV11 (VMware display: VN1-SRV11; accepted display aliases: WIN-VN1-SRV11; existing); VN1-SRV12 (VMware display: VN1-SRV12; accepted display aliases: WIN-VN1-SRV12; existing); VN1-SRV13 (VMware display: VN1-SRV13; accepted display aliases: WIN-VN1-SRV13; existing); VN1-SRV2 (VMware display: VN1-SRV2; accepted display aliases: WIN-VN1-SRV2; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing); VN1-SRV9 (VMware display: VN1-SRV9; accepted display aliases: WIN-VN1-SRV9; existing).  Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** low; local-only; optional=false. local-only Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** Each targeted VNet1 guest receives the reserved address, gateway 10.1.1.1 and AD DNS 10.1.1.8.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+
 > **Environment profile:** This practice validates the enterprise-expansion `VNet1` scope (`10.1.1.0/24`). Keep the AD DNS server at `10.1.1.8` and do not run these address changes against the core learner profile.
 
 ## Required VMs
 
+* CL1
 * VN1-SRV1
+* VN1-SRV10
+* VN1-SRV11
+* VN1-SRV12
+* VN1-SRV13
 * VN1-SRV2
 * VN1-SRV3
 * VN1-SRV4
@@ -12,11 +39,6 @@
 * VN1-SRV6
 * VN1-SRV8
 * VN1-SRV9
-* VN1-SRV10
-* VN1-SRV11
-* VN1-SRV12
-* VN1-SRV13
-* CL1
 
 ## Task
 
@@ -196,4 +218,3 @@ Perform this task on CL1.
 Repeat from step 3 for VN1-SRV2, VN1-SRV3, VN1-SRV4, VN1-SRV5, VN1-SRV8, VN1-SRV9,VN1-SRV10, VN1-SRV11, VN1-SRV12, VN1-SRV13, and CL1.
 
 To add CL1 to the Windows Admin Center, on the connections page, click **Add**. In the pane Add or create resources, under **Windows PCs**, click **Add**. In **Computer name**, type **CL1** and click **Add**.
-

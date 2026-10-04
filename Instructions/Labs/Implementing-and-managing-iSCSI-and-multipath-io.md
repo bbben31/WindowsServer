@@ -1,5 +1,27 @@
 # Lab: Implementing and managing iSCSI and Multipath I/O
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing).  Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** high; local-only; optional=false. local-only Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** Get-IscsiSession and MPIO/disk status show the intended target, multiple paths and usable disposable LUN.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
@@ -9,9 +31,9 @@
 
 * CL1
 * VN1-SRV1
+* VN1-SRV10
 * VN1-SRV4
 * VN1-SRV5
-* VN1-SRV10
 
 ## Setup
 
@@ -535,52 +557,12 @@ Leave Task Manager and the connection to the virtual computer open, so that you 
 
 ### Task 4: Examine the fault tolerance of MultiPath I/O
 
-Perform this task on the host.
+Perform the adapter controls on the VMware Workstation host while observing VN1-SRV5's Task Manager and copy process.
 
-1. Open another instance of **Windows PowerShell (Admin)** or, in Terminal, split the current tab horizontally by pressing ALT + SHIFT + -.
-1. In the new instance of Windows PowerShell (Admin), or in the bottom pane of Terminal, while the copy process is running, disconnect the network adapter connected to the switch named **SAN1**.
-
-   ````powershell
-   $vMName = 'WIN-VN1-SRV5'
-   $switchName = 'SAN1'
-   Get-VMNetworkAdapter -VMName $vMName | 
-   Where-Object { $PSItem.SwitchName -eq $switchName } |
-   Disconnect-VMNetworkAdapter
-   ````
-
-   > After a few seconds, in Task Manager on VN1-SRV5, you should see that the copy process continues.  The load on SAN2 will be increased and closer to the load on VNet1.
-
-1. Reconnect the disconnected network adapter.
-
-   ````powershell
-   Get-VMNetworkAdapter -VMName $vMName | 
-   Where-Object { -not $PSItem.Connected } | 
-   Connect-VMNetworkAdapter -SwitchName $switchName
-   ````
-
-   > After a moment, in Task Manager on VN1-SRV5, the load between SAN1 and SAN2 will be distributed evenly again.
-
-1. Disconnect the network adapter connected to the switch named **SAN2**.
-
-   ````powershell
-   $switchName = 'SAN2'
-   Get-VMNetworkAdapter -VMName $vMName | 
-   Where-Object { $PSItem.SwitchName -eq $switchName } |
-   Disconnect-VMNetworkAdapter
-   ````
-
-   > After a few seconds, in Task Manager on VN1-SRV5, you should see that the copy process continues.  The load on SAN1 will be increased and closer to the load on VNet1.
-
-1. Reconnect the disconnected network adapter.
-
-   ````powershell
-   Get-VMNetworkAdapter -VMName $vMName | 
-   Where-Object { -not $PSItem.Connected } | 
-   Connect-VMNetworkAdapter -SwitchName $switchName
-   ````
-
-   > After a moment, in Task Manager on VN1-SRV5, the load between SAN1 and SAN2 will be distributed evenly again.
-
+1. Identify the VMware adapter mapped to **SAN1** for **VN1-SRV5** from the recorded MAC/VMnet table. In **VM > Settings > Network Adapter**, clear **Connected** only on that adapter; retain the management NIC and SAN2 connection.
+1. Observe whether copying continues over SAN2 and record actual throughput; equal load splitting is an observation, not a guaranteed result.
+1. Restore **Connected** for SAN1 and verify both iSCSI/MPIO paths are healthy.
+1. Repeat for **SAN2**, keeping SAN1 connected; then reconnect SAN2 and verify both paths recover.
 1. In the other instance of **Windows PowerShell (Admin)** or the upper pane of Terminal, stop the copy process by pressing CTRL + C.
 1. Delete all files from **V:**
 
@@ -593,7 +575,3 @@ Perform this task on the host.
    ````powershell
    Remove-PSDrive V
    ````
-
-
-
-

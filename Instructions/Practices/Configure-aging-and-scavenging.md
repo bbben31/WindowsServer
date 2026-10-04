@@ -1,9 +1,31 @@
-﻿# Practice: Configure aging and scavenging
+# Practice: Configure aging and scavenging
+
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-the-DNS-server-role.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing).  Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+
+**Permissions:** DNS Administrators/delegated zone rights on the named DNS servers; Local Administrator for role installation and guest setup.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** low; local-only; optional=false. local-only Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution.
+
+**Success verification:** DNS zone aging and server scavenging intervals match seven days; explain when stale records become eligible.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
 
 ## Required VMs
 
-* VN1-SRV1
 * CL1
+* VN1-SRV1
 
 ## Task
 
@@ -46,5 +68,3 @@ Perform this task on CL1.
 1. In **DNS-Manager**, in the context-menu of **vn1-srv1.ad.lab.test**, click **Properties**.
 1. In **vn1-srv1.ad.lab.test Properties**, click the tab **Advanced**.
 1. On tab Advanced, activate **Enable automatic scavenging of stale records** and click **OK**.
-
-

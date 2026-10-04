@@ -1,8 +1,30 @@
-﻿# Practice: Create a Log Analytics Workspace
+# Practice: Create a Log Analytics Workspace
+
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Optional-Cost-Gated-Topics.md. Use an existing authorized Azure for Students subscription, an approved disposable resource group, the declared scoped Azure role, and a named budget/cleanup plan. Confirm current regional availability before deployment.
+
+**Machines and network profile:** No dedicated guest; use the host/browser or existing tenant context specified by this reference..  No dedicated guest segment is required for host-browser portal work; use temporary VMnet8 if using a VMware guest browser. Keep all lab segments isolated.
+
+**Permissions:** Standard lab user for local read-only queries and user-owned files; no local elevation. If the explicitly documented system-help prerequisite is selected under Windows PowerShell 5.1, use a separate authorized elevated session. Log Analytics Contributor at disposable resource-group scope
+
+**Outbound access:** Approved host-browser outbound access to Azure endpoints, or temporary VMware NAT VMnet8 for a guest browser; disconnect guest NAT afterward. Endpoints: login.microsoftonline.com; management.azure.com; Service-specific endpoints in the linked Microsoft product requirements.
+
+**Risk, cost and optional status:** low; cost-gated; optional=false. Estimate current service charges before deployment; stop at the GBP 10 monthly safety limit. Confirm deletion and billing after completion. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution.
+
+**Success verification:** The workspace exists in the approved resource group with the recorded region and bounded retention.
+
+**Rollback and cleanup:** Delete only resources created for this exercise in the disposable resource group; remove exercise-specific assignments, agents/registrations and identities after checking dependencies. Verify the group is empty, no schedules remain and no recurring charges continue. Retain required prerequisite resources until dependent exercises finish. Disconnect temporary VMnet8 and restore recorded guest DNS/adapters.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
 
 ## Required VMs
 
-None
+None; use the existing reference context.
 
 ## Setup
 

@@ -1,5 +1,27 @@
 # Lab: Storage Replica and stretched cluster
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.  The cluster nodes are outer VMware VMs with nested Hyper-V enabled; control their outer failure/recovery in VMware and their inner workload in Hyper-V.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV20 (Hyper-V name: VN2-SRV20; accepted display aliases: WIN-VN2-SRV20; created); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing).  Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+
+**Permissions:** Local Administrator on the explicitly declared nested Hyper-V hosts and inner guests; cluster administrator for cluster changes. VMware settings permission on the outer host.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** high; local-only; optional=false. local-only Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** Replication/cluster roles and the intended test workload recover on the documented surviving site; record data/log disks and recovery results.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
@@ -7,13 +29,14 @@
 
 ## Required VMs
 
+* CL1
 * VN1-SRV1
+* VN1-SRV10
 * VN1-SRV4
 * VN1-SRV5
-* VN1-SRV10
 * VN2-SRV1
+* VN2-SRV20 (inner Hyper-V guest/role)
 * VN3-SRV1
-* CL1
 
 ## Setup
 
@@ -37,40 +60,7 @@
 
 ### Task 1: Configure nested virtualization
 
-Perform this task on the host.
-
-1. Open **Windows PowerShell (Admin)**.
-1. In Windows PowerShell (Admin), shut down **WIN-VN2-SRV1** and **WIN-VN3-SRV1**.
-
-    ````powershell
-    $vMName = @('WIN-VN2-SRV1', 'WIN-VN3-SRV1')
-    $vMName | ForEach-Object { Stop-VM -VMName $PSItem }
-    ````
-
-1. Expose virtualization extensions.
-
-    ````powershell
-    Set-VMProcessor -VMName $vMName -ExposeVirtualizationExtensions $true
-    ````
-
-1. Enable MAC address spoofing.
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName $vMName |
-    Set-VMNetworkAdapter -MacAddressSpoofing On
-    ````
-
-1. Disable dynamic memory and set the startup memory to 3 GB.
-
-    ````powershell
-    Set-VM -VMName $vMName -StaticMemory -MemoryStartupBytes 3GB
-    ````
-
-1. Start the virtual machines.
-
-    ````powershell
-    Start-VM -VMName $vMName
-    ````
+On the VMware Workstation host, shut down VN2-SRV1 and VN3-SRV1. Open each outer VM's **Settings > Processors** and enable **Virtualize Intel VT-x/EPT or AMD-V/RVI**; allocate at least 3 GB fixed memory or the larger amount required by the workload. Record each VMnet and disk mapping, then restart the guests and verify virtualization with systeminfo. Run the later Hyper-V/cluster commands inside these nested Windows guests. Do not apply Hyper-V host commands to the outer VMware VMs.
 
 ### Task 2: Configure iSCSI targets and disks
 
@@ -205,8 +195,7 @@ Perform this task on VN2-SRV1 and VN3-SRV1.
 
 ### Task 4: Create volumes
 
-<!-- #### Desktop Experience
- -->
+
 Perform this task on CL1.
 
 1. Open **Server Manager**.
@@ -239,88 +228,12 @@ Perform this task on CL1.
 
 Repeat from step 4 for VN3-SRV1.
 
-<!-- #### Windows Admin Center
 
-Perform these steps on CL1.
 
-1. Logon as **smart\administrator**
-1. Open **Google Chrome**, and navigate to <https://admincenter.smart.etc> to open the Windows Admin Center Management Portal.
-1. Connect to **sr1.smart.etc**.
-1. Navigate to **Storage**.
-1. Select **Disk 1** and click **Initialize disk** ([figure 1]). Initialize it as GPT Disk.
-1. Repeat the previous step for **Disk 2**.
-1. Create ReFS formatted volumes using the maximum size. Refer to the table below to assign drive letters and labels ([figure 2] and [figure 3]).
-
-   | Disk size | Drive letter | Label |
-   |-----------|--------------|-------|
-   | 36 GB     | D            | Data  |
-   | 10 GB     | E            | Log   |
-
-1. For server **SR2.smart.etc**, initialize the disks **Disk 1** and **Disk 2** as GPT disks. On the disks, create volume like in the previous step.
- -->
-<!-- #### PowerShell
-
-Perform these steps on CL1.
-
-1. Logon as **smart\administrator**
-1. Open **Windows PowerShell**.
-1. Define a variable $node to run commands on both nodes.
-
-   ````powershell
-   # Variables can store comma-separated lists of values, i. e. arrays
-   $node = 'SR1', 'SR2'
-   ````
-
-1. Create CIM sessions to both nodes, to run commands remotely.
-
-   ````powershell
-   $cimSession = New-CimSession -ComputerName $node
-   ````
-
-1. On SR1 and SR2, initialize disks as GPT disks.
-
-   ````powershell
-   # Parameters supporting arrays accept comma-separated lists
-   # In this case Initialize-Disk accepts <uint32[]> for the parameter -Number
-   # See Get-Help Initialize-Disk for more information.
-   Initialize-Disk -CimSession $cimSession -Number 1, 2 
-   ````
-
-1. Create ReFS formatted volumes using the maximum size. Refer to the table below to assign drive letters and labels ([figure 2] and [figure 3]).
-
-   | Number | Disk size | Drive letter | Label |
-   |--------|-----------|--------------|-------|
-   | 1      | 36 GB     | D            | Data  |
-   | 2      | 10 GB     | E            | Log   |
-
-   ````powershell
-   <#
-   New-Volume does not support multiple CimSessions. Therefore, $cimSession
-   must be iterated using ForEach-Object. On each iteration, $PSItem contains
-   one single CimSession object.
-   #>
-   $cimSession | ForEach-Object {
-      New-Volume `
-         -CimSession $PSItem `
-         -DiskNumber 1 `
-         -FriendlyName 'Data' `
-         -FileSystem ReFS `
-         -DriveLetter D
-      New-Volume `
-         -CimSession $PSItem `
-         -DiskNumber 2 `
-         -FriendlyName 'Log' `
-         -FileSystem ReFS `
-         -DriveLetter E
-   }
-   ````
-
-1. Leave Windows PowerShell open for the next task. -->
 
 ### Task 5: Install Storage Replica feature
 
-<!-- You can skip this task when using Windows Admin Center in the next exercise. The necessary features are installed when using them.
- -->
+
 
 #### Desktop Experience
 
@@ -475,72 +388,8 @@ Perform this task on CL1.
 
 ### Task 3: Create a failover cluster
 
-<!-- #### Windows Admin Center
 
-Perform these steps on CL1.
 
-1. In **Windows Admin Center**, click on the gear icon to open settings.
-1. In **Settings**, click **Extensions**.
-1. When updates are available, install the updates for all extensions.
-1. On the top-left, click **Windows Admin Center** to return to All connections.
-1. In **All connections**, click **Add**.
-1. In panel **Add or create resources**, under **Server clusters**, click **Create new**. Select the correct options and click **Create**.
-   * **Choose the cluster type**: **Windows server**
-   * **Select the workload type**: **Cluster-aware roles and apps**
-   * **Select server locations**: **All servers in one site**
-1. On **Check prerequisites**, click **Next**.
-1. On **Add servers**, enter the credentials of **smart\Administrator**, then enter **sr1** and click **Add**.
-1. Enter **sr2** and click **Add**, then click **Next**.
-1. On **Join a domain**, click **Next**.
-1. On **Install features**, click **Install features**, then click **Next**.
-1. On **Install updates**, ignore any errors and click **Next**.
-1. On **Restart servers**, click **Restart servers**, if required. Then, click **Next: Clustering**.
-1. On **Validate the cluster**, click **Validate**.
-1. In the message box **Credential Service Provider (CredSSP)**, click **Yes**.
-1. Review the validation results and click **Next**.
-1. On **Create the cluster**, enter the cluster parameters and click **Create cluster**.
-   * **Cluster name**: SR
-   * **IP address**: 10.1.1.83
-1. After the cluster was created, click **Finish**.
-1. Click **Go to the connections list**.
-1. Open **Windows PowerShell**.
-1. Configure the cluster quorum settings to use a file share witness using \\dhcp\SR-fsw.
-
-   ````powershell
-   $node = 'sr1', 'sr2'
-   $clusterName = 'sr'
-   $cluster = Get-Cluster -Name sr
-   Set-ClusterQuorum -Cluster $cluster -FileShareWitness '\\Dhcp\SR-fsw'
-   ````
-
-1. Configure stretched cluster site awareness using PowerShell. Create two sites: primary and secondary.
-
-   ````powershell
-   <#
-   CIM sessions are a way to run commands using the CIM interface on remote
-   computers 
-   #>
-   $cimSession = New-CimSession -ComputerName $node
-   
-   New-ClusterFaultDomain -CimSession $cimSession[0] -Name Primary -Type Site
-   New-ClusterFaultDomain -CimSession $cimSession[0] -Name Secondary -Type Site
-   ````
-
-1. Add the nodes to their sites.
-
-   ````powershell
-   Set-ClusterFaultDomain `
-      -CimSession $cimSession[0] `
-      -Name $node[0] `
-      -Parent Primary
-   Set-ClusterFaultDomain `
-      -CimSession $cimSession[0] `
-      -Name $node[1] `
-      -Parent Secondary
-   ````
- -->
-<!-- #### PowerShell
- -->
 Perform this task on VN2-SRV1.
 
 1. Open **Windows PowerShell (Admin)**
@@ -601,13 +450,7 @@ Perform this task on VN2-SRV1.
    Get-ClusterAvailableDisk -All | Add-ClusterDisk
    ````
 
-<!-- 1. Configure Kerberos Constrained Delegation to allow SSO from Windows Admin Center.
 
-   ````powershell
-   $gw = Get-ADComputer -Identity "srv2"
-   Set-ADComputer $clusterName -PrincipalsAllowedToDelegateToAccount $gw 
-   ````
- -->
 ### Task 4: Add disk to cluster shared volumes
 
 Perform this task on CL1.
@@ -751,12 +594,7 @@ Perform these steps on CL1.
 
 ### Task 3: Simulate a failure
 
-Perform this task on the host.
-
-1. Open **Hyper-V Manager**.
-1. Click the name of your computer.
-1. Under Virtual Machines, in the context-menu of **VN2-SRV1**
-1. In **Hyper-V Manager**, turn off **VN2-SRV1**, click **Turn off...**
+On the VMware host, select the outer **VN2-SRV1** VM (recorded display alias WIN-VN2-SRV1 where used) and choose **VM > Power > Power Off**. This deliberately simulates abrupt loss of the disposable node; the inner VN2-SRV20 workload remains managed by the guest Hyper-V cluster.
 
 ### Task 4: Verify failover
 
@@ -777,24 +615,7 @@ Perform these steps on CL1.
 
 ### Task 5: Simulate recovery
 
-#### Desktop Experience
-
-Perform this task on the host computer.
-
-1. Open **Hyper-V Manager**.
-1. Click the name of your computer.
-1. Under Virtual Machines, in the context-menu of **VN2-SRV1**, click **Start**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. Open **Windows PowerShell (Admin)**.
-1. In Windows PowerShell (Admin), start the VM **WIN-VN2-SRV1**.
-
-   ````powershell
-   Start-VM -VMName WIN-VN2-SRV1
-   ````
+On the VMware host, power on only the **VN2-SRV1** outer VM turned off in task 3. Verify it rejoins the cluster before testing replication and inner-workload recovery.
 
 ### Task 6: Verify recovery
 
@@ -826,7 +647,3 @@ Perform these steps on CL1.
 1. In **Failover Cluster Manager**, expand **Storage** and click **Disks**.
 1. In the context-menu of the 20 GB disk, assigned to **Cluster Shared Volume**, click **Move**, **Select Node...**.
 1. In Move Cluster Shared Volume, click **VN2-SRV1** , and click **OK**.
-
-
-
-

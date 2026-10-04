@@ -1,5 +1,27 @@
 # Lab: Storage migration
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing). At least 1 of [VN1-SRV1, VN1-SRV5]: Use the active AD DNS/controller from the documented deployment lineage; do not restart a retired DC. Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft Windows Admin Center download/extension endpoints.
+
+**Risk, cost and optional status:** high; local-only; optional=true. local-only Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** The destination contains the intended shares/data/ACLs and the cutover client reaches the intended server identity.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
@@ -7,13 +29,14 @@
 
 ## Required VMs
 
-* A domain controller (VN1-SRV5 or VN1-SRV1)
-* VN1-SRV4
-* VN1-SRV7
-* VN1-SRV8
-* VN1-SRV10
 * CL1
 * CL2
+* VN1-SRV1
+* VN1-SRV10
+* VN1-SRV4
+* VN1-SRV5
+* VN1-SRV7
+* VN1-SRV8
 
 ## Setup
 
@@ -56,7 +79,7 @@ Perform this task on CL1.
 
 1. Open **Microsoft Edge** and navigate to <https://admincenter>.
 1. In Windows Admin Center, click **vn1-srv7.ad.lab.test**.
-1. Connected to vn1-srv.ad.lab.test, under **Tools**, click **Firewall**.
+1. Connected to vn1-srv7.ad.lab.test, under **Tools**, click **Firewall**.
 1. Under Firewall, click the tab **Incoming rules**.
 1. On the tab Incoming rules, click the rule **File and Printer Sharing (SMB-In)** and click **Enable**.
 
@@ -232,7 +255,3 @@ Perform this task on CL1.
     > The content of Finance should be the same as throughout other labs.
 
 If time permits, repeat from step 2 for the other shares.
-
-
-
-

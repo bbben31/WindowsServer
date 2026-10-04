@@ -1,5 +1,27 @@
 # Lab: Installing and configuring a failover cluster
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Create-an-exportable-web-server-certificate-template.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV2 (VMware display: VN1-SRV2; accepted display aliases: WIN-VN1-SRV2; existing); VN1-SRV23 (Hyper-V name: VN1-SRV23; accepted display aliases: WIN-VN1-SRV23; created); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing).  Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the explicitly declared nested Hyper-V hosts and inner guests; cluster administrator for cluster changes. VMware settings permission on the outer host.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft Windows Admin Center download/extension endpoints.
+
+**Risk, cost and optional status:** high; local-only; optional=true. local-only Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** Cluster validation completes with documented lab exceptions; roles/CSV/SOFS and the inner test VM move to the intended surviving node.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
@@ -9,10 +31,11 @@
 
 * CL1
 * VN1-SRV1
+* VN1-SRV10
 * VN1-SRV2
+* VN1-SRV23 (inner Hyper-V guest/role)
 * VN1-SRV4
 * VN1-SRV5
-* VN1-SRV10
 
 ## Known Issues
 
@@ -450,40 +473,7 @@ Perform this task on CL1.
 
 ### Task 1: Configure nested virtualization
 
-Perform this task on the host.
-
-1. Open **Windows PowerShell (Admin)**.
-1. In Windows PowerShell (Admin), shut down **WIN-VN1-SRV4** and **WIN-VN1-SRV5**.
-
-    ````powershell
-    $vMName = @('WIN-VN1-SRV4', 'WIN-VN1-SRV5')
-    $vMName | ForEach-Object { Stop-VM -VMName $PSItem }
-    ````
-
-1. Expose virtualization extensions to **WIN-VN1-SRV4** and **WIN-VN1-SRV5**.
-
-    ````powershell
-    Set-VMProcessor -VMName $vMName -ExposeVirtualizationExtensions $true
-    ````
-
-1. Enable MAC address spoofing for **WIN-VN1-SRV4** and **WIN-VN1-SRV5**.
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName $vMName |
-    Set-VMNetworkAdapter -MacAddressSpoofing On
-    ````
-
-1. Disable dynamic memory and set the startup memory to 3 GB.
-
-    ````powershell
-    Set-VM -VMName $vMName -StaticMemory -MemoryStartupBytes 3GB
-    ````
-
-1. Start the virtual machines.
-
-    ````powershell
-    Start-VM -VMName $vMName
-    ````
+On the VMware Workstation host, shut down the Hyper-V cluster hosts named by this exercise. Open each outer VM's **Settings > Processors** and enable **Virtualize Intel VT-x/EPT or AMD-V/RVI**; allocate at least 4 GB fixed memory or the larger amount required by the workload. Record each VMnet and disk mapping, then restart the guests and verify virtualization with systeminfo. Run the later Hyper-V/cluster commands inside these nested Windows guests. Do not apply Hyper-V host commands to the outer VMware VMs.
 
 ### Task 2: Install Hyper-V
 
@@ -846,15 +836,15 @@ Keep all windows open for the next task.
 
 Perform this task on the host.
 
-1. Arrange the **VN1-CL1 on *host* Virtual Machine Connection** window so, that you can monitor it while continuing with the next steps.
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager, in the context-menu of the virtual computer, running the cluster roles, click **Turn off...**.
+1. Arrange the VMware CL1 console and the inner VN1-SRV23 connection so you can monitor the management view and workload.
+1. Open **VMware Workstation**.
+1. Identify the outer VMware VM for the recorded owner of the cluster roles. Choose **VM > Power > Power Off** for this controlled disposable-node failure simulation.
 
-    > After a few seconds, in **Failover Cluster Manager**, **Roles** the **amincenter** should move to the other node and the Windows Admin Center should stay available.
+    > After a few seconds, in **Failover Cluster Manager**, **Roles** the **admincenter** should move to the other node and the Windows Admin Center should stay available.
 
     > After a few seconds, **VN1-SRV23** will become **Unmonitored**. After some minutes, the virtual machine, will start on **VN1-SRV5**. The network connection should work again, but you will need to reconnect.
 
-1. In the context-menu of the virtual computer you just turned off, click **Start**.
+1. In VMware Workstation, power on the outer VM you just turned off and verify the cluster node rejoins.
 
 ## Exercise 7: Use cluster-aware updating
 
@@ -905,7 +895,3 @@ Perform this task on CL1.
 1. On page Additional Update Options, activate **Give me recommended updates the same way that I receive important updates** and click **Next >**.
 1. On page Confirmation, click **Apply**.
 1. On page Completion, click **Close**.
-
-
-
-

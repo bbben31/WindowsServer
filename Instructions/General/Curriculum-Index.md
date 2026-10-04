@@ -10,18 +10,22 @@ Example:
 
 ```powershell
 .\tools\Preflight-LearnerLab.ps1 `
+  -CurriculumPath 'Instructions/Labs/BranchCache.md' `
   -ServerIsoPath '<PATH_TO_WINDOWS_SERVER_2025_EVALUATION_ISO>' `
   -ClientIsoPath '<PATH_TO_WINDOWS_11_ISO>' `
-  -VmName VN1-SRV1,VN1-SRV4,CL1 `
-  -ExpectedDnsServer 10.10.10.10 `
-  -ExpectedSubnet 10.10.10.0/24 `
-  -AzureSubscriptionId '<AZURE_SUBSCRIPTION_ID>' `
-  -AzureRegion 'UK South' `
-  -AzureResourceGroup '<AZURE_RESOURCE_GROUP>' `
+  -VmName VN1-SRV1,VN1-SRV4,VN1-SRV10,VN3-SRV1,CL1,CL3,CL4 `
+  -ExpectedDnsServer 10.1.1.8 `
+  -ExpectedSubnet 10.1.1.0/24 `
   -ReportPath '.\preflight-report.json'
 ```
 
 The checker is read-only and never logs in, creates, deletes, or changes resources. It returns exit code `0` when no errors are found, and `1` for errors (or warnings when `-FailOnWarning` is used). Missing optional tools are warnings or skipped checks.
+
+Select exactly one repository-relative `-CurriculumPath`. Supply completed prerequisite paths with `-CompletedPrerequisite`; `-OutboundAvailable` records your own connectivity verification rather than testing service availability. Guest hostnames and declared display aliases are accepted by `-VmName`; machines created during the procedure are reported without being required to exist before it starts. Use the selected profile's actual DNS/subnet values; the example above uses enterprise expansion.
+
+Only Azure-required entries need explicit `-AzureSubscriptionId`, `-AzureRegion`, `-AzureResourceGroup`, and `-AzureBudgetName`. Angle-bracket placeholders are skipped and prove no access. Optional WAC Azure integration uses the separate Register Windows Admin Center with Azure practice. `-SkipHostChecks -AsJson` reports requirements without host probes and supports automated inspection.
+
+The [explicit metadata source](../../metadata/curriculum-source.json) is authoritative. Run [manifest/contract regeneration](../../tools/Update-CurriculumManifest.ps1) after editing a source entry; [validation](../../tools/Validate-Curriculum.ps1) rejects drift. Prerequisites are curated per path, not inferred from every document link.
 
 ## Staged workflow
 

@@ -1,13 +1,35 @@
 # Practice: Install the DHCP server role
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing).  Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** low; local-only; optional=false. local-only Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution.
+
+**Success verification:** Get-WindowsFeature DHCP reports Installed on VN1-SRV6, VN1-SRV7 and VN2-SRV2; confirm post-install groups/configuration.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+
 ## Required VMs
 
+* CL1
 * VN1-SRV1
 * VN1-SRV4
 * VN1-SRV6
 * VN1-SRV7
 * VN2-SRV2
-* CL1
 
 ## Task
 
@@ -44,7 +66,7 @@ Perform this task on CL1.
 1. Sign in as **ad\administrator**.
 1. Using Microsoft Edge, navigate to <https://admincenter>.
 1. In Windows Admin Center, on the connections page, click **vn1-srv6.ad.lab.test**.
-1. Connected to vn1-srv5.ad.lab.test, under **Tools**, click **Roles & features**.
+1. Connected to vn1-srv6.ad.lab.test, under **Tools**, click **Roles & features**.
 1. In Roles and features, activate the checkbox beside **DHCP Server** and click **Install**.
 1. In the pane Install Role and Features, activate the checkbox **Reboot the server automatically, if required** and click **Yes**.
 
@@ -121,5 +143,3 @@ Perform this task on CL1.
             -Value 2
     }
     ````
-
-

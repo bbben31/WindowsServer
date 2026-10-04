@@ -1,6 +1,11 @@
 [CmdletBinding()]
 param(
     [string]$ManifestPath,
+    [string]$CurriculumPath,
+    [string[]]$CompletedPrerequisite,
+    [switch]$OutboundAvailable,
+    [switch]$SkipHostChecks,
+    [switch]$AsJson,
     [string]$ServerIsoPath,
     [Alias('Windows10IsoPath')]
     [string]$ClientIsoPath,
@@ -15,6 +20,7 @@ param(
     [switch]$FailOnWarning
 )
 
+$ErrorActionPreference = 'Stop'
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ([string]::IsNullOrWhiteSpace($ManifestPath)) { $ManifestPath = Join-Path $scriptRoot '..\metadata\curriculum-manifest.json' }
 $results = [System.Collections.Generic.List[object]]::new()
@@ -87,7 +93,7 @@ function Test-IPv4InCidr {
 
 if (Test-Path -LiteralPath $ManifestPath) {
     try {
-        $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
+        $manifest = [IO.File]::ReadAllText((Resolve-Path -LiteralPath $ManifestPath).Path) | ConvertFrom-Json
         Add-Check 'Manifest' 'Pass' "$($manifest.entries.Count) curriculum entries loaded."
     } catch {
         Add-Check 'Manifest' 'Error' 'Manifest could not be parsed as JSON.'
@@ -96,6 +102,61 @@ if (Test-Path -LiteralPath $ManifestPath) {
     Add-Check 'Manifest' 'Error' "Manifest was not found: $ManifestPath"
 }
 
+$selectedEntry = $null
+if ($CurriculumPath) {
+    $normalizedPath = $CurriculumPath.Replace('\', '/').TrimStart('.', '/')
+    $repositoryRoot = [IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $ManifestPath) '..'))
+    if ([IO.Path]::IsPathRooted($CurriculumPath)) {
+        $absolute = [IO.Path]::GetFullPath($CurriculumPath)
+        if ($absolute.StartsWith($repositoryRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+            $normalizedPath = $absolute.Substring($repositoryRoot.Length + 1).Replace('\','/')
+        }
+    }
+    $selected = @($manifest.entries | Where-Object { $_.path -ieq $normalizedPath })
+    if ($selected.Count -ne 1) {
+        Add-Check 'Curriculum selection' 'Error' "Expected exactly one entry for '$normalizedPath'; found $($selected.Count)."
+    } else {
+        $selectedEntry = $selected[0]
+        Add-Check 'Curriculum selection' 'Pass' $selectedEntry.path
+        $topologyDetail = if (@($selectedEntry.vmTopology).Count) { ($selectedEntry.vmTopology | ForEach-Object { "$($_.guestHostname): VMware display=$($_.vmwareDisplayName); Hyper-V name=$($_.hyperVName); aliases=$($_.displayNameAliases -join ','); layer=$($_.layer); phase=$($_.phase)" }) -join '; ' } else { 'No dedicated guest required; use the declared host/browser/reference context.' }
+        Add-Check 'Declared topology' 'Pass' $topologyDetail
+        Add-Check 'Declared networks' 'Pass' ($selectedEntry.networks -join '; ')
+        Add-Check 'Declared permissions' 'Pass' ($selectedEntry.permissions -join '; ')
+        Add-Check 'Declared prerequisites' 'Pass' (($selectedEntry.dependencies + $selectedEntry.prerequisiteState) -join '; ')
+        Add-Check 'Declared risk/cost' 'Pass' "risk=$($selectedEntry.riskCost.risk); cost=$($selectedEntry.riskCost.costClass); optional=$($selectedEntry.compatibility.optional). $($selectedEntry.riskCost.cost) $($selectedEntry.compatibility.notes)"
+        Add-Check 'Declared verification' 'Pass' ($selectedEntry.verification -join '; ')
+        Add-Check 'Declared cleanup' 'Pass' $selectedEntry.cleanup
+        $completed = @($CompletedPrerequisite | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Replace('\','/').TrimStart('.', '/') })
+        $missingDependencies = @($selectedEntry.dependencies | Where-Object { $_ -notin $completed })
+        if ($missingDependencies.Count) { Add-Check 'Prerequisite evidence' 'Warning' ("Not confirmed complete: " + ($missingDependencies -join '; ')) }
+        else { Add-Check 'Prerequisite evidence' 'Pass' 'All declared prerequisite paths were supplied as completed; role/state requirements still need manual verification.' }
+        $suppliedGuestNames = @()
+        foreach ($name in $VmName) {
+            $mapped = @($selectedEntry.vmTopology | Where-Object { $name -ieq $_.guestHostname -or $name -ieq $_.vmwareDisplayName -or $name -ieq $_.hyperVName -or $name -in $_.displayNameAliases })
+            if ($mapped.Count -eq 1) { $suppliedGuestNames += $mapped[0].guestHostname }
+            elseif ($mapped.Count -gt 1) { Add-Check 'Supplied VM comparison' 'Error' "Ambiguous display-name mapping: $name" }
+            else { Add-Check 'Supplied VM comparison' 'Warning' "VM is not declared for this exercise: $name" }
+        }
+        $alternatives = @($selectedEntry.alternativeVmGroups | ForEach-Object { $_.names })
+        $requiredNow = @($selectedEntry.vmTopology | Where-Object { $_.phase -notin @('created','conditional') -and $_.guestHostname -notin $alternatives } | ForEach-Object guestHostname)
+        $missingNames = @($requiredNow | Where-Object { $_ -notin $suppliedGuestNames })
+        if ($missingNames.Count) { Add-Check 'Required VMs' 'Warning' ("Missing supplied guest names: " + ($missingNames -join ', ')) }
+        else { Add-Check 'Required VMs' 'Pass' 'Supplied names cover all pre-existing non-alternative machines; this does not verify their installed roles.' }
+        foreach ($group in $selectedEntry.alternativeVmGroups) {
+            $present = @($group.names | Where-Object { $_ -in $suppliedGuestNames }).Count
+            Add-Check 'Alternative VM group' $(if ($present -ge $group.minimum) { 'Pass' } else { 'Warning' }) "Need $($group.minimum) of [$($group.names -join ', ')]; supplied=$present. $($group.reason)"
+        }
+        foreach ($vm in $selectedEntry.vmTopology | Where-Object { $_.phase -eq 'conditional' -and $_.guestHostname -notin $suppliedGuestNames }) {
+            Add-Check 'Conditional VM' 'Warning' "$($vm.guestHostname) is required only in the documented pre-retirement DC lineage. Confirm that it is retired or supply its name; never restart a retired DC merely to satisfy preflight."
+        }
+        $VmName = @($suppliedGuestNames | Select-Object -Unique)
+        if ($selectedEntry.outbound.required) {
+            Add-Check 'Required outbound access' $(if ($OutboundAvailable) { 'Pass' } else { 'Warning' }) ("$($selectedEntry.outbound.method) Endpoints: $($selectedEntry.outbound.endpoints -join '; '). Connectivity is user-reported, not independently verified.")
+        } else { Add-Check 'Required outbound access' 'Skipped' 'This exercise declares no online access requirement.' }
+    }
+}
+
+if (!$SkipHostChecks) {
 $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
 if ($os) {
     $hostStatus = if ($os.Caption -match 'Windows 11') { 'Pass' } else { 'Warning' }
@@ -148,28 +209,25 @@ if ($ExpectedSubnet) {
     }
 } else { Add-Check 'IP/subnet checks' 'Skipped' 'Supply -ExpectedSubnet in CIDR notation, for example 10.10.10.0/24.' }
 
-if ($ExpectedDnsServer -and (Get-Command Get-ADDomain -ErrorAction SilentlyContinue)) {
-    try { $domain = Get-ADDomain -ErrorAction Stop; Add-Check 'AD domain health' 'Pass' "Connected to $($domain.DNSRoot)." } catch { Add-Check 'AD domain health' 'Warning' 'Active Directory query failed.' }
-} else { Add-Check 'AD domain health' 'Skipped' 'Active Directory module or DNS server parameter is unavailable.' }
+Add-Check 'AD domain health' 'Skipped' 'Authenticated AD queries are outside this preflight. Perform the declared dcdiag/repadmin checks separately in an authorized guest session.'
+} else { Add-Check 'Host probes' 'Skipped' 'Host/network probes disabled; curriculum requirements are still reported.' }
 
-if ($AzureSubscriptionId -or $AzureRegion -or $AzureResourceGroup -or $AzureBudgetName) {
-    $az = Get-Command az -ErrorAction SilentlyContinue
-    if (!$az) {
-        Add-Check 'Azure CLI' 'Warning' 'Azure parameters were supplied but az.exe is unavailable; no Azure checks ran.'
-    } else {
-        Add-Check 'Azure CLI' 'Pass' 'Azure CLI is available. No login or mutating command was executed.'
-        if ($AzureSubscriptionId) {
-            $account = & $az.Source account show --subscription $AzureSubscriptionId --query '{id:id,name:name,user:user.name}' -o json 2>$null
-            if ($LASTEXITCODE -eq 0) { Add-Check 'Azure subscription access' 'Pass' 'Subscription metadata was readable; credentials and tokens were not printed.' }
-            else { Add-Check 'Azure subscription access' 'Warning' 'Subscription metadata was not readable with the current non-interactive context.' }
-        }
-        if ($AzureRegion) { Add-Check 'Azure region' 'Pass' "Requested region recorded as $AzureRegion; availability was not changed or assumed." }
-        if ($AzureResourceGroup) { Add-Check 'Azure resource group' 'Pass' "Resource group scope recorded as $AzureResourceGroup; no resource changes were made." }
-        if ($AzureBudgetName) { Add-Check 'Azure budget' 'Pass' "Budget name recorded as $AzureBudgetName; no budget was created or changed." }
+if ($selectedEntry -and $selectedEntry.azure.required) {
+    Add-Check 'Declared Azure requirements' 'Pass' "$($selectedEntry.azure.services -join '; '); $($selectedEntry.azure.scope); $($selectedEntry.azure.region). No authentication or resource query is performed."
+    $azureValues = [ordered]@{ Subscription = $AzureSubscriptionId; Region = $AzureRegion; ResourceGroup = $AzureResourceGroup; Budget = $AzureBudgetName }
+    foreach ($item in $azureValues.GetEnumerator()) {
+        if ([string]::IsNullOrWhiteSpace($item.Value)) { Add-Check "Azure $($item.Key)" 'Error' 'This Azure-required exercise needs an explicit value or an intentional angle-bracket placeholder.' }
+        elseif ($item.Value.Trim() -match '^<[^<>]+>$') { Add-Check "Azure $($item.Key)" 'Skipped' 'Placeholder supplied; no identifier validation, authentication or resource query was attempted.' }
+        elseif ($item.Key -eq 'Subscription') {
+            $parsedId = [guid]::Empty
+            if (![guid]::TryParse($item.Value, [ref]$parsedId) -or $parsedId -eq [guid]::Empty) { Add-Check 'Azure Subscription' 'Error' 'Subscription must be a non-empty GUID or an angle-bracket placeholder.' }
+            else { Add-Check 'Azure Subscription' 'Pass' 'Subscription identifier format recorded privately; access was not authenticated or verified.' }
+        } else { Add-Check "Azure $($item.Key)" 'Pass' 'Explicit value supplied; existence, permissions and price must be verified separately before execution.' }
     }
-} else { Add-Check 'Azure checks' 'Skipped' 'Supply explicit Azure parameters to run read-only CLI checks; this script never logs in.' }
+} else { Add-Check 'Azure checks' 'Skipped' 'No Azure-required exercise selected. Optional Azure work must use its separate Azure-required practice contract.' }
 
-$results | Format-Table -AutoSize | Out-Host
+if ($AsJson) { $results | ConvertTo-Json -Depth 6 }
+else { $results | Format-List Name, Status, Detail | Out-Host }
 if ($ReportPath) { $results | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $ReportPath -Encoding utf8; Write-Output "Report written to $ReportPath" }
 $hasError = @($results | Where-Object Status -eq 'Error').Count -gt 0
 $hasWarning = @($results | Where-Object Status -eq 'Warning').Count -gt 0

@@ -1,5 +1,27 @@
 # Lab: Deploying and managing read-only domain controllers
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing).  Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+
+**Permissions:** Lab Enterprise/Domain Administrator for the named forest/domain changes; Schema Admin only for schema extension. Local Administrator for guest setup. Remove temporary role membership afterward.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** high; local-only; optional=false. local-only Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** The VNet3 RODC receives only allowed cached accounts; deletion/password-reset results and client authentication are verified.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
@@ -11,12 +33,13 @@
 
 ## Required VMs
 
+* CL1
+* CL2
+* VN1-SRV1
 * VN1-SRV5
 * VN2-SRV1
 * VN2-SRV2
 * VN3-SRV1
-* CL1
-* CL2
 
 If you did not complete the lab [Deploying domain controllers](Deploying-domain-controllers.md), in addition to the VMs above, **VN1-SRV1** is required. If VN1-SRV1 is already shut down after the lab, do not start it.
 
@@ -312,23 +335,8 @@ Perform this task on VN3-SRV1.
 
 Perform this task on the host.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager, in the left pane, under **Hyper-V-Manager**, click the name of your computer.
-1. In the middle-pane, in the context-menu of **WIN-CL2**, click **Settings...**
-1. In Settings for "Win-CL2", click **Network Adapter**.
-1. Under Network Adapter, under **Virtual Switch**, click **VNet3** and click **OK**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. Open **Terminal** or **Windows PowerShell** as Administrator.
-1. Connect the network adapter of VM **WIN-CL2** to the virtual switch **VNet3**.
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName WIN-CL2 | 
-    Connect-VMNetworkAdapter -SwitchName VNet3
-    ````
+1. Shut down **CL2** inside Windows. In **VMware Workstation > VM > Settings > Network Adapter**, select **Custom** and the VMnet mapped to source **VNet3**.
+1. Start CL2. Verify its VNet3 address, AD DNS server, and `ad.lab.test` resolution before continuing. The VMware display name may be WIN-CL2; its guest hostname remains CL2. Record both in private lab notes.
 
 ### Task 2: Configure IP address of client for new site
 
@@ -393,7 +401,7 @@ Perform this task on CL2.
     $env:LOGONSERVER
     ````
 
-    > This will return \\\\VN1-SRV5, because the password of Ida is not present on VN1-SRV3.
+    > This will return \\\\VN1-SRV5, because the password of Ida is not present on VN3-SRV1.
 
 1. Sign out.
 
@@ -513,20 +521,8 @@ Perform this task on CL2.
 
 Perform this task on the host.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager, under **Hyper-V-Manager**, click your computer name.
-1. Under Virtual Computers, in the context-menu of **WIN-VN3-SRV1**, click **Turn off...**
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. Run **Terminal** or **Windows PowerShell** as Administrator.
-1. Turn off the virtual machine **WIN-VN3-SRV1**.
-
-    ````powershell
-    Stop-VM -Name WIN-VN3-SRV1 -TurnOff
-    ````
+1. In **VMware Workstation**, select the outer VM whose guest hostname is **VN3-SRV1** (display name **WIN-VN3-SRV1** if retained).
+1. For this disposable compromise simulation only, choose **VM > Power > Power Off**. Confirm the VM is off before deleting the RODC account. This abrupt power loss is intentional; take coordinated pre-lab snapshots first.
 
 ### Task 2: Delete the read-only domain controller and reset passwords of cached user accounts
 
@@ -602,7 +598,3 @@ Perform this task on CL2.
 1. Sign in as **ad\Ida**.
 
     > The sign in should succeed.
-
-
-
-

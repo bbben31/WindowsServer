@@ -49,6 +49,7 @@ function Get-MarkdownHeadings([string]$Path) {
 
 $manifestPath = Join-Path $RepositoryRoot 'metadata\curriculum-manifest.json'
 $manifest = Read-Utf8Text $manifestPath | ConvertFrom-Json
+if ($manifest.schemaVersion -ne 3) { throw 'Expected explicit curriculum schema version 3.' }
 $entries = @($manifest.entries)
 $practices = @($entries | Where-Object category -eq 'Practices')
 $labs = @($entries | Where-Object category -eq 'Labs')
@@ -82,19 +83,24 @@ foreach ($entry in $entries) {
         throw "Azure-required entry has no Azure service: $($entry.path)"
     }
     $content = Read-Utf8Text $entryPath
-    $documentVms = @(
-        [regex]::Matches($content, '(?i)\b(?:VN[123]-SRV\d+|PM-SRV\d+|CL\d+|WIN-[A-Z0-9-]+)\b') |
-            ForEach-Object { $_.Value.ToUpperInvariant() } |
-            Sort-Object -Unique
-    )
-    $manifestVms = @($entry.requiredVmsOrTopology | Where-Object { $_ -match '^(?:VN[123]-SRV\d+|PM-SRV\d+|CL\d+|WIN-[A-Z0-9-]+)$' } | ForEach-Object { $_.ToUpperInvariant() } | Sort-Object -Unique)
-    if (($documentVms -join '|') -ne ($manifestVms -join '|')) {
-        throw "Manifest VM list does not match document: $($entry.path). Document=[$($documentVms -join ', ')]; manifest=[$($manifestVms -join ', ')]."
-    }
+
 }
 
+. (Join-Path $scriptRoot 'Test-CurriculumRules.ps1')
+$policyErrors = @(Test-CurriculumRules -Entries $entries -RepositoryRoot $RepositoryRoot)
+if ($policyErrors.Count) { throw "Curriculum consistency errors:`n$($policyErrors -join "`n")" }
+& (Join-Path $scriptRoot 'Update-CurriculumManifest.ps1') -RepositoryRoot $RepositoryRoot -Check
 $markdownFiles = @(Get-ChildItem -LiteralPath $RepositoryRoot -Recurse -File -Filter '*.md' |
     Where-Object FullName -NotMatch '[\\/]\.git[\\/]')
+foreach ($instruction in $markdownFiles | Where-Object FullName -Match '[\\/]Instructions[\\/]') {
+    if ((Read-Utf8Text $instruction.FullName) -match '(?i)comicrosoft\.com|smart\.etc|smpt\.ad\.lab\.test') {
+        throw "Known invalid domain in instruction document: $($instruction.FullName)"
+    }
+}
+$roadmap = Read-Utf8Text (Join-Path $RepositoryRoot 'Instructions\General\Staged-Lab-Roadmap.md')
+if ($roadmap -notmatch 'riskCost\.costClass=cost-gated' -or $roadmap -match 'riskCost\.cost=cost-gated') {
+    throw 'Stage H must filter the normalized riskCost.costClass field.'
+}
 $linkErrors = [System.Collections.Generic.List[string]]::new()
 foreach ($file in $markdownFiles) {
     $lineNumber = 0
@@ -308,4 +314,4 @@ if ($multiDomainLab -notmatch '#task-4-add-the-contoso-upn-suffix' -or
     throw 'The multi-domain lab must configure the Contoso UPN suffix and create Wil in ad.contoso.com.'
 }
 
-Write-Output 'PASS: manifest file and VM coverage; metadata and uniqueness; Markdown links, images, anchors, and fences; standalone and embedded PowerShell syntax; script dependencies; self-learner language; legacy identity values; pinned container installer; VMware MDT and Contoso scenario integrity.'
+Write-Output 'PASS: explicit metadata and generated contracts for 139 exercises; VM declarations and role layers; Azure cost/cleanup; outbound access; permissions; normalized filters; local workarounds; adjacent WAC targets; instruction domains; links/fences; PowerShell syntax; script dependencies; pinned installer; VMware MDT and Contoso scenario integrity.'

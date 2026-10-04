@@ -1,5 +1,27 @@
 # Lab: Microsoft Deployment Toolkit
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-the-Microsoft-Deployment-Toolkit.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV20 (VMware display: VN1-SRV20; accepted display aliases: WIN-VN1-SRV20; created); VN1-SRV21 (VMware display: VN1-SRV21; accepted display aliases: WIN-VN1-SRV21; created); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing).  Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft product download endpoints and installer dependencies.
+
+**Risk, cost and optional status:** high; local-only; optional=true. local-only Historical optional compatibility exercise; use only isolated disposable legacy media from official sources. Skip installation if official media/support prerequisites cannot be met.
+
+**Success verification:** The isolated legacy task sequence deploys only the disposable Server 2022 target; otherwise record a conceptual skip.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 > **Legacy compatibility gate:** Microsoft has [retired MDT](https://learn.microsoft.com/en-us/troubleshoot/mem/configmgr/mdt/mdt-retirement). Preserve this lab for task-sequence and deployment-share concepts only. Run it, if at all, in an isolated disposable Server 2022 snapshot with the exact legacy ADK/WinPE combination; it is not a supported Windows 11 or Windows Server 2025 deployment path.
@@ -9,9 +31,11 @@
 
 ## Required VMs
 
-* VN1-SRV1
-* VN1-SRV8
 * CL1
+* VN1-SRV1
+* VN1-SRV20 (created during this exercise)
+* VN1-SRV21 (created during this exercise)
+* VN1-SRV8
 
 ## Setup
 
@@ -352,6 +376,3 @@ Perform these steps on the host computer.
 1. On page Ready, click **Begin**.
 
 You do not have to wait for the installation to complete.
-
-
-

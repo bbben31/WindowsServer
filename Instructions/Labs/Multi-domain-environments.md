@@ -1,5 +1,27 @@
 # Lab: Multi-domain environments
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.  VN1-SRV3 hosts the SQL instance required for historical ADMT; verify current ADMT limitations before this optional migration portion.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); CL4 (VMware display: CL4; accepted display aliases: WIN-CL4; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing).  Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Lab Enterprise/Domain Administrator for the named forest/domain changes; Schema Admin only for schema extension. Local Administrator for guest setup. Remove temporary role membership afterward.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Approved DNS forwarders on UDP/TCP 53; public name resolution onlyOfficial Microsoft ADMT download; migration portion is optional legacy work.
+
+**Risk, cost and optional status:** high; local-only; optional=true. local-only Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** Child/tree/forest DNS and trusts work; paused VMware machines resume; selective authentication allows only the intended test resource access.
+
+**Rollback and cleanup:** Unpause only VMware VMs paused by this lab; verify DNS/AD recovery. Remove exercise trusts/principals only after dependent tests finish, then restore the coordinated multi-forest pre-lab environment and disconnect temporary NAT.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
@@ -11,15 +33,18 @@
 
 ## Required VMs
 
-* VN1-SRV5
-* VN1-SRV7
-* VN1-SRV10
-* VN2-SRV2
-* PM-SRV1
+* VN1-SRV3
 * CL1
 * CL2
 * CL3
 * CL4
+* PM-SRV1
+* VN1-SRV1
+* VN1-SRV10
+* VN1-SRV5
+* VN1-SRV7
+* VN2-SRV1
+* VN2-SRV2
 
 If you did not complete the lab [Deploying domain controllers](Deploying-domain-controllers.md), in addition to the VMs above, **VN1-SRV1** is required. If VN1-SRV1 is already shut down after the lab, do not start it.
 
@@ -902,29 +927,19 @@ Perform this task on CL1.
 
 ### Task 1: Simulate a failure of an intermediate domain
 
-#### Desktop experience
+Perform this task on the VMware Workstation host.
 
-Perform this task on the host.
+1. Record the current state and absolute `.vmx` path of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**. Map those display names to their guest hostnames. Leave any already powered-off machine untouched.
+1. For each running machine, choose **VM > Power > Pause**. Record exactly which machines were paused. Pause stops execution in memory; do not select **Suspend**.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager click **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, hold down CTRL and click **WIN-VN2-SRV1**.
+Alternatively, use VMware's documented `vmrun` **pause** command for each running machine's recorded path:
 
-    If WIN-VN1-SRV1 is not running anymore, do not select it.
-
-1. In the context menu of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, or **WIN-VN2-SRV1**, click **Pause**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. In the context menu of **Start**, click **Windows PowerShell (Admin)**.
-1. Suspend the virtual machines **WIN-VN1-SRV1**, **WIN-VN1-SRV5** and **WIN-VN2-SRV1** if they are running.
-
-    ````powershell
-    Get-VM -Name WIN-VN1-SRV1, WIN-VN1-SRV5, WIN-VN2-SRV1 |
-    Where-Object { $PSItem.State -eq 'Running' } |
-    Suspend-VM
-    ````
+````powershell
+$vmxPath = '<ABSOLUTE_PATH_TO_RUNNING_VM.vmx>'
+if ($vmxPath -match '^<.+>$') { throw 'Supply the recorded VMware VMX path first.' }
+vmrun -T ws pause $vmxPath
+if ($LASTEXITCODE -ne 0) { throw 'VMware pause failed; inspect the VM state.' }
+````
 
 ### Task 2: Validate the effects of an failure of an intermediate domain
 
@@ -949,29 +964,20 @@ Perform this task on CL4.
 
 ### Task 3: Recover from the failure of the intermediate domain
 
-#### Desktop experience
+Perform this task on the VMware Workstation host.
 
-Perform this task on the host.
+1. Select each VM recorded as paused during the preceding failure simulation: **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**, where present.
+1. Choose **VM > Power > Pause** again to clear the paused state and resume execution. Do not select a machine that was already powered off or suspended before the simulation.
+1. Verify AD DNS and domain connectivity recover before continuing.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager click **WIN-VN1-SRV1, **WIN-VN1-SRV5**, hold down CTRL and click **WIN-VN2-SRV1**.
+Alternatively, use VMware's documented `vmrun` **unpause** command with each recorded absolute `.vmx` path. Substitute the path recorded when pausing; do not use guest hostnames as paths:
 
-    Select WIN-VN1-SRV1 only, if it is in the suspended state and not turned off.
-
-1. In the context menu of **WIN-VN1-SRV5** or **WIN-VN2-SRV1**, click **Resume**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. In the context menu of **Start**, click **Windows PowerShell (Admin)**.
-1. Resume the paused virtual machines **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**.
-
-    ````powershell
-    Get-VM -Name WIN-VN1-SRV1, WIN-VN1-SRV5, WIN-VN2-SRV1 |
-    Where-Object { $PSItem.State -eq 'Paused' } |
-    Resume-VM
-    ````
+````powershell
+$vmxPath = '<ABSOLUTE_PATH_TO_PAUSED_VM.vmx>'
+if ($vmxPath -match '^<.+>$') { throw 'Supply the recorded VMware VMX path first.' }
+vmrun -T ws unpause $vmxPath
+if ($LASTEXITCODE -ne 0) { throw 'VMware unpause failed; inspect the VM state.' }
+````
 
 ### Task 4: Create a shortcut trust
 
@@ -1032,29 +1038,19 @@ Perform this task on CL1.
 
 ### Task 5: Simulate a failure of an intermediate domain
 
-#### Desktop experience
+Perform this task on the VMware Workstation host.
 
-Perform this task on the host.
+1. Record the current state and absolute `.vmx` path of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**. Map those display names to their guest hostnames. Leave any already powered-off machine untouched.
+1. For each running machine, choose **VM > Power > Pause**. Record exactly which machines were paused. Pause stops execution in memory; do not select **Suspend**.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager click **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, hold down CTRL and click **WIN-VN2-SRV1**.
+Alternatively, use VMware's documented `vmrun` **pause** command for each running machine's recorded path:
 
-    If WIN-VN1-SRV1 is not running anymore, do not select it.
-
-1. In the context menu of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, or **WIN-VN2-SRV1**, click **Suspend**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. In the context menu of **Start**, click **Windows PowerShell (Admin)**.
-1. Suspend the virtual machines **WIN-VN1-SRV1**, **WIN-VN1-SRV5** and **WIN-VN2-SRV1** if they are running.
-
-    ````powershell
-    Get-VM -Name WIN-VN1-SRV1, WIN-VN1-SRV5, WIN-VN2-SRV1 |
-    Where-Object { $PSItem.State -eq 'Running' } |
-    Suspend-VM
-    ````
+````powershell
+$vmxPath = '<ABSOLUTE_PATH_TO_RUNNING_VM.vmx>'
+if ($vmxPath -match '^<.+>$') { throw 'Supply the recorded VMware VMX path first.' }
+vmrun -T ws pause $vmxPath
+if ($LASTEXITCODE -ne 0) { throw 'VMware pause failed; inspect the VM state.' }
+````
 
 ### Task 6: Validate the effects of the shortcut trust
 
@@ -1074,29 +1070,20 @@ Perform this task on CL4.
 
 ### Task 7: Recover from the failure of the intermediate domain
 
-#### Desktop experience
+Perform this task on the VMware Workstation host.
 
-Perform this task on the host.
+1. Select each VM recorded as paused during the preceding failure simulation: **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**, where present.
+1. Choose **VM > Power > Pause** again to clear the paused state and resume execution. Do not select a machine that was already powered off or suspended before the simulation.
+1. Verify AD DNS and domain connectivity recover before continuing.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager click **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, hold down CTRL and click **WIN-VN2-SRV1**.
+Alternatively, use VMware's documented `vmrun` **unpause** command with each recorded absolute `.vmx` path. Substitute the path recorded when pausing; do not use guest hostnames as paths:
 
-    If WIN-VN1-SRV1 is not running anymore, do not select it.
-
-1. In the context menu of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, or **WIN-VN2-SRV1**, click **Resume**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. In the context menu of **Start**, click **Windows PowerShell (Admin)**.
-1. Suspend the virtual machines **WIN-VN1-SRV1**, **WIN-VN1-SRV5** and **WIN-VN2-SRV1** if they are running.
-
-    ````powershell
-    Get-VM -Name WIN-VN1-SRV1, WIN-VN1-SRV5, WIN-VN2-SRV1 |
-    Where-Object { $PSItem.State -eq 'Running' } |
-    Resume-VM
-    ````
+````powershell
+$vmxPath = '<ABSOLUTE_PATH_TO_PAUSED_VM.vmx>'
+if ($vmxPath -match '^<.+>$') { throw 'Supply the recorded VMware VMX path first.' }
+vmrun -T ws unpause $vmxPath
+if ($LASTEXITCODE -ne 0) { throw 'VMware unpause failed; inspect the VM state.' }
+````
 
 ## Exercise 5: Create and validate a forest trust
 
@@ -1549,7 +1536,3 @@ Perform this task on CL3.
 
 [figure 1]: /images/Authentication-Firewall-Error.png
 [figure 2]: /images/Authentication-Firewall-Error-signin.png
-
-
-
-
