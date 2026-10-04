@@ -13,7 +13,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Outbound access:** Isolated lab; no online download is required by the selected procedure.
 
-**Risk, cost and optional status:** high; local-only; optional=false. local-only Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
+**Risk, cost and optional status:** high; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
 
 **Success verification:** dfsrmig/repadmin show the actual SYSVOL replication state and consistent results on the declared DCs.
 

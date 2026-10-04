@@ -11,7 +11,7 @@ Each entry declares:
 - `alternativeVmGroups`: explicit one-of requirements, used only when the procedure permits either active DC. `referencedVms` requires a reason for every example-only/excluded name; it must never hide a real task target.
 - `networkProfile` and `networks`: the selected core, enterprise, or alternate-forest profile and isolated segment mapping. VMware custom VMnet numbers are host-specific and must be recorded before execution.
 - `permissions`: authorized guest/AD/service/cloud rights for the selected steps, with temporary elevation scoped to those steps.
-- `outbound`: an explicit requirement, method and endpoint purpose. Temporary VMnet8 is removed after online steps; preserve AD DNS on the domain NIC.
+- `outbound`: an explicit requirement, mode, method and endpoint purpose. Mode is `none`, `guest-vmnet8`, or `host-browser`. Guest downloads use temporary VMnet8 with AD DNS preserved and disconnect cleanup. Host-browser-only conceptual access uses the host Internet connection and sign-out/browser cleanup without guest-network changes.
 - `azure`: required services/scope/region guidance; optional integration is selected through a separate Azure-required practice.
 - `riskCost`: `risk` is `low`, `medium`, or `high`; `costClass` is `local-only`, `conceptual`, `optional-azure`, or `cost-gated`. Cost text supplies actionable guidance. Boolean optional/Azure/outbound flags are JSON booleans.
 - `verification`, `cleanup`, and `compatibility`: observable results, rollback/removal boundaries, and support/optional limitations.
@@ -27,4 +27,4 @@ git diff --exit-code -- metadata/curriculum-manifest.json Instructions
 
 Commit intended generated changes before using the final drift command as a clean-tree assertion. `Update-CurriculumManifest.ps1 -Check` and the validator reject stale contracts/manifest without writing them. Regeneration uses canonical formatting and UTF-8 without BOM to produce identical bytes in both engines. CI runs the complete checks under both shells.
 
-The preflight is read-only: no authentication, AD resource query, Azure login or resource mutation. It reports declared requirements, user-supplied prerequisite/VM evidence, optional host/DNS/ICMP probes, and skipped placeholders. These checks do not prove installed roles, service health, cloud permissions or prices.
+Preflight requires an explicit `-CurriculumPath` selecting exactly one entry. Missing or invalid selection returns an error and exit code 1 without prompting. The preflight is read-only: no authentication, AD resource query, Azure login or resource mutation. It reports declared requirements, user-supplied prerequisite/VM evidence, optional host/DNS/ICMP probes, and skipped placeholders. These checks do not prove installed roles, service health, cloud permissions or prices.

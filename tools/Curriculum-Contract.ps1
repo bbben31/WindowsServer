@@ -15,7 +15,7 @@ function Get-CurriculumContract {
         $details = @($display, $aliases, $_.phase) | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() }
         $_.guestHostname.Trim() + ' (' + ($details -join '; ') + ')'
     })
-    $machineText = if ($machines.Count) { $machines -join '; ' } else { 'No dedicated guest; use the host/browser or existing tenant context specified by this reference.' }
+    $machineText = if ($machines.Count) { $machines -join '; ' } else { 'No dedicated guest; use the host/browser or existing tenant context specified by this reference' }
     $alternatives = @($Entry.alternativeVmGroups | Where-Object { $_ } | ForEach-Object {
         $alternativeNames = @($_.names | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
         if ($alternativeNames.Count) {
@@ -34,7 +34,11 @@ function Get-CurriculumContract {
     $endpointText = if ($endpoints.Count) { ' Endpoints: ' + ($endpoints -join '; ') + '.' } else { '' }
     $lines.Add('**Outbound access:** ' + $Entry.outbound.method + $endpointText)
     $lines.Add('')
-    $lines.Add('**Risk, cost and optional status:** ' + $Entry.riskCost.risk + '; ' + $Entry.riskCost.costClass + '; optional=' + $Entry.compatibility.optional.ToString().ToLowerInvariant() + '. ' + $Entry.riskCost.cost + ' ' + $Entry.compatibility.notes)
+    $costText = $Entry.riskCost.cost.Trim()
+    if ($costText -ieq $Entry.riskCost.costClass) { $costText = '' }
+    if ($costText) { $costText = $costText.Substring(0, 1).ToUpperInvariant() + $costText.Substring(1); if ($costText -notmatch '[.!?]$') { $costText += '.' } }
+    $riskParts = @(($Entry.riskCost.risk + '; ' + $Entry.riskCost.costClass + '; optional=' + $Entry.compatibility.optional.ToString().ToLowerInvariant() + '.'), $costText, $Entry.compatibility.notes)
+    $lines.Add('**Risk, cost and optional status:** ' + (@($riskParts | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() }) -join ' '))
     $lines.Add('')
     $lines.Add('**Success verification:** ' + (@($Entry.verification) -join ' '))
     $lines.Add('')

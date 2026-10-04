@@ -13,7 +13,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft product download endpoints and installer dependencies.
 
-**Risk, cost and optional status:** low; local-only; optional=true. local-only Historical optional compatibility exercise; use only isolated disposable legacy media from official sources. Skip installation if official media/support prerequisites cannot be met.
+**Risk, cost and optional status:** low; local-only; optional=true. Historical optional compatibility exercise; use only isolated disposable legacy media from official sources. Skip installation if official media/support prerequisites cannot be met.
 
 **Success verification:** In the isolated legacy snapshot, Deployment Workbench opens; otherwise record official-installer unavailability and skip installation.
 

@@ -13,7 +13,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft Windows Admin Center download/extension endpoints.
 
-**Risk, cost and optional status:** high; optional-azure; optional=true. local-only unless optional Azure integration is selected Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+**Risk, cost and optional status:** high; optional-azure; optional=true. Local-only unless optional Azure integration is selected. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
 
 **Success verification:** The local gateway has a trusted certificate and intended access controls; Azure registration is a separate optional prerequisite practice.
 

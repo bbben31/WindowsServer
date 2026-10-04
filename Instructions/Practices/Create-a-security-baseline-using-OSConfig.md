@@ -13,7 +13,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: www.powershellgallery.com and its documented package CDN; Microsoft help endpoints if Update-Help is selected.
 
-**Risk, cost and optional status:** low; local-only; optional=false. local-only Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
+**Risk, cost and optional status:** low; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
 
 **Success verification:** OSConfig reports member-server compliance and drift-control state; removal of the exercise baseline is confirmed.
 

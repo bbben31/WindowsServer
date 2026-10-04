@@ -33,12 +33,15 @@ try {
         @{ Name='admin permissions'; Expect='administrative commands paired only with standard-user permissions'; Edit={param($e) $e.permissions=@('Standard lab user')}; Append="`nNew-NetLbfoTeam -Name Test -TeamMembers Ethernet1,Ethernet2`n" },
         @{ Name='outbound omission'; Expect='download/install without declared outbound access'; Append="`nInstall-Module Microsoft.Graph.Authentication -Scope CurrentUser`n" },
         @{ Name='shared RSAT download omission'; Expect='download/install without declared outbound access'; Append="`nRun C:\WindowsServerLab\Resources\Solutions\Install-RemoteServerAdministrationTools.ps1 during setup.`n" },
-        @{ Name='required outbound missing cleanup'; Expect='incomplete outbound access/cleanup contract'; Edit={param($e) $e.outbound.required=$true; $e.outbound.endpoints=@('https://www.powershellgallery.com'); $e.networks+= 'Temporary VMnet8 NAT for PowerShell Gallery'; $e.cleanup='Restore guest settings. VMnet8 was used for downloads.'} },
+        @{ Name='required outbound missing cleanup'; Expect='incomplete outbound access/cleanup contract'; Edit={param($e) $e.outbound.required=$true; $e.outbound.mode='guest-vmnet8'; $e.outbound.endpoints=@('https://www.powershellgallery.com'); $e.networks+= 'Temporary VMnet8 NAT for PowerShell Gallery'; $e.cleanup='Restore guest settings. VMnet8 was used for downloads.'} },
         @{ Name='non-required outbound cleanup'; Expect='non-required outbound access has unconditional or undocumented network cleanup'; Edit={param($e) $e.cleanup='Remove temporary VMnet8 access and restore recorded DNS.'} },
         @{ Name='non-required procedure cleanup'; Expect='non-required outbound access has unconditional or undocumented network cleanup'; Append="`n## Cleanup`nDisconnect temporary NAT access.`n" },
         @{ Name='undocumented conditional cleanup'; Expect='non-required outbound access has unconditional or undocumented network cleanup'; Edit={param($e) $e.cleanup='If temporary VMnet8 access was attached, disconnect it.'} },
         @{ Name='non-optional generic warning'; Expect='non-optional entry has generic optional-product compatibility warning'; Edit={param($e) $e.compatibility.optional=$false; $e.compatibility.notes='Verify current support for optional products before execution.'} },
         @{ Name='doubled topology separator'; Expect='doubled topology separator spaces'; Text={param($t) $t.Replace('**Machines and network profile:** ', '**Machines and network profile:** A.  ')} },
+        @{ Name='doubled punctuation'; Expect='doubled punctuation in generated contract'; Text={param($t) $t.Replace('**Machines and network profile:** ', '**Machines and network profile:** Reference.. ')} },
+        @{ Name='duplicate cost wording'; Expect='duplicated cost-class wording in generated contract'; Text={param($t) [regex]::Replace($t, '(?m)^\*\*Risk, cost and optional status:\*\*.*$', '**Risk, cost and optional status:** low; local-only; optional=false. local-only')} },
+        @{ Name='invalid outbound mode'; Expect='invalid outbound access mode'; Edit={param($e) $e.outbound.mode='unknown'} },
         @{ Name='filter vocabulary'; Expect='invalid manifest filter value'; Edit={param($e) $e.riskCost.costClass='unrecognized'} },
         @{ Name='boolean flags'; Expect='filter flags must be JSON booleans'; Edit={param($e) $e.compatibility.optional='true'} },
         @{ Name='external workaround'; Expect='external known issue lacks local adapted explanation'; Append="`n<https://github.com/EnterpriseTrainingCenter/WindowsServer/issues/201>`n" }
@@ -73,6 +76,21 @@ try {
     if ($forbiddenCalls.Count -or $parseErrors.Count) { throw 'Preflight contains an authentication/mutation command or parse error.' }
     $passed++
     $engine = if ($PSVersionTable.PSEdition -eq 'Desktop') { Join-Path $PSHOME 'powershell.exe' } else { Join-Path $PSHOME 'pwsh.exe' }
+    $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $preflight -SkipHostChecks -AsJson
+    if ($LASTEXITCODE -ne 1 -or !@(($output -join "`n" | ConvertFrom-Json) | Where-Object { $_.Name -eq 'Curriculum selection' -and $_.Status -eq 'Error' -and $_.Detail -match 'Supply -CurriculumPath' }).Count) { throw 'Missing curriculum selection did not produce a clear error and exit 1.' }
+    $passed++
+    foreach ($portalPath in @('Instructions/Practices/Create-an-Azure-Subscription.md','Instructions/Practices/Create-an-Entra-ID-tenant.md')) {
+        $portalEntry = $manifest.entries | Where-Object path -eq $portalPath
+        if (@(Test-CurriculumRules @($portalEntry) $fixtureRoot).Count) { throw 'Valid host-browser contract was rejected.' }
+        $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $preflight -SkipHostChecks -AsJson -CurriculumPath $portalPath
+        if ($LASTEXITCODE -ne 0) { throw 'Host-browser conceptual path failed without guest/Azure parameters.' }
+        $checks = $output -join "`n" | ConvertFrom-Json
+        if (!@($checks | Where-Object { $_.Name -eq 'Required outbound access' -and $_.Status -eq 'Warning' }).Count) { throw 'Host-browser Internet requirement did not warn.' }
+        $portalEntry.cleanup = 'Disconnect temporary VMnet8.'
+        if (!@(Test-CurriculumRules @($portalEntry) $fixtureRoot | Where-Object { $_ -match 'host-browser access must not require guest' }).Count) { throw 'Host-browser guest cleanup contradiction escaped validation.' }
+        $portalEntry.cleanup = 'Sign out and close the portal browser; retain only private conceptual notes.'
+        $passed++
+    }
     $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $preflight -SkipHostChecks -AsJson -CurriculumPath 'Instructions/Labs/BranchCache.md' -VmName 'WIN-CL1'
     if ($LASTEXITCODE -ne 0) { throw 'Local exercise unexpectedly required Azure parameters.' }
     $checks = $output -join "`n" | ConvertFrom-Json

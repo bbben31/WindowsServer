@@ -13,7 +13,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft Windows Admin Center download/extension endpoints.
 
-**Risk, cost and optional status:** low; local-only; optional=false. local-only Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
+**Risk, cost and optional status:** low; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
 
 **Success verification:** The Microsoft-signed WAC package is installed on VN1-SRV4 and CL1 reaches the intended HTTPS gateway.
 

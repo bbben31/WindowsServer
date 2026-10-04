@@ -103,7 +103,9 @@ if (Test-Path -LiteralPath $ManifestPath) {
 }
 
 $selectedEntry = $null
-if ($CurriculumPath) {
+if ([string]::IsNullOrWhiteSpace($CurriculumPath)) {
+    Add-Check 'Curriculum selection' 'Error' 'Supply -CurriculumPath with exactly one practice or lab path; curriculum selection is required.'
+} else {
     $normalizedPath = $CurriculumPath.Replace('\', '/').TrimStart('.', '/')
     $repositoryRoot = [IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $ManifestPath) '..'))
     if ([IO.Path]::IsPathRooted($CurriculumPath)) {

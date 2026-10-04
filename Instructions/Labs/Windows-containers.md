@@ -13,7 +13,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: raw.githubusercontent.com/microsoft/Windows-Containers pinned installer; mcr.microsoft.com and registry CDN; github.com/MicrosoftDocs/Virtualization-Documentation; Official winget/Git/Visual Studio Code sources and VS Code extension marketplace.
 
-**Risk, cost and optional status:** high; local-only; optional=true. local-only Optional nested Windows-container exercise. Verify VMware nesting and Microsoft host/image compatibility. Preserve the historical SDK 6 sample only in disposable compatibility work; skip sample-app building if its SDK/runtime/framework cannot be validated, and retain the basic container exercise.
+**Risk, cost and optional status:** high; local-only; optional=true. Optional nested Windows-container exercise. Verify VMware nesting and Microsoft host/image compatibility. Preserve the historical SDK 6 sample only in disposable compatibility work; skip sample-app building if its SDK/runtime/framework cannot be validated, and retain the basic container exercise.
 
 **Success verification:** The pinned installer hash matches, Nano Server image runs, and the built sample image produces the intended output.
 

@@ -7,7 +7,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Optional-Cost-Gated-Topics.md. Use an existing authorized Azure for Students subscription, an approved disposable resource group, the declared scoped Azure role, and a named budget/cleanup plan. Confirm current regional availability before deployment.
 
-**Machines and network profile:** No dedicated guest; use the host/browser or existing tenant context specified by this reference.. No dedicated guest segment is required for host-browser portal work; use temporary VMnet8 if using a VMware guest browser. Keep all lab segments isolated.
+**Machines and network profile:** No dedicated guest; use the host/browser or existing tenant context specified by this reference. No dedicated guest segment is required for host-browser portal work; use temporary VMnet8 if using a VMware guest browser. Keep all lab segments isolated.
 
 **Permissions:** Standard lab user for local read-only queries and user-owned files; no local elevation. If the explicitly documented system-help prerequisite is selected under Windows PowerShell 5.1, use a separate authorized elevated session. Automation Contributor at disposable resource-group scope
 

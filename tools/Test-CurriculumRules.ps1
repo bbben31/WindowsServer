@@ -23,6 +23,8 @@ function Test-CurriculumRules {
         if (!$entry.compatibility.optional -and $entry.compatibility.notes -match '(?i)Verify current support for optional products') { $failures.Add("${label}: non-optional entry has generic optional-product compatibility warning") }
         $contract = [regex]::Match($content, '(?s)<!-- BEGIN GENERATED COMPLETION CONTRACT -->.*?<!-- END GENERATED COMPLETION CONTRACT -->').Value
         if ($contract -match '\S[ \t]{2,}\S') { $failures.Add("${label}: doubled topology separator spaces in generated contract") }
+        if ($contract -match '(?<!\.)\.\.(?!\.)') { $failures.Add("${label}: doubled punctuation in generated contract") }
+        if ($contract -match '(?i);\s*(local-only|conceptual|optional-azure|cost-gated); optional=(?:true|false)\.\s*\1\b') { $failures.Add("${label}: duplicated cost-class wording in generated contract") }
         if (!@($entry.verification).Count -or !@($entry.permissions).Count -or !@($entry.dependencies).Count -or [string]::IsNullOrWhiteSpace($entry.cleanup)) {
             $failures.Add("${label}: incomplete completion contract")
         }
@@ -76,7 +78,10 @@ function Test-CurriculumRules {
         $downloadPattern += '|Install-RemoteServerAdministrationTools\.ps1|install the optional feature \*\*RSAT|install (?:the )?(?:Active Directory )?extension'
         if ($procedure -match $downloadPattern -and !$entry.outbound.required) { $failures.Add("${label}: download/install without declared outbound access") }
         $networkCleanupPattern = '(?i)\b(?:remove|disconnect|detach|disable|restore)\b[^.\r\n]*(?:VMnet8|\bNAT\b|(?:temporary )?outbound(?: access| connectivity)?)|(?:VMnet8|\bNAT\b|outbound access)[^.\r\n]*\b(?:remove(?:d)?|disconnect(?:ed)?|detach(?:ed)?|disable(?:d)?|restore(?:d)?)\b'
-        if ($entry.outbound.required -and ((@($entry.networks) -join ' ') -notmatch 'VMnet8' -or !@($entry.outbound.endpoints | Where-Object { ![string]::IsNullOrWhiteSpace($_) }).Count -or $entry.cleanup -notmatch $networkCleanupPattern)) { $failures.Add("${label}: incomplete outbound access/cleanup contract") }
+        if ($entry.outbound.mode -notin @('none','guest-vmnet8','host-browser') -or ($entry.outbound.required -and $entry.outbound.mode -eq 'none') -or (!$entry.outbound.required -and $entry.outbound.mode -ne 'none')) { $failures.Add("${label}: invalid outbound access mode") }
+        if ($entry.outbound.required -and (!@($entry.outbound.endpoints | Where-Object { ![string]::IsNullOrWhiteSpace($_) }).Count -or [string]::IsNullOrWhiteSpace($entry.outbound.method))) { $failures.Add("${label}: incomplete outbound purpose/endpoints") }
+        if ($entry.outbound.required -and $entry.outbound.mode -eq 'guest-vmnet8' -and ((@($entry.networks) -join ' ') -notmatch 'VMnet8' -or $entry.cleanup -notmatch $networkCleanupPattern)) { $failures.Add("${label}: incomplete outbound access/cleanup contract") }
+        if ($entry.outbound.mode -eq 'host-browser' -and (@($entry.vmTopology).Count -or $entry.cleanup -match $networkCleanupPattern -or (@($entry.networks) -join ' ') -notmatch '(?i)host.browser')) { $failures.Add("${label}: host-browser access must not require guest networking/cleanup") }
         if (!$entry.outbound.required) {
             $cleanupText = $entry.cleanup + "`n" + (([regex]::Matches($procedure, '(?ms)^## (?:Rollback[^\n]*|Cleanup[^\n]*)\n(.*?)(?=^## |\z)') | ForEach-Object { $_.Groups[1].Value }) -join "`n")
             foreach ($sentence in [regex]::Split($cleanupText, '(?<=[.!?])\s+|\r?\n')) {

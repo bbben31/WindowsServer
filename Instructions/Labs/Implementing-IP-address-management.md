@@ -13,7 +13,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft SSMS download/bootstrapper dependencies.
 
-**Risk, cost and optional status:** high; local-only; optional=true. local-only Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution. Local adapted SSMS and discovery workarounds are mandatory prerequisites.
+**Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution. Local adapted SSMS and discovery workarounds are mandatory prerequisites.
 
 **Success verification:** All seven managed inventory servers appear unblocked; IPAM SQL provisioning and DHCP/DNS allocation match actual server state.
 

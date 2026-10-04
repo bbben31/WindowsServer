@@ -106,7 +106,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -316,7 +317,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -422,7 +424,8 @@
           "login.microsoftonline.com",
           "management.azure.com",
           "Service-specific endpoints in the linked Microsoft product requirements"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -500,7 +503,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -589,7 +593,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -678,7 +683,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -767,7 +773,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -862,7 +869,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -940,7 +948,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -1029,7 +1038,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -1130,7 +1140,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": true
@@ -1241,7 +1252,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -1330,7 +1342,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -1444,7 +1457,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Approved DNS forwarders on UDP/TCP 53; public name resolution only"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -1584,7 +1598,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -1673,7 +1688,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": true
@@ -1768,7 +1784,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -1857,7 +1874,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -1949,7 +1967,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft Windows Admin Center download/extension endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2041,7 +2060,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2125,7 +2145,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2182,7 +2203,8 @@
           "login.microsoftonline.com",
           "management.azure.com",
           "Service-specific endpoints in the linked Microsoft product requirements"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2238,7 +2260,8 @@
           "login.microsoftonline.com",
           "management.azure.com",
           "Service-specific endpoints in the linked Microsoft product requirements"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2249,7 +2272,7 @@
       "title": "Practice: Create an Azure Subscription",
       "requiredVmsOrTopology": [],
       "networks": [
-        "Conceptual reference only; no guest networking or tenant/subscription mutation required."
+        "Host-browser Internet access for the Azure portal and Microsoft sign-in; no guest-network changes or tenant/subscription mutation."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -2261,15 +2284,15 @@
         "scope": "Existing tenant/subscription only; no mutation"
       },
       "permissions": [
-        "Standard lab user for local read-only queries and user-owned files; no local elevation. If the explicitly documented system-help prerequisite is selected under Windows PowerShell 5.1, use a separate authorized elevated session."
+        "Authorized read-only access to the existing subscription or tenant through the host browser; no local elevation or resource creation."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md"
       ],
-      "cleanup": "No deployment or directory mutation; retain only private conceptual notes.",
+      "cleanup": "Sign out and close the portal browser; retain only private conceptual notes. No deployment, directory mutation or guest-network change was made.",
       "riskCost": {
         "risk": "low",
-        "cost": "no deployment",
+        "cost": "No deployment or new resource charges.",
         "costClass": "conceptual"
       },
       "compatibility": {
@@ -2286,9 +2309,14 @@
         "Record the existing subscription reference privately; no subscription or profile data is created."
       ],
       "outbound": {
-        "required": false,
-        "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "required": true,
+        "method": "Use the host browser Internet connection to inspect the existing Azure subscription or Entra tenant through the Azure portal and Microsoft sign-in. No guest VM, temporary guest NIC or VMnet8 change is required.",
+        "endpoints": [
+          "https://portal.azure.com (Azure portal)",
+          "https://login.microsoftonline.com (Microsoft organizational sign-in)",
+          "https://login.live.com (Microsoft account sign-in, when applicable)"
+        ],
+        "mode": "host-browser"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2389,7 +2417,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": true
@@ -2400,7 +2429,7 @@
       "title": "Practice: Create an Entra ID tenant",
       "requiredVmsOrTopology": [],
       "networks": [
-        "Conceptual reference only; no guest networking or tenant/subscription mutation required."
+        "Host-browser Internet access for the Azure portal and Microsoft sign-in; no guest-network changes or tenant/subscription mutation."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -2412,15 +2441,15 @@
         "scope": "Existing tenant/subscription only; no mutation"
       },
       "permissions": [
-        "Standard lab user for local read-only queries and user-owned files; no local elevation. If the explicitly documented system-help prerequisite is selected under Windows PowerShell 5.1, use a separate authorized elevated session."
+        "Authorized read-only access to the existing subscription or tenant through the host browser; no local elevation or resource creation."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md"
       ],
-      "cleanup": "No deployment or directory mutation; retain only private conceptual notes.",
+      "cleanup": "Sign out and close the portal browser; retain only private conceptual notes. No deployment, directory mutation or guest-network change was made.",
       "riskCost": {
         "risk": "low",
-        "cost": "no deployment",
+        "cost": "No deployment or new resource charges.",
         "costClass": "conceptual"
       },
       "compatibility": {
@@ -2437,9 +2466,14 @@
         "Record the existing tenant context privately; no tenant, user or directory role is created."
       ],
       "outbound": {
-        "required": false,
-        "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "required": true,
+        "method": "Use the host browser Internet connection to inspect the existing Azure subscription or Entra tenant through the Azure portal and Microsoft sign-in. No guest VM, temporary guest NIC or VMnet8 change is required.",
+        "endpoints": [
+          "https://portal.azure.com (Azure portal)",
+          "https://login.microsoftonline.com (Microsoft organizational sign-in)",
+          "https://login.live.com (Microsoft account sign-in, when applicable)"
+        ],
+        "mode": "host-browser"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2527,7 +2561,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2639,7 +2674,8 @@
         "endpoints": [
           "www.powershellgallery.com and its documented package CDN",
           "Microsoft help endpoints if Update-Help is selected"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2731,7 +2767,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2820,7 +2857,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -2926,7 +2964,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -3014,7 +3053,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -3098,7 +3138,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -3210,7 +3251,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -3287,7 +3329,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -3580,7 +3623,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -3661,7 +3705,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Store and its package distribution endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -3743,7 +3788,8 @@
           "Microsoft Store",
           "winget source/CDN",
           "Official Git and Visual Studio Code package sources"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -3824,7 +3870,8 @@
         "endpoints": [
           "www.powershellgallery.com and its documented package CDN",
           "Microsoft help endpoints if Update-Help is selected"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -3919,7 +3966,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4019,7 +4067,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4099,7 +4148,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft evaluation and Languages/Optional Features media downloads during staging only"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4188,7 +4238,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4268,7 +4319,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4389,7 +4441,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4469,7 +4522,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4564,7 +4618,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4664,7 +4719,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4785,7 +4841,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4906,7 +4963,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -4986,7 +5044,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5086,7 +5145,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": true
@@ -5166,7 +5226,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5257,7 +5318,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5337,7 +5399,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5417,7 +5480,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5497,7 +5561,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5599,7 +5664,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft Windows Admin Center download/extension endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5665,7 +5731,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5775,7 +5842,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5841,7 +5909,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -5921,7 +5990,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Store and its package distribution endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -6022,7 +6092,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": true
@@ -6149,7 +6220,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -6260,7 +6332,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -6370,7 +6443,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -6447,7 +6521,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -6546,7 +6621,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -6646,7 +6722,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -6747,7 +6824,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": true
@@ -6848,7 +6926,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": true
@@ -6936,7 +7015,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7035,7 +7115,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7127,7 +7208,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Approved DNS forwarders on UDP/TCP 53; public name resolution only"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7223,7 +7305,8 @@
           "login.microsoftonline.com",
           "management.azure.com",
           "Service-specific endpoints in the linked Microsoft product requirements"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7300,7 +7383,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7411,7 +7495,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7522,7 +7607,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7614,7 +7700,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7706,7 +7793,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Approved DNS forwarders on UDP/TCP 53; public name resolution only"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7784,7 +7872,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -7889,7 +7978,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -8095,7 +8185,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -8184,7 +8275,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -8261,7 +8353,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -8350,7 +8443,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -8451,7 +8545,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": true
@@ -8572,7 +8667,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -8649,7 +8745,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -8793,7 +8890,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -8893,7 +8991,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -9026,7 +9125,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -9174,7 +9274,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -9343,7 +9444,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -9521,7 +9623,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": true
@@ -9621,7 +9724,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -9712,7 +9816,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "nssm.cc official distribution; stop if provenance/hash cannot be verified"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -9830,7 +9935,8 @@
           "login.microsoftonline.com",
           "management.azure.com",
           "Service-specific endpoints in the linked Microsoft product requirements"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -9969,7 +10075,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -10114,7 +10221,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -10247,7 +10355,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -10387,7 +10496,8 @@
           "login.microsoftonline.com",
           "management.azure.com",
           "Service-specific endpoints in the linked Microsoft product requirements"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -10487,7 +10597,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -10795,7 +10906,8 @@
           "https://js.monitor.azure.com (browser extension assets)",
           "https://nuget.org (browser extension management)",
           "https://announcements.blob.core.windows.net (browser extension management)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -10899,7 +11011,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -11010,7 +11123,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -11190,7 +11304,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -11282,7 +11397,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -11485,7 +11601,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -11595,7 +11712,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -11684,7 +11802,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -11833,7 +11952,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -11955,7 +12075,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -12148,7 +12269,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft SSMS download/bootstrapper dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -12285,7 +12407,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft Windows Admin Center download/extension endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": true
@@ -12397,7 +12520,8 @@
           "https://js.monitor.azure.com (browser extension assets)",
           "https://nuget.org (browser extension management)",
           "https://announcements.blob.core.windows.net (browser extension management)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -12510,7 +12634,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -12621,7 +12746,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -12733,7 +12859,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -12857,7 +12984,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -12951,7 +13079,8 @@
           "login.microsoftonline.com",
           "management.azure.com",
           "Service-specific endpoints in the linked Microsoft product requirements"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -13078,7 +13207,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": true
@@ -13198,7 +13328,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -13349,7 +13480,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -13474,7 +13606,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -13588,7 +13721,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -13705,7 +13839,8 @@
           "*.update.microsoft.com (Microsoft Update service)",
           "*.delivery.mp.microsoft.com (Windows Update delivery)",
           "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance)"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -13793,7 +13928,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -13986,7 +14122,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Approved DNS forwarders on UDP/TCP 53; public name resolution onlyOfficial Microsoft ADMT download; migration portion is optional legacy work"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -14112,7 +14249,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -14282,7 +14420,8 @@
         "endpoints": [
           "www.powershellgallery.com and its documented package CDN",
           "Microsoft help endpoints if Update-Help is selected"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -14373,7 +14512,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Microsoft Windows Update/WSUS and feature-on-demand endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -14529,7 +14669,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft Windows Admin Center download/extension endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -14698,7 +14839,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "core",
       "hyperVTeaching": true
@@ -14848,7 +14990,8 @@
       "outbound": {
         "required": false,
         "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": []
+        "endpoints": [],
+        "mode": "none"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": true
@@ -14973,7 +15116,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft Windows Admin Center download/extension endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -15067,7 +15211,8 @@
           "mcr.microsoft.com and registry CDN",
           "github.com/MicrosoftDocs/Virtualization-Documentation",
           "Official winget/Git/Visual Studio Code sources and VS Code extension marketplace"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false
@@ -15257,7 +15402,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official Microsoft product download endpoints and installer dependencies"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false
@@ -15357,7 +15503,8 @@
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
           "Official WSL distribution/download and Linux package-repository endpoints"
-        ]
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
       "hyperVTeaching": false

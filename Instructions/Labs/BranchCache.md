@@ -13,7 +13,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Outbound access:** Isolated lab; no online download is required by the selected procedure.
 
-**Risk, cost and optional status:** high; local-only; optional=true. local-only Optional configuration study: no reliable VMware-local performance gain is guaranteed; record cache state and skip unobservable portions. See the local adapted issue 201 explanation.
+**Risk, cost and optional status:** high; local-only; optional=true. Optional configuration study: no reliable VMware-local performance gain is guaranteed; record cache state and skip unobservable portions. See the local adapted issue 201 explanation.
 
 **Success verification:** Get-BCStatus shows the intended hosted/distributed mode, SCP registration and imported cache data; timing improvement is optional.
 
