@@ -58,6 +58,31 @@ try {
         $passed++
     }
     [IO.File]::WriteAllText($documentPath, $original, $utf8)
+    $activationEntry = $manifest.entries | Where-Object path -eq 'Instructions/Practices/Authorize-DHCP-server-and-activate-scope.md'
+    $activationFile = Join-Path $fixtureRoot $activationEntry.path
+    $activationOriginal = [IO.File]::ReadAllText($activationFile)
+    $creatorFile = Join-Path $fixtureRoot 'Instructions/Practices/Add-a-DHCP-scope.md'
+    $creatorOriginal = [IO.File]::ReadAllText($creatorFile)
+    foreach ($scopeCase in @(
+        @{ Name='old core activation scope'; Expected='obsolete core DHCP activation scope'; Activation='10.10.30.0' },
+        @{ Name='different activated scope'; Expected='prerequisite-created DHCP scope does not match'; Activation='10.1.2.0' },
+        @{ Name='different prerequisite scope'; Expected='prerequisite-created DHCP scope does not match'; Creator=$true }
+    )) {
+        if ($scopeCase.Activation) { [IO.File]::WriteAllText($activationFile, $activationOriginal.Replace('10.1.1.0', $scopeCase.Activation), $utf8) }
+        if ($scopeCase.Creator) { [IO.File]::WriteAllText($creatorFile, $creatorOriginal.Replace('10.1.1.2', '10.1.2.2'), $utf8) }
+        $errors = @(Test-CurriculumRules @($activationEntry) $fixtureRoot)
+        if (!@($errors | Where-Object { $_ -like ('*' + $scopeCase.Expected + '*') }).Count) { throw "DHCP mutation escaped: $($scopeCase.Name)" }
+        [IO.File]::WriteAllText($activationFile, $activationOriginal, $utf8)
+        [IO.File]::WriteAllText($creatorFile, $creatorOriginal, $utf8)
+        $passed++
+    }
+    foreach ($dhcpPath in @('Instructions/Practices/Authorize-DHCP-server-and-activate-scope.md','Instructions/Practices/Configure-DHCP-server-options.md')) {
+        $candidate = ($manifest.entries | Where-Object path -eq $dhcpPath | ConvertTo-Json -Depth 24) | ConvertFrom-Json
+        $candidate.networkProfile = 'core'
+        $errors = @(Test-CurriculumRules @($candidate) $fixtureRoot)
+        if (!@($errors | Where-Object { $_ -like '*enterprise DHCP addresses require enterprise metadata profile*' }).Count) { throw "Core DHCP profile escaped: $dhcpPath" }
+        $passed++
+    }
     $conditionalEntry = $manifest.entries | Where-Object path -eq 'Instructions/Practices/Configure-a-guest-operating-system.md'
     if (@(Test-CurriculumRules @($conditionalEntry) $fixtureRoot).Count) { throw 'Documented optional VMnet8 cleanup was rejected.' }
     $passed++

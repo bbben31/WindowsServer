@@ -62,7 +62,7 @@ Perform this task on CL1.
 1. On page Router (Default Gateway), under **IP address**, type **10.1.1.1**, click **Add** and click **Next >**.
 1. On page Domain Name and DNS Servers, set **Parent domain** to **ad.lab.test** and ensure **10.1.1.8** is the DNS server. Remove any public, NAT, or unrelated DNS server, then click **Next >**.
 
-    > These options are configured server-wide already.
+    > Enter these scope options now. Configure the enterprise server-wide options in the subsequent Configure DHCP server options practice after authorization and activation.
 
 1. On page WINS Servers, click **Next >**.
 1. On page Activate Scope, click **No, I will activate this scope later** and click **Next >**.

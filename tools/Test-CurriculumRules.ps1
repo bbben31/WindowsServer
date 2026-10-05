@@ -6,6 +6,22 @@ function Test-CurriculumRules {
         $content = [IO.File]::ReadAllText($path).Replace("`r`n", "`n")
         $procedure = [regex]::Replace($content, '(?s)<!-- BEGIN GENERATED COMPLETION CONTRACT -->.*?<!-- END GENERATED COMPLETION CONTRACT -->', '')
         $label = $entry.path
+        if ($label -match '(?i)DHCP' -and $procedure -match '\b10\.1\.\d+\.(?:\d+|\*)' -and $entry.networkProfile -ne 'enterprise') {
+            $failures.Add("${label}: enterprise DHCP addresses require enterprise metadata profile")
+        }
+        if ($label -eq 'Instructions/Practices/Authorize-DHCP-server-and-activate-scope.md') {
+            if ($procedure -match '\b10\.10\.30\.0\b') { $failures.Add("${label}: obsolete core DHCP activation scope") }
+            $creatorPath = 'Instructions/Practices/Add-a-DHCP-scope.md'
+            $creator = [IO.File]::ReadAllText((Join-Path $RepositoryRoot $creatorPath))
+            $creator = [regex]::Replace($creator, '(?s)<!-- BEGIN GENERATED COMPLETION CONTRACT -->.*?<!-- END GENERATED COMPLETION CONTRACT -->', '')
+            $range = [regex]::Match($creator, '(?i)Start IP address[^\r\n]*?\b(\d+\.\d+\.\d+)\.\d+')
+            $prefix = [regex]::Match($creator, '(?i)In \*\*Length\*\*, type \*\*24\*\*')
+            $createdScope = $range.Groups[1].Value + '.0'
+            $activatedScopes = @([regex]::Matches($procedure, '(?i)Scope \[(\d+\.\d+\.\d+\.\d+)\]|\$scopeId\s*=\s*[\x27\x22](\d+\.\d+\.\d+\.\d+)[\x27\x22]') | ForEach-Object { if ($_.Groups[1].Success) { $_.Groups[1].Value } else { $_.Groups[2].Value } })
+            if ($creatorPath -notin $entry.dependencies -or !$range.Success -or !$prefix.Success -or $activatedScopes.Count -lt 3 -or @($activatedScopes | Where-Object { $_ -ne $createdScope }).Count) {
+                $failures.Add("${label}: prerequisite-created DHCP scope does not match GUI/PowerShell activation")
+            }
+        }
         foreach ($field in @('vmTopology','alternativeVmGroups','referencedVms','prerequisiteState','verification','outbound','networkProfile','hyperVTeaching')) {
             if (!$entry.PSObject.Properties[$field]) { $failures.Add("${label}: missing authoritative field $field") }
         }
