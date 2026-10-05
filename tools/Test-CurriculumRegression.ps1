@@ -86,7 +86,10 @@ try {
     $conditionalEntry = $manifest.entries | Where-Object path -eq 'Instructions/Practices/Configure-a-guest-operating-system.md'
     foreach ($alternativeEntry in $manifest.entries | Where-Object { $_.alternativeVmGroups.Count }) {
         $alternativeFile = Join-Path $fixtureRoot $alternativeEntry.path
-        $alternativeOriginal = [IO.File]::ReadAllText($alternativeFile)
+        # Exercise Windows-checkout CRLF input, then normalize before exact-line mutations.
+        $windowsFixture = [IO.File]::ReadAllText($alternativeFile).Replace("`r`n", "`n").Replace("`n", "`r`n")
+        [IO.File]::WriteAllText($alternativeFile, $windowsFixture, $utf8)
+        $alternativeOriginal = [IO.File]::ReadAllText($alternativeFile).Replace("`r`n", "`n")
         $group = $alternativeEntry.alternativeVmGroups[0]
         $groupLine = '* One active domain controller: ' + ($group.names -join ' or ')
         $ordinaryName = @($alternativeEntry.requiredVmsOrTopology | Where-Object { $_ -notin $group.names })[0]
