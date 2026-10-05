@@ -354,7 +354,7 @@ Perform this task on CL1.
     ````
 
 1. When prompted, enter the credentials for **Administrator@ad.lab.test**.
-1. Install a child domain **clients** with the parent domain **ad.lab.test** on PM-SRV1. Install DNS at the same time, but do not make it a Global Catalog server.
+1. Install a child domain **clients** with the parent domain **ad.lab.test** on VN1-SRV7. Install DNS at the same time, but do not make it a Global Catalog server.
 
     ````powershell
     $job = Invoke-Command `
@@ -1094,7 +1094,7 @@ if ($LASTEXITCODE -ne 0) { throw 'VMware unpause failed; inspect the VM state.' 
 1. [Verify the effect of selective authentication accessing resources](#task-6-verify-the-effect-of-selective-authentication-accessing-resources) by trying to access `\\VN1-SRV10` with the user Wil@contoso.com.
 1. [Verify the effect of selective authentication on sign in](#task-7-verify-the-effect-of-selective-authentication-on-sign-in) by traing to sign in to CL4 as Wil@contoso.com.
 1. [Allow users from the external forest to access computers](#task-8-allow-users-from-the-external-forest-to-access-computers) VN1-SRV10 and CL4
-1. [Verify sign in and resource access over a forest trust](#task-9-verify-sign-in-and-resource-access-over-a-forest-trust) with the user Wil@contoso.com signing into CL4 and accessing `\\VN1-SRV10\Marketing.`
+1. [Verify sign in and resource access over a forest trust](#task-9-verify-sign-in-and-resource-access-over-a-forest-trust) with the user Wil@contoso.com signing into CL4 and accessing `\\VN1-SRV10\Marketing`.
 
 ### Task 1: Implement DNS name resolution of ad.contoso.com
 
@@ -1240,7 +1240,7 @@ Perform this task on CL1.
 Perform this task on CL3.
 
 1. Sign in as **Wil@contoso.com**.
-1. Using **File Explorer**, navigate to `\\VN1-SRV10.ad.lab.test.`
+1. Using **File Explorer**, navigate to `\\VN1-SRV10.ad.lab.test`.
 
     > You will receive an error message like in [figure 1].
 
@@ -1413,7 +1413,7 @@ Perform this task on CL2.
 
     > You will have to change the password.
 
-1. Using **File Explorer**, navigate to `\\VN1-SRV10\Marketing.`
+1. Using **File Explorer**, navigate to `\\VN1-SRV10\Marketing`.
 
     > Ada should still have access.
 

@@ -14320,7 +14320,23 @@
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false,
-      "profileTransitions": []
+      "profileTransitions": [],
+      "domainDeployments": [
+        {
+          "heading": "Task 2: Configure Active Directory Domain Services as new child domain",
+          "target": "VN1-SRV7",
+          "newDomainName": "clients",
+          "parentDomain": "ad.lab.test",
+          "domainType": "ChildDomain"
+        },
+        {
+          "heading": "Task 3: Configure Active Directory Domain Services as new tree",
+          "target": "PM-SRV1",
+          "newDomainName": "extranet.lab.test",
+          "parentDomain": "ad.lab.test",
+          "domainType": "TreeDomain"
+        }
+      ]
     },
     {
       "path": "Instructions/Labs/Post-installation-configuration.md",

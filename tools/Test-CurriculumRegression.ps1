@@ -62,7 +62,27 @@ try {
         $passed++
     }
     [IO.File]::WriteAllText($documentPath, $original, $utf8)
+    foreach ($punctuation in @('.', ',', ';', ':')) {
+        foreach ($ticks in @('`', '``')) {
+            $good = 'Navigate to ' + $ticks + '\\server\share' + $ticks + $punctuation
+            $bad = 'Navigate to ' + $ticks + '\\server\share' + $punctuation + $ticks
+            if (@(Test-CurriculumSemantics $entry $good).Count) { throw 'Valid UNC punctuation rejected' }
+            if (!@(Test-CurriculumSemantics $entry $bad | Where-Object { $_ -like '*sentence punctuation inside inline UNC path*' }).Count) { throw 'UNC punctuation mutation escaped' }
+            $passed += 2
+        }
+    }
     $semanticCases = @(
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='child promotion prose target';From='Install a child domain **clients** with the parent domain **ad.lab.test** on VN1-SRV7.';To='Install a child domain **clients** with the parent domain **ad.lab.test** on PM-SRV1.';Expected='domain promotion prose/command/subsection target conflict'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='tree promotion prose target';From='Install a new tree **extranet.lab.test** with the parent domain **ad.lab.test** on PM-SRV1.';To='Install a new tree **extranet.lab.test** with the parent domain **ad.lab.test** on VN1-SRV7.';Expected='domain promotion prose/command/subsection target conflict'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='child promotion command target';From='-ComputerName VN1-SRV7.ad.lab.test';To='-ComputerName PM-SRV1.ad.lab.test';Expected='domain deployment identity disagrees with metadata'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='child promotion GUI target';From='Configuration required for Active Directory Domain Services at VN1-SRV7';To='Configuration required for Active Directory Domain Services at PM-SRV1';Expected='domain promotion prose/command/subsection target conflict'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='child domain name';From='-NewDomainName clients';To='-NewDomainName extranet.lab.test';Expected='domain deployment identity disagrees with metadata'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='wrong parent domain';From='-ParentDomainName ad.lab.test';To='-ParentDomainName clients.ad.lab.test';Expected='domain deployment identity disagrees with metadata'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='child/tree domain type swap';From='-DomainType ChildDomain';To='-DomainType TreeDomain';Expected='domain deployment identity disagrees with metadata'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='child/tree server swap';From='VN1-SRV7';To='PM-SRV1';Expected='domain deployment identity disagrees with metadata'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='tree/child server swap';From='PM-SRV1';To='VN1-SRV7';Expected='domain deployment identity disagrees with metadata'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='Marketing share punctuation';From='`\\VN1-SRV10\Marketing`.';To='`\\VN1-SRV10\Marketing.`';Expected='sentence punctuation inside inline UNC path'},
+        @{Path='Instructions/Labs/Multi-domain-environments.md';Name='UNC hostname punctuation';From='`\\VN1-SRV10.ad.lab.test`.';To='`\\VN1-SRV10.ad.lab.test.`';Expected='sentence punctuation inside inline UNC path'},
         @{Path='Instructions/Labs/Managing-hybrid-servers-using-Azure-Arc.md';Name='Arc portal target';From='VN1-SRV8';To='VN1-SRV5';Expected='undeclared operational or unscoped VM VN1-SRV5'},
         @{Path='Instructions/Labs/Deploying-domain-controllers.md';Name='old DNS machine label';From='10.1.2.8 (VN2-SRV1)';To='10.1.2.8 (VN1-SRV2)';Expected='incorrect machine/address association'},
         @{Path='Instructions/Labs/Deploying-domain-controllers.md';Name='wrong declared DNS machine';From='10.1.2.8 (VN2-SRV1)';To='10.1.2.8 (VN1-SRV4)';Expected='incorrect machine/address association'},
@@ -94,6 +114,15 @@ try {
             $passed++
         } finally { [IO.File]::WriteAllText($file, $before, $utf8) }
     }
+    $domainEntry = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Multi-domain-environments.md'
+    $domainText = [IO.File]::ReadAllText((Join-Path $fixtureRoot $domainEntry.path)).Replace("`r`n","`n")
+    $swapped = $domainText.Replace('VN1-SRV7','SWAP-TARGET').Replace('PM-SRV1','VN1-SRV7').Replace('SWAP-TARGET','PM-SRV1')
+    if (!@(Test-CurriculumSemantics $domainEntry $swapped | Where-Object { $_ -like '*domain deployment identity disagrees with metadata*' }).Count) { throw 'Reciprocal child/tree server swap escaped' }
+    $passed++
+    $noDeployment = ($domainEntry | ConvertTo-Json -Depth 24) | ConvertFrom-Json
+    $noDeployment.domainDeployments = @()
+    if (!@(Test-CurriculumSemantics $noDeployment $domainText | Where-Object { $_ -like '*commands require matching deployment identities*' }).Count) { throw 'Missing deployment identities escaped' }
+    $passed++
     $dnsEntry = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Managing-DNS.md'
     $candidate = ($manifest.entries | Where-Object path -eq 'Instructions/Practices/Explore-intra-site-replication.md' | ConvertTo-Json -Depth 24) | ConvertFrom-Json
     $candidate.vmTopology = @($candidate.vmTopology | Where-Object guestHostname -ne 'VN2-SRV1')

@@ -22,6 +22,32 @@ function Test-CurriculumSemantics {
     $errors = [System.Collections.Generic.List[string]]::new()
     $plain = $Procedure.Replace('**','').Replace('`','')
     $vmPattern = '(?i)\b(?:VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\b'
+    foreach ($span in [regex]::Matches($Procedure, '(?<!`)(`+)(\\\\[^`\r\n]*[.,;:])\1(?!`)')) {
+        $errors.Add('sentence punctuation inside inline UNC path: ' + $span.Value)
+    }
+    # Deployment identities bind prose, GUI targets and commands to the same domain/server.
+    if ([regex]::Matches($plain, '(?i)\bInstall-ADDSDomain\b').Count -ne @($Entry.domainDeployments | Where-Object { $_ }).Count) {
+        $errors.Add('domain promotion commands require matching deployment identities')
+    }
+    foreach ($deployment in $Entry.domainDeployments) {
+        if ($deployment.target -notin @($Entry.vmTopology | ForEach-Object guestHostname) -or $deployment.domainType -notin @('ChildDomain','TreeDomain')) {
+            $errors.Add('invalid domain deployment metadata')
+        }
+        $section = [regex]::Match($plain, '(?ms)^### ' + [regex]::Escape($deployment.heading) + '\s*\n(.*?)(?=^### |^## |\z)').Groups[1].Value
+        $prose = [regex]::Match($section, '(?im)^.*Install a (?:child domain|new tree)\s+(\S+) with the parent domain\s+(\S+) on\s+(\S+)\.').Groups
+        $command = [regex]::Match($section, '(?s)Invoke-Command\s+.*?Install-ADDSDomain\s+.*?-Force').Value
+        $target = [regex]::Match($command, '(?i)-ComputerName\s+([^\s`]+)').Groups[1].Value.Split('.')[0]
+        $guiTargets = @([regex]::Matches($section, '(?i)Configuration required for Active Directory Domain Services at\s+(VN\d+-SRV\d+|PM-SRV\d+)') | ForEach-Object { $_.Groups[1].Value })
+        if ($prose.Count -lt 4 -or $prose[3].Value -ine $target -or @($guiTargets | Where-Object { $_ -ine $target }).Count) {
+            $errors.Add('domain promotion prose/command/subsection target conflict: ' + $deployment.heading)
+        }
+        $domain = [regex]::Match($command, '(?i)-NewDomainName\s+(\S+)').Groups[1].Value
+        $parent = [regex]::Match($command, '(?i)-ParentDomainName\s+(\S+)').Groups[1].Value
+        $type = [regex]::Match($command, '(?i)-DomainType\s+(\S+)').Groups[1].Value
+        if ($target -ine $deployment.target -or $domain -ine $deployment.newDomainName -or $parent -ine $deployment.parentDomain -or $type -ine $deployment.domainType -or $prose.Count -lt 4 -or $prose[1].Value -ine $deployment.newDomainName -or $prose[2].Value -ine $deployment.parentDomain -or !$guiTargets.Count) {
+            $errors.Add('domain deployment identity disagrees with metadata: ' + $deployment.heading)
+        }
+    }
     foreach ($binding in $Entry.addressBindings) {
         $parsed = $null
         if (![Net.IPAddress]::TryParse($binding.address, [ref]$parsed) -or $parsed.AddressFamily -ne [Net.Sockets.AddressFamily]::InterNetwork -or !@($binding.names).Count -or [string]::IsNullOrWhiteSpace($binding.reason)) { $errors.Add('invalid address binding'); continue }
