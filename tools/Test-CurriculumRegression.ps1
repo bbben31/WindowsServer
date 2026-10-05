@@ -291,6 +291,65 @@ try {
     if ($forbiddenCalls.Count -or $parseErrors.Count) { throw 'Preflight contains an authentication/mutation command or parse error.' }
     $passed++
     $engine = if ($PSVersionTable.PSEdition -eq 'Desktop') { Join-Path $PSHOME 'powershell.exe' } else { Join-Path $PSHOME 'pwsh.exe' }
+    $mdt = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Microsoft-Deployment-Toolkit.md'
+    $s2d = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Configuring-and-managing-Storage-Spaces-Direct-and-hyper-converged-virtualization.md'
+    $existingInner = $s2d.vmTopology | Where-Object guestHostname -eq 'VN1-SRV23'
+    if ($existingInner.phase -ne 'existing-inner' -or !$existingInner.prerequisiteCreator -or (Get-CurriculumRequiredVmLines $s2d) -notmatch '(?m)^\* VN1-SRV23$' -or @($s2d.vmTopology | Where-Object phase -eq 'created').Count -ne 1) { throw 'S2D prerequisite-created VM counted as a newly created target' }
+    $passed++
+    $candidate = ($s2d | ConvertTo-Json -Depth 24) | ConvertFrom-Json
+    ($candidate.vmTopology | Where-Object guestHostname -eq 'VN1-SRV23').phase='created'
+    if (!@(Test-CurriculumRules @($candidate) $fixtureRoot | Where-Object { $_ -like '*prerequisite-created VM must remain an existing target*' }).Count) { throw 'Prerequisite-created VM lifecycle mutation escaped' }
+    $passed++
+    $s2dText = [IO.File]::ReadAllText((Join-Path $fixtureRoot $s2d.path)).Replace("`r`n","`n")
+    $wrongConsole = $s2dText.Replace('In VN1-SRV24 on VN1-SRV6 - Virtual Machine Connection','In VN1-SRV23 on VN1-SRV4 - Virtual Machine Connection')
+    if ($wrongConsole -ceq $s2dText -or !@(Test-CurriculumSemantics $s2d $wrongConsole | Where-Object { $_ -like '*connected VM and console identity disagree*' }).Count) { throw 'S2D stale console identity escaped' }
+    $passed++
+    $mdtText = [IO.File]::ReadAllText((Join-Path $fixtureRoot $mdt.path)).Replace("`r`n","`n")
+    $created = @($mdt.vmTopology | Where-Object phase -eq 'created')
+    if ($created.Count -ne 1 -or $created[0].guestHostname -ne 'VN1-SRV20' -or $created[0].layer -ne 'outer-vmware' -or $created[0].vmwareDisplayName -ne 'WIN-VN1-SRV20') { throw 'MDT must create exactly one outer VMware target' }
+    $passed++
+    $required = Get-CurriculumRequiredVmLines $mdt
+    $contract = Get-CurriculumContract $mdt
+    if ($required -notmatch 'Created during exercise: VN1-SRV20' -or $required -match 'VN1-SRV21' -or $contract -notmatch 'Machine reuse' -or $contract -notmatch 'no simultaneous second VM' -or $contract -notmatch 'VN1-SRV20' -or $contract -notmatch 'VN1-SRV21') { throw 'MDT reuse contract/Required VMs regressed' }
+    $passed++
+    foreach ($mutation in @('second-created','wrong-target','simultaneous','wrong-snapshot','missing-transition','unscoped-context','missing-initial','wrong-redeployment')) {
+        $candidate = ($mdt | ConvertTo-Json -Depth 24) | ConvertFrom-Json
+        $text = $mdtText
+        $expected = switch ($mutation) {
+            'second-created' {
+                $second = ($created[0] | ConvertTo-Json -Depth 8) | ConvertFrom-Json
+                $second.guestHostname='VN1-SRV21'; $second.vmwareDisplayName='WIN-VN1-SRV21'; $second.displayNameAliases=@('VN1-SRV21')
+                $candidate.vmTopology += $second; $candidate.requiredVmsOrTopology += 'VN1-SRV21'
+                'reused guest identity must not be another topology VM'
+            }
+            'wrong-target' { $candidate.identityTransitions[0].vmwareDisplayName='WIN-VN1-SRV21'; 'invalid reused VMware target identity' }
+            'simultaneous' { $candidate.identityTransitions[0].simultaneous=$true; 'invalid reused VMware target identity' }
+            'wrong-snapshot' { $candidate.identityTransitions[0].snapshot='Other-snapshot'; 'reuse procedure disagrees' }
+            'missing-transition' { $candidate.identityTransitions=@(); 'VM reuse requires an identity transition' }
+            'unscoped-context' { $candidate.identityTransitions[0].laterGuestContexts=@('Perform this task on VN1-SRV21.'); 'invalid reused guest context' }
+            'missing-initial' { $text=$text.Replace('type **VN1-SRV20**','type **VN1-SRV99**'); 'initial reused guest hostname is not documented' }
+            'wrong-redeployment' { $text=$text.Replace('type **VN1-SRV21**','type **VN1-SRV20**'); 'reuse procedure disagrees' }
+        }
+        if (!@(Test-CurriculumIdentityTransitions $candidate $text | Where-Object { $_ -like ('*' + $expected + '*') }).Count) { throw "MDT identity mutation escaped: $mutation" }
+        $passed++
+    }
+    $wds = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Windows-Deployment-Services.md'
+    $wdsCreated = @($wds.vmTopology | Where-Object phase -eq 'created')
+    if ($wdsCreated.Count -ne 1 -or $wdsCreated[0].guestHostname -ne 'VN1-SRV21' -or $wdsCreated[0].layer -ne 'outer-vmware' -or @($wds.identityTransitions | Where-Object { $_ }).Count -or (Get-CurriculumRequiredVmLines $wds) -notmatch 'Created during exercise: VN1-SRV21') { throw 'Independent WDS created target regressed' }
+    $passed++
+    foreach ($identityPath in @($mdt.path,$wds.path)) {
+        $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $preflight -SkipHostChecks -AsJson -CurriculumPath $identityPath
+        if ($LASTEXITCODE -ne 0) { throw 'Created target preflight failed' }
+        $checks = $output -join "`n" | ConvertFrom-Json
+        $createdChecks = @($checks | Where-Object Name -eq 'Created VM')
+        $expectedGuest = if ($identityPath -eq $mdt.path) { 'VN1-SRV20' } else { 'VN1-SRV21' }
+        if ($createdChecks.Count -ne 1 -or $createdChecks[0].Detail -notmatch $expectedGuest) { throw 'Preflight counted an incorrect number of created targets' }
+        if ($identityPath -eq $mdt.path -and ($createdChecks[0].Detail -match 'VN1-SRV21' -or !@($checks | Where-Object { $_.Name -eq 'Machine reuse' -and $_.Detail -match 'one VMware target' -and $_.Detail -match 'VN1-SRV21' }).Count -or @($checks | Where-Object { $_.Name -eq 'Required VMs' -and $_.Detail -match 'VN1-SRV21' }).Count)) { throw 'Preflight treated the reused identity as a separate VM' }
+        $passed++
+    }
+    $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $preflight -SkipHostChecks -AsJson -CurriculumPath $mdt.path -VmName 'VN1-SRV21'
+    if ($LASTEXITCODE -ne 0 -or @(($output -join "`n" | ConvertFrom-Json) | Where-Object Name -eq 'Supplied VM comparison').Count) { throw 'Later guest identity did not map to the reused VMware target' }
+    $passed++
     $lifecycleRunner = Join-Path $fixtureRoot 'lifecycle-preflight.ps1'
     [IO.File]::WriteAllText($lifecycleRunner, @'
 param($Preflight, $ManifestPath, $CurriculumPath, $Mode)

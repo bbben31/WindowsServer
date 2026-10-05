@@ -28,6 +28,10 @@ function Get-CurriculumContract {
     $machineParts = @($machineText + '.') + @($alternatives) + @($Entry.networks)
     $machineParts = @($machineParts | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
     $lines.Add('**Machines and network profile:** ' + ($machineParts -join ' '))
+    foreach ($reuse in $Entry.identityTransitions) {
+        $lines.Add('')
+        $lines.Add('**Machine reuse:** VMware target `' + $reuse.vmwareDisplayName + '` initially has guest hostname `' + $reuse.initialGuestHostname + '`; after reverting snapshot `' + $reuse.snapshot + '` and PXE redeployment, that same target has guest hostname `' + $reuse.laterGuestHostname + '`. These are sequential guest identities; no simultaneous second VM exists. The later hostname is not another prerequisite or created VM.')
+    }
     $lines.Add('')
     $lines.Add('**Permissions:** ' + (@($Entry.permissions) -join ' '))
     $lines.Add('')

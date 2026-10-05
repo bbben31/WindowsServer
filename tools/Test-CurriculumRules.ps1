@@ -22,6 +22,9 @@ function Test-CurriculumSemantics {
     $errors = [System.Collections.Generic.List[string]]::new()
     $plain = $Procedure.Replace('**','').Replace('`','')
     $vmPattern = '(?i)\b(?:VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\b'
+    foreach ($connection in [regex]::Matches($plain, '(?im)context-menu of\s+(VN\d+-SRV\d+|PM-SRV\d+), click\s+Connect[^\n]*\n\s*1\. In\s+(VN\d+-SRV\d+|PM-SRV\d+)\s+on')) {
+        if ($connection.Groups[1].Value -ine $connection.Groups[2].Value) { $errors.Add('connected VM and console identity disagree') }
+    }
     foreach ($span in [regex]::Matches($Procedure, '(?<!`)(`+)(\\\\[^`\r\n]*[.,;:])\1(?!`)')) {
         $errors.Add('sentence punctuation inside inline UNC path: ' + $span.Value)
     }
@@ -119,6 +122,30 @@ function Test-CurriculumSemantics {
     return $errors.ToArray()
 }
 
+function Test-CurriculumIdentityTransitions {
+    param($Entry, [string]$Procedure)
+    $errors = [System.Collections.Generic.List[string]]::new()
+    $names = @($Entry.vmTopology | ForEach-Object guestHostname)
+    if ($Procedure -match 'No simultaneous second VM exists' -and !@($Entry.identityTransitions | Where-Object { $_ }).Count) { $errors.Add('VM reuse requires an identity transition') }
+    $laterNames = @($Entry.identityTransitions | ForEach-Object laterGuestHostname)
+    if (@($laterNames | Group-Object | Where-Object Count -gt 1).Count) { $errors.Add('duplicate reused guest identity') }
+    foreach ($reuse in $Entry.identityTransitions) {
+        $target = @($Entry.vmTopology | Where-Object guestHostname -eq $reuse.initialGuestHostname)
+        if ($target.Count -ne 1 -or $target[0].layer -ne 'outer-vmware' -or $target[0].vmwareDisplayName -cne $reuse.vmwareDisplayName -or $reuse.simultaneous -isnot [bool] -or $reuse.simultaneous -or $reuse.trigger -ne 'snapshot-reversion-and-pxe-redeployment' -or !$reuse.snapshot -or !$reuse.laterGuestHostname) { $errors.Add('invalid reused VMware target identity') }
+        if ($reuse.laterGuestHostname -in $names -or $reuse.laterGuestHostname -in $Entry.requiredVmsOrTopology) { $errors.Add('reused guest identity must not be another topology VM') }
+        $section = [regex]::Match($Procedure, '(?ms)^### ' + [regex]::Escape($reuse.heading) + '\s*\n(.*?)(?=^### |^## |\z)').Groups[1].Value
+        $plain = $section.Replace('**','').Replace('`','')
+        if ($plain -notmatch ('(?i)shut down\s+' + [regex]::Escape($reuse.vmwareDisplayName) + '\s+and revert it to\s+' + [regex]::Escape($reuse.snapshot)) -or $plain -notmatch '(?i)network/PXE boot' -or $plain -notmatch ('(?i)Computer name, type\s+' + [regex]::Escape($reuse.laterGuestHostname) + '\b')) { $errors.Add('reuse procedure disagrees with identity transition') }
+        if ($Procedure.Replace('**','') -notmatch ('(?i)Computer name\*?, type\s+' + [regex]::Escape($reuse.initialGuestHostname) + '\b')) { $errors.Add('initial reused guest hostname is not documented') }
+        $sectionLines = @($section -split "`n" | ForEach-Object { $_.Trim() })
+        if (!@($reuse.laterGuestContexts).Count) { $errors.Add('reused identity lacks scoped guest contexts') }
+        foreach ($context in $reuse.laterGuestContexts) {
+            if ($context -cnotin $sectionLines -or $context -notmatch [regex]::Escape($reuse.laterGuestHostname) -or $context -notmatch '(?i)^The same outer VMware target|Computer name.*type') { $errors.Add('invalid reused guest context') }
+        }
+    }
+    return $errors.ToArray()
+}
+
 function Test-CurriculumRules {
     param($Entries, [string]$RepositoryRoot)
     $failures = [System.Collections.Generic.List[string]]::new()
@@ -191,8 +218,14 @@ function Test-CurriculumRules {
         if ((@($names | Sort-Object) -join '|') -ne (@($entry.requiredVmsOrTopology | Sort-Object) -join '|')) { $failures.Add("${label}: required VM topology disagrees with manifest names") }
         foreach ($vm in $entry.vmTopology) {
             if (($vm.layer -eq 'outer-vmware' -and !$vm.vmwareDisplayName) -or ($vm.layer -eq 'inner-hyper-v' -and !$vm.hyperVName) -or $vm.layer -notin @('outer-vmware','inner-hyper-v') -or $vm.phase -notin @('existing','existing-inner','created','conditional')) { $failures.Add("${label}: incomplete display/hostname/layer mapping") }
+            if ($vm.prerequisiteCreator) {
+                $creator = $profiles[$vm.prerequisiteCreator]
+                $createdThere = @($creator.vmTopology | Where-Object { $_.guestHostname -eq $vm.guestHostname -and $_.layer -eq $vm.layer -and $_.phase -eq 'created' })
+                if ($vm.prerequisiteCreator -notin $entry.dependencies -or $createdThere.Count -ne 1 -or $vm.phase -notin @('existing','existing-inner')) { $failures.Add("${label}: prerequisite-created VM must remain an existing target") }
+            }
         }
         $procedureLines = @($procedure -split "`n" | ForEach-Object { $_.Trim() })
+        foreach ($errorText in Test-CurriculumIdentityTransitions $entry $procedure) { $failures.Add("${label}: $errorText") }
         foreach ($reference in $entry.referencedVms) {
             if ([string]::IsNullOrWhiteSpace($reference.reason)) { $failures.Add("${label}: unexplained reference-only VM") }
             if ($reference.kind -notin @('dns-record-data','illustrative-example','excluded-scope','deferred-inner') -or !@($reference.contexts | Where-Object { ![string]::IsNullOrWhiteSpace($_) }).Count -or $reference.name -in $names) { $failures.Add("${label}: invalid scoped reference-only VM") }
@@ -229,6 +262,8 @@ function Test-CurriculumRules {
             foreach ($use in [regex]::Matches($line, '(?i)\b(?:VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\b')) {
                 $name = $use.Value.ToUpperInvariant()
                 if ($name -in $names) { continue }
+                $reused = @($entry.identityTransitions | Where-Object { $_.laterGuestHostname -ieq $name -and $line -cin $_.laterGuestContexts })
+                if ($reused.Count -eq 1) { continue }
                 $scoped = @($entry.referencedVms | Where-Object { $_.name -ieq $name -and $line -cin $_.contexts -and $_.kind -in @('dns-record-data','illustrative-example','excluded-scope','deferred-inner') })
                 if ($scoped.Count -ne 1) { $failures.Add("${label}: task/setup VM absent from Required VMs: undeclared operational or unscoped VM $name") }
             }
@@ -237,7 +272,7 @@ function Test-CurriculumRules {
         $operationalPattern = '(?i)(?:Perform (?:this task|these steps|these tasks) on|Connected to|On|Enter-PSSession|Connect-VM)\s+\*{0,2}(?:WIN-)?(VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\b|-(?:ComputerName|VMName)\s+[\x27\x22]?(?:WIN-)?(VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\b'
         foreach ($target in [regex]::Matches($procedure, $operationalPattern)) {
             $targetName = if ($target.Groups[1].Success) { $target.Groups[1].Value } else { $target.Groups[2].Value }
-            if ($targetName -notin $names) { $failures.Add("${label}: operational task/setup VM absent from Required VMs: $targetName") }
+            if ($targetName -notin $names -and $targetName -notin @($entry.identityTransitions | ForEach-Object laterGuestHostname)) { $failures.Add("${label}: operational task/setup VM absent from Required VMs: $targetName") }
         }
         foreach ($semanticError in Test-CurriculumSemantics $entry $procedure) { $failures.Add("${label}: $semanticError") }
         if (!$entry.hyperVTeaching -and $procedure -match '(?im)^\s*(?:[\w$]+\s*\|\s*)?(?:Get-VM(?:NetworkAdapter|HardDiskDrive)?|Set-VM(?:Processor|NetworkAdapter)?|Stop-VM|Start-VM|Suspend-VM|Resume-VM|Connect-VMNetworkAdapter)\b|^\s*1\. (?:Open|Switch to) \*\*Hyper-V[ -]Manager') {

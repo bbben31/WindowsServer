@@ -7,7 +7,9 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-the-Microsoft-Deployment-Toolkit.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV20 (VMware display: VN1-SRV20; accepted display aliases: WIN-VN1-SRV20; created in the designated task; not a preflight prerequisite); VN1-SRV21 (VMware display: VN1-SRV21; accepted display aliases: WIN-VN1-SRV21; created in the designated task; not a preflight prerequisite); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV20 (VMware display: WIN-VN1-SRV20; accepted display aliases: VN1-SRV20; created in the designated task; not a preflight prerequisite); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Machine reuse:** VMware target `WIN-VN1-SRV20` initially has guest hostname `VN1-SRV20`; after reverting snapshot `MDT-blank-target` and PXE redeployment, that same target has guest hostname `VN1-SRV21`. These are sequential guest identities; no simultaneous second VM exists. The later hostname is not another prerequisite or created VM.
 
 **Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
 
@@ -34,7 +36,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 * VN1-SRV1
 * VN1-SRV8
 * Created during exercise: VN1-SRV20
-* Created during exercise: VN1-SRV21
 
 ## Setup
 
@@ -340,6 +341,8 @@ Perform this task on VN1-SRV8.
 1. On page Task Progress, click **Finish**.
 
 ### Task 2: Run Microsoft Deployment Wizard from the network
+
+The same outer VMware target `WIN-VN1-SRV20` is reused: its initial guest hostname `VN1-SRV20` is replaced by `VN1-SRV21` after snapshot reversion and PXE redeployment. No simultaneous second VM exists; do not create `WIN-VN1-SRV21`.
 
 Perform these steps on the host computer.
 

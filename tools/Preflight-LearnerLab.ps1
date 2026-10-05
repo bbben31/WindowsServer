@@ -123,6 +123,9 @@ if ([string]::IsNullOrWhiteSpace($CurriculumPath)) {
         Add-Check 'Curriculum selection' 'Pass' $selectedEntry.path
         $topologyDetail = if (@($selectedEntry.vmTopology).Count) { ($selectedEntry.vmTopology | ForEach-Object { "$($_.guestHostname): VMware display=$($_.vmwareDisplayName); Hyper-V name=$($_.hyperVName); aliases=$($_.displayNameAliases -join ','); layer=$($_.layer); phase=$($_.phase)" }) -join '; ' } else { 'No dedicated guest required; use the declared host/browser/reference context.' }
         Add-Check 'Declared topology' 'Pass' $topologyDetail
+        foreach ($reuse in $selectedEntry.identityTransitions) {
+            Add-Check 'Machine reuse' 'Pass' "$($reuse.vmwareDisplayName): initial guest=$($reuse.initialGuestHostname); later guest=$($reuse.laterGuestHostname) after snapshot $($reuse.snapshot) and PXE redeployment; one VMware target, no simultaneous second VM."
+        }
         Add-Check 'Declared networks' 'Pass' ($selectedEntry.networks -join '; ')
         Add-Check 'Declared permissions' 'Pass' ($selectedEntry.permissions -join '; ')
         Add-Check 'Declared prerequisites' 'Pass' (($selectedEntry.dependencies + $selectedEntry.prerequisiteState) -join '; ')
@@ -136,6 +139,9 @@ if ([string]::IsNullOrWhiteSpace($CurriculumPath)) {
         $suppliedGuestNames = @()
         foreach ($name in $VmName) {
             $mapped = @($selectedEntry.vmTopology | Where-Object { $name -ieq $_.guestHostname -or $name -ieq $_.vmwareDisplayName -or $name -ieq $_.hyperVName -or $name -in $_.displayNameAliases })
+            foreach ($reuse in $selectedEntry.identityTransitions | Where-Object { $_.laterGuestHostname -ieq $name }) {
+                $mapped += @($selectedEntry.vmTopology | Where-Object guestHostname -eq $reuse.initialGuestHostname)
+            }
             if ($mapped.Count -eq 1) { $suppliedGuestNames += $mapped[0].guestHostname }
             elseif ($mapped.Count -gt 1) { Add-Check 'Supplied VM comparison' 'Error' "Ambiguous display-name mapping: $name" }
             else { Add-Check 'Supplied VM comparison' 'Warning' "VM is not declared for this exercise: $name" }

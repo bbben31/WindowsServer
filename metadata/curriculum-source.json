@@ -9688,8 +9688,9 @@
             "WIN-VN1-SRV23"
           ],
           "layer": "inner-hyper-v",
-          "phase": "created",
-          "hyperVName": "VN1-SRV23"
+          "phase": "existing-inner",
+          "hyperVName": "VN1-SRV23",
+          "prerequisiteCreator": "Instructions/Labs/Installing-and-configuring-a-fail-over-cluster.md"
         },
         {
           "guestHostname": "VN1-SRV24",
@@ -9747,7 +9748,8 @@
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
-        "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
+        "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.",
+        "Use the existing inner Hyper-V VN1-SRV23 created by Installing-and-configuring-a-fail-over-cluster.md; this lab moves its storage and creates only VN1-SRV24 as a new inner VM."
       ],
       "verification": [
         "Cluster storage pools/CSV and the intended inner VM are healthy; controlled node failover moves ownership without losing the test workload."
@@ -13806,7 +13808,6 @@
         "CL1",
         "VN1-SRV1",
         "VN1-SRV20",
-        "VN1-SRV21",
         "VN1-SRV8"
       ],
       "networks": [
@@ -13864,19 +13865,9 @@
         },
         {
           "guestHostname": "VN1-SRV20",
-          "vmwareDisplayName": "VN1-SRV20",
+          "vmwareDisplayName": "WIN-VN1-SRV20",
           "displayNameAliases": [
-            "WIN-VN1-SRV20"
-          ],
-          "layer": "outer-vmware",
-          "phase": "created",
-          "hyperVName": null
-        },
-        {
-          "guestHostname": "VN1-SRV21",
-          "vmwareDisplayName": "VN1-SRV21",
-          "displayNameAliases": [
-            "WIN-VN1-SRV21"
+            "VN1-SRV20"
           ],
           "layer": "outer-vmware",
           "phase": "created",
@@ -13912,7 +13903,22 @@
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false,
-      "profileTransitions": []
+      "profileTransitions": [],
+      "identityTransitions": [
+        {
+          "vmwareDisplayName": "WIN-VN1-SRV20",
+          "initialGuestHostname": "VN1-SRV20",
+          "laterGuestHostname": "VN1-SRV21",
+          "simultaneous": false,
+          "trigger": "snapshot-reversion-and-pxe-redeployment",
+          "snapshot": "MDT-blank-target",
+          "heading": "Task 2: Run Microsoft Deployment Wizard from the network",
+          "laterGuestContexts": [
+            "The same outer VMware target `WIN-VN1-SRV20` is reused: its initial guest hostname `VN1-SRV20` is replaced by `VN1-SRV21` after snapshot reversion and PXE redeployment. No simultaneous second VM exists; do not create `WIN-VN1-SRV21`.",
+            "1. On page Computer Details, beside **Computer name**, type **VN1-SRV21**. Click **Join a domain**. Beside **Domain to join**, type **ad.lab.test**. Click **Next**."
+          ]
+        }
+      ]
     },
     {
       "path": "Instructions/Labs/Migrate-Active-Directory.md",
