@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 > **Legacy compatibility gate:** Microsoft's [WDS support matrix](https://learn.microsoft.com/en-us/windows/deployment/wds-boot-support) blocks end-to-end deployment of Windows Server 2025 and Windows 11 through install-media `boot.wim`. Use an isolated Server 2022 WDS server and Server 2022 target only to study the deprecated workflow. Keep PXE on a dedicated VMware custom network, and treat unattended steps as conceptual when current security hardening blocks them.

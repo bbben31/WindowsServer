@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Environment profile:** This practice validates the enterprise-expansion `VNet1` scope (`10.1.1.0/24`). Keep the AD DNS server at `10.1.1.8` and do not run these address changes against the core learner profile.
 
 ## Required VMs

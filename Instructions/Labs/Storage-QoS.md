@@ -1,4 +1,4 @@
-
+# Lab: Storage QoS
 
 <!-- BEGIN GENERATED COMPLETION CONTRACT -->
 ## Self-learner completion contract
@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 ## Required VMs
 
 * CL1
@@ -35,7 +34,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 * VN1-SRV6
 * VN1-SRV7
 
-# Lab: Storage QoS
 
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 

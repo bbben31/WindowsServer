@@ -21,13 +21,11 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 ## Required VMs
 
 * CL1
-* VN1-SRV1
-* VN1-SRV5
 * VN1-SRV6
+* One active domain controller: VN1-SRV1 or VN1-SRV5
 
 ## Task
 

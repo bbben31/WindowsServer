@@ -84,9 +84,39 @@ try {
         $passed++
     }
     $conditionalEntry = $manifest.entries | Where-Object path -eq 'Instructions/Practices/Configure-a-guest-operating-system.md'
+    foreach ($alternativeEntry in $manifest.entries | Where-Object { $_.alternativeVmGroups.Count }) {
+        $alternativeFile = Join-Path $fixtureRoot $alternativeEntry.path
+        $alternativeOriginal = [IO.File]::ReadAllText($alternativeFile)
+        $group = $alternativeEntry.alternativeVmGroups[0]
+        $groupLine = '* One active domain controller: ' + ($group.names -join ' or ')
+        $ordinaryName = @($alternativeEntry.requiredVmsOrTopology | Where-Object { $_ -notin $group.names })[0]
+        foreach ($alternativeCase in @(
+            @{ Expected='alternative groups disagree'; Text=$alternativeOriginal.Replace($groupLine + "`n", '') },
+            @{ Expected='alternative groups disagree'; Text=$alternativeOriginal.Replace($groupLine, '* One active domain controller: VN1-SRV1 or VN1-SRV99') },
+            @{ Expected='alternatives rendered as unconditional'; Text=$alternativeOriginal.Replace($groupLine, ('* ' + ($group.names -join "`n* "))) },
+            @{ Expected='mandatory authoritative topology'; Text=$alternativeOriginal.Replace('* ' + $ordinaryName + "`n", '') }
+        )) {
+            [IO.File]::WriteAllText($alternativeFile, $alternativeCase.Text, $utf8)
+            $errors = @(Test-CurriculumRules @($alternativeEntry) $fixtureRoot)
+            if (!@($errors | Where-Object { $_ -like ('*' + $alternativeCase.Expected + '*') }).Count) { throw "Alternative mutation escaped for $($alternativeEntry.path): $($alternativeCase.Expected)" }
+            $passed++
+        }
+        [IO.File]::WriteAllText($alternativeFile, $alternativeOriginal, $utf8)
+    }
     if (@(Test-CurriculumRules @($conditionalEntry) $fixtureRoot).Count) { throw 'Documented optional VMnet8 cleanup was rejected.' }
     $passed++
     . (Join-Path $scriptRoot 'Curriculum-Contract.ps1')
+    foreach ($prefix in @("`n`n", ([string][char]0xFEFF + "`n`n"))) {
+        $fixtureText = $prefix + "# Fixture title`n`n## Required VMs`n`n* CL1`n"
+        $renderedFixture = Set-CurriculumContractText $fixtureText $entry
+        if ($renderedFixture -notmatch '\A# Fixture title\n\n<!-- BEGIN GENERATED COMPLETION CONTRACT -->' -or $renderedFixture.IndexOf('## Required VMs') -lt $renderedFixture.IndexOf('<!-- END GENERATED COMPLETION CONTRACT -->')) { throw 'Leading blanks/BOM put the contract before H1.' }
+        if ((Set-CurriculumContractText $renderedFixture $entry) -cne $renderedFixture) { throw 'Title-based insertion is not idempotent.' }
+        $passed++
+    }
+    [IO.File]::WriteAllText($documentPath, [regex]::Replace($original, '(?m)^# ', '## '), $utf8)
+    if (!@(Test-CurriculumRules @($entry) $fixtureRoot | Where-Object { $_ -match 'no H1 title' }).Count) { throw 'Missing H1 escaped validation.' }
+    [IO.File]::WriteAllText($documentPath, $original, $utf8)
+    $passed++
     $renderEntry = $entryJson | ConvertFrom-Json
     $renderEntry.alternativeVmGroups = @($null)
     $renderEntry.networks = @('', '  Isolated lab.  ', $null)
@@ -101,6 +131,20 @@ try {
     if ($forbiddenCalls.Count -or $parseErrors.Count) { throw 'Preflight contains an authentication/mutation command or parse error.' }
     $passed++
     $engine = if ($PSVersionTable.PSEdition -eq 'Desktop') { Join-Path $PSHOME 'powershell.exe' } else { Join-Path $PSHOME 'pwsh.exe' }
+    foreach ($jsonCase in @(
+        @{ Arguments=@('-CurriculumPath','Instructions/Labs/BranchCache.md'); Exit=0 },
+        @{ Arguments=@('-CurriculumPath','Instructions/Labs/does-not-exist.md'); Exit=1 },
+        @{ Arguments=@(); Exit=1 }
+    )) {
+        $reportFile = Join-Path $fixtureRoot ('preflight-' + $passed + '.json')
+        $jsonArguments = $jsonCase.Arguments
+        $jsonOutput = & $engine -NoProfile -ExecutionPolicy Bypass -File $preflight -SkipHostChecks -AsJson -ReportPath $reportFile @jsonArguments
+        if ($LASTEXITCODE -ne $jsonCase.Exit) { throw 'JSON/report mode changed the exit code.' }
+        $stdoutChecks = $jsonOutput -join "`n" | ConvertFrom-Json
+        $fileChecks = [IO.File]::ReadAllText($reportFile) | ConvertFrom-Json
+        if (($stdoutChecks | ConvertTo-Json -Depth 6 -Compress) -cne ($fileChecks | ConvertTo-Json -Depth 6 -Compress)) { throw 'JSON report/stdout differs or stdout was contaminated.' }
+        $passed++
+    }
     $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $preflight -SkipHostChecks -AsJson
     if ($LASTEXITCODE -ne 1 -or !@(($output -join "`n" | ConvertFrom-Json) | Where-Object { $_.Name -eq 'Curriculum selection' -and $_.Status -eq 'Error' -and $_.Detail -match 'Supply -CurriculumPath' }).Count) { throw 'Missing curriculum selection did not produce a clear error and exit 1.' }
     $passed++

@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 > **Legacy technology note:** AD RMS remains available for compatibility but is no longer actively developed. Retain this isolated lab to learn persistent rights-management architecture; do not treat it as the default design for a new enterprise deployment.

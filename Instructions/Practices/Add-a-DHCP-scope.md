@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Environment profile:** This practice is part of the enterprise expansion and uses source `VNet1` (`10.1.1.0/24`) on its dedicated VMware custom VMnet. Do not apply this scope to core client `VMnet30`.
 
 ## Required VMs

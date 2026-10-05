@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Optional nested-Hyper-V exercise:** Hyper-V Manager steps apply only to a dedicated nested Hyper-V guest; VMware Workstation controls the default lab VMs.
 
 ## Required VMs

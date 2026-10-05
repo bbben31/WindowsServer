@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Optional nested-Hyper-V exercise:** This source procedure is not a default VMware host procedure. Use it only inside a dedicated nested Hyper-V guest.
 
 ## Required VMs

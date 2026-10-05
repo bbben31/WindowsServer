@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Optional nested-Hyper-V exercise:** This source procedure is retained for a dedicated nested Hyper-V guest. The default learner VM creation path is VMware Workstation Pro 17.
 
 ## Required VMs

@@ -230,7 +230,7 @@ if ($selectedEntry -and $selectedEntry.azure.required) {
 
 if ($AsJson) { $results | ConvertTo-Json -Depth 6 }
 else { $results | Format-List Name, Status, Detail | Out-Host }
-if ($ReportPath) { $results | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $ReportPath -Encoding utf8; Write-Output "Report written to $ReportPath" }
+if ($ReportPath) { $results | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $ReportPath -Encoding utf8; Write-Verbose "Report written to $ReportPath" }
 $hasError = @($results | Where-Object Status -eq 'Error').Count -gt 0
 $hasWarning = @($results | Where-Object Status -eq 'Warning').Count -gt 0
 if ($hasError -or ($FailOnWarning -and $hasWarning)) { exit 1 }

@@ -50,14 +50,14 @@ function Get-CurriculumContract {
 
 function Set-CurriculumContractText {
     param([string]$Content, $Entry)
-    $Content = $Content.Replace("`r`n", "`n").TrimEnd()
+    $Content = $Content.TrimStart([char]0xFEFF).Replace("`r`n", "`n").TrimEnd()
     $block = Get-CurriculumContract $Entry
     $pattern = '(?s)<!-- BEGIN GENERATED COMPLETION CONTRACT -->.*?<!-- END GENERATED COMPLETION CONTRACT -->'
-    if ([regex]::IsMatch($Content, $pattern)) {
-        return [regex]::Replace($Content, $pattern, [Text.RegularExpressions.MatchEvaluator]{ param($match) $block }) + "`n"
-    }
-    $firstNewline = $Content.IndexOf("`n")
-    return $Content.Substring(0, $firstNewline) + "`n`n" + $block + "`n" + $Content.Substring($firstNewline) + "`n"
+    $Content = [regex]::Replace($Content, $pattern, '').TrimStart([char[]]@([char]0xFEFF, [char]10, [char]13))
+    $title = [regex]::Match($Content, '(?m)^# [^\n]+')
+    if (!$title.Success) { throw "Curriculum document has no H1 title: $($Entry.path)" }
+    $titleEnd = $title.Index + $title.Length
+    return $Content.Substring(0, $titleEnd) + "`n`n" + $block + "`n`n" + $Content.Substring($titleEnd).TrimStart([char]10).TrimEnd() + "`n"
 }
 
 function ConvertTo-CurriculumJson {

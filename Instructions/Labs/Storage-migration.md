@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
@@ -31,12 +30,11 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 * CL1
 * CL2
-* VN1-SRV1
 * VN1-SRV10
 * VN1-SRV4
-* VN1-SRV5
 * VN1-SRV7
 * VN1-SRV8
+* One active domain controller: VN1-SRV1 or VN1-SRV5
 
 ## Setup
 

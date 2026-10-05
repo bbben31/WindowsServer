@@ -6,6 +6,9 @@ function Test-CurriculumRules {
         $content = [IO.File]::ReadAllText($path).Replace("`r`n", "`n")
         $procedure = [regex]::Replace($content, '(?s)<!-- BEGIN GENERATED COMPLETION CONTRACT -->.*?<!-- END GENERATED COMPLETION CONTRACT -->', '')
         $label = $entry.path
+        $title = [regex]::Match($content.TrimStart([char]0xFEFF), '(?m)^# [^\n]+')
+        if (!$title.Success) { $failures.Add("${label}: curriculum document has no H1 title") }
+        elseif ($content.IndexOf('<!-- BEGIN GENERATED COMPLETION CONTRACT -->') -lt $title.Index) { $failures.Add("${label}: completion contract precedes H1 title") }
         if ($label -match '(?i)DHCP' -and $procedure -match '\b10\.1\.\d+\.(?:\d+|\*)' -and $entry.networkProfile -ne 'enterprise') {
             $failures.Add("${label}: enterprise DHCP addresses require enterprise metadata profile")
         }
@@ -55,11 +58,17 @@ function Test-CurriculumRules {
         }
         foreach ($reference in $entry.referencedVms) { if ([string]::IsNullOrWhiteSpace($reference.reason)) { $failures.Add("${label}: unexplained reference-only VM") } }
         $requiredSection = [regex]::Match($procedure, '(?ms)^## Required VMs\s*\n(.*?)(?=^## |\z)').Groups[1].Value
-        # Only the initial list is authoritative; alternatives and phased notes below it are not duplicate declarations.
+        # Parse the initial list as mandatory machines plus explicit one-of groups.
         $initial = [regex]::Match($requiredSection.TrimStart(), '(?m)\A(?:(?:\* |VN[123]-|CL\d)[^\n]*\n?)+').Value
-        $declared = @([regex]::Matches($initial, '(?m)^(?:\* )?([A-Z][A-Z0-9-]+)\b') | ForEach-Object { $_.Groups[1].Value.ToUpperInvariant() })
+        $declared = @([regex]::Matches($initial, '(?m)^(?:\* )?((?!One\b)[A-Z][A-Z0-9-]+)\b') | ForEach-Object { $_.Groups[1].Value.ToUpperInvariant() })
         if (@($declared | Group-Object | Where-Object Count -gt 1).Count) { $failures.Add("${label}: duplicate Required VMs") }
-        if ((@($declared | Sort-Object -Unique) -join '|') -ne (@($names | Sort-Object -Unique) -join '|')) { $failures.Add("${label}: Required VMs disagree with authoritative topology") }
+        $alternativeNames = @($entry.alternativeVmGroups | ForEach-Object { $_.names })
+        $mandatoryNames = @($names | Where-Object { $_ -notin $alternativeNames })
+        if ((@($declared | Sort-Object -Unique) -join '|') -ne (@($mandatoryNames | Sort-Object -Unique) -join '|')) { $failures.Add("${label}: Required VMs disagree with mandatory authoritative topology") }
+        if (@($declared | Where-Object { $_ -in $alternativeNames }).Count) { $failures.Add("${label}: alternatives rendered as unconditional requirements") }
+        $documentGroups = @([regex]::Matches($initial, '(?m)^\* One active domain controller: ([A-Z0-9-]+(?: or [A-Z0-9-]+)+)\s*$') | ForEach-Object { ($_.Groups[1].Value -split ' or ' | Sort-Object) -join '|' })
+        $metadataGroups = @($entry.alternativeVmGroups | ForEach-Object { if ($_.minimum -ne 1) { $failures.Add("${label}: Required VMs one-of syntax requires minimum=1") }; ($_.names | Sort-Object) -join '|' })
+        if ((($documentGroups | Sort-Object) -join ';') -cne (($metadataGroups | Sort-Object) -join ';')) { $failures.Add("${label}: Required VMs alternative groups disagree with authoritative metadata") }
         $used = @([regex]::Matches($procedure, '(?i)\b(?:VN[123]-SRV\d+|PM-SRV\d+|CL\d+)\b') | ForEach-Object { $_.Value.ToUpperInvariant() } | Sort-Object -Unique)
         $allowed = @($names) + @($entry.referencedVms | ForEach-Object name)
         foreach ($name in $used) { if ($name -notin $allowed) { $failures.Add("${label}: task/setup VM absent from Required VMs: $name") } }

@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Optional nested-Hyper-V exercise:** This source topic is not part of the default VMware host path. Perform it only inside a dedicated nested Hyper-V guest as described in [Advanced Infrastructure](../General/Advanced-Infrastructure.md).
 
 ## Required VMs

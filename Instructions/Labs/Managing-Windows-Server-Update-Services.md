@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 > **Lifecycle note:** WSUS remains available in Windows Server but is no longer actively developed. Retain this isolated lab for enterprise update-management concepts, limit synchronized products/languages to control disk and bandwidth use, and evaluate current management alternatives separately.

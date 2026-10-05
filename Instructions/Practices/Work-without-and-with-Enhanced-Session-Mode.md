@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Optional nested-Hyper-V exercise:** Enhanced Session Mode is a Hyper-V feature. This procedure requires a dedicated nested Hyper-V guest and is not part of the default VMware path.
 
 ## Required VMs

@@ -21,7 +21,6 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-
 > **Optional nested-Hyper-V exercise:** The Hyper-V commands below target a nested Hyper-V guest, not the Windows 11 VMware host. Do not run them against VMware Workstation VMs.
 
 ## Required VMs
