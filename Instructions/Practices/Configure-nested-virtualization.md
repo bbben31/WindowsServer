@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Provision a dedicated VMware guest as an intermediate Hyper-V host with two inner WIN-PM-SRV1/WIN-PM-SRV2 VMs. These commands run inside that host, never on the outer Windows VMware host. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer. HV-MGMT is the dedicated outer VMware Windows guest hosting the two inner PM VMs; enable its VMware virtualization extensions and install Hyper-V before this optional practice.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Provision a dedicated VMware guest as an intermediate Hyper-V host with two inner WIN-PM-SRV1/WIN-PM-SRV2 VMs. These commands run inside that host, never on the outer Windows VMware host. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer. HV-MGMT is the dedicated outer VMware Windows guest hosting the two inner PM VMs; enable its VMware virtualization extensions and install Hyper-V before this optional practice.
 
 **Machines and network profile:** PM-SRV1 (Hyper-V name: WIN-PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing-inner); PM-SRV2 (Hyper-V name: WIN-PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing-inner); HV-MGMT (VMware display: HV-MGMT; existing). Dedicated isolated VMware custom VMnet for HV-MGMT and the inner PM hosts; map their inner Hyper-V switches explicitly. This separate optional topology does not replace the direct VMware PM hosts used elsewhere.
 
@@ -25,9 +25,9 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 ## Required VMs
 
+* PM-SRV1
+* PM-SRV2
 * HV-MGMT
-* PM-SRV1 (inner Hyper-V guest/role)
-* PM-SRV2 (inner Hyper-V guest/role)
 
 ## Task
 

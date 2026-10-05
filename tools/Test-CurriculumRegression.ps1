@@ -16,6 +16,7 @@ $passed = 0
 try {
     Copy-Item -LiteralPath (Join-Path $RepositoryRoot 'Instructions') -Destination $fixtureRoot -Recurse
     New-Item -ItemType Directory -Path (Join-Path $fixtureRoot 'metadata') | Out-Null
+    Copy-Item -LiteralPath (Join-Path $RepositoryRoot 'metadata/curriculum-source.json') -Destination (Join-Path $fixtureRoot 'metadata/curriculum-source.json')
     $entry = $manifest.entries | Where-Object path -eq 'Instructions/Labs/BranchCache.md'
     $entryJson = $entry | ConvertTo-Json -Depth 24
     $documentPath = Join-Path $fixtureRoot $entry.path
@@ -30,6 +31,9 @@ try {
         @{ Name='Hyper-V lab outer target'; Expect='outer VMware VM targeted by Hyper-V management'; Edit={param($e) $e.hyperVTeaching=$true; $e.prerequisiteState+= 'Commands must run in a nested host.'}; Append="`n~~~powershell`nStop-VM -Name 'WIN-CL3'`n~~~`n" },
         @{ Name='WAC target'; Expect='adjacent Windows Admin Center targets mismatch'; Append="`n1. In Windows Admin Center, on the connections page, click **vn1-srv10.ad.lab.test**.`n1. Connected to vn1-srv4.ad.lab.test, under **Tools**, click **Roles & features**.`n" },
         @{ Name='invalid domain'; Expect='known invalid domain'; Append="`n<!-- https://admincenter.smart.etc -->`n" },
+        @{ Name='wrong child domain'; Expect='known invalid domain'; Append="`nConnect to clients.ad.contoso.com.`n" },
+        @{ Name='reversed child domain'; Expect='known invalid domain'; Append="`nConnect to ad.clients.lab.test.`n" },
+        @{ Name='merged endpoint'; Expect='malformed combined outbound endpoint'; Edit={param($e) $e.outbound.endpoints=@('public name resolution onlyOfficial Microsoft ADMT download')} },
         @{ Name='admin permissions'; Expect='administrative commands paired only with standard-user permissions'; Edit={param($e) $e.permissions=@('Standard lab user')}; Append="`nNew-NetLbfoTeam -Name Test -TeamMembers Ethernet1,Ethernet2`n" },
         @{ Name='outbound omission'; Expect='download/install without declared outbound access'; Append="`nInstall-Module Microsoft.Graph.Authentication -Scope CurrentUser`n" },
         @{ Name='shared RSAT download omission'; Expect='download/install without declared outbound access'; Append="`nRun C:\WindowsServerLab\Resources\Solutions\Install-RemoteServerAdministrationTools.ps1 during setup.`n" },
@@ -58,6 +62,52 @@ try {
         $passed++
     }
     [IO.File]::WriteAllText($documentPath, $original, $utf8)
+    foreach ($cmdlet in @('New-VHD','Add-VMHardDiskDrive','Get-VMFirmware')) {
+        $text = $original + "`n1. Run the host command:`n`n````````powershell`n$cmdlet -VMName 'WIN-VN1-SRV10'`n`````````n"
+        [IO.File]::WriteAllText($documentPath, $text, $utf8)
+        if (!@(Test-CurriculumRules @($entry) $fixtureRoot | Where-Object { $_ -match 'Hyper-V VM/VHD cmdlet outside nested teaching' }).Count) { throw "Missed Hyper-V cmdlet: $cmdlet" }
+        $passed++
+    }
+    foreach ($operation in @('Open Hyper-V Manager.','Open Virtual Machine Connection.','Activate Enhanced Session.','On the Media menu, click DVD Drive.','In the menu on the virtual machine connection, click Ctrl+Alt+Delete.')) {
+        [IO.File]::WriteAllText($documentPath, ($original + "`n1. $operation`n"), $utf8)
+        if (!@(Test-CurriculumRules @($entry) $fixtureRoot | Where-Object { $_ -match 'Hyper-V console operation outside nested teaching' }).Count) { throw "Missed Hyper-V console operation: $operation" }
+        $passed++
+    }
+    [IO.File]::WriteAllText($documentPath, ($original + "`nHyper-V Manager, Virtual Machine Connection and New-VHD are not used for this outer VMware scenario.`n"), $utf8)
+    if (@(Test-CurriculumRules @($entry) $fixtureRoot).Count) { throw 'Explanatory Hyper-V boundary note produced a false positive.' }
+    $passed++
+    [IO.File]::WriteAllText($documentPath, $original, $utf8)
+    foreach ($lifecycleEntry in $manifest.entries | Where-Object { @($_.vmTopology | Where-Object { $_.phase -in @('conditional','created') }).Count }) {
+        $lifecycleFile = Join-Path $fixtureRoot $lifecycleEntry.path
+        $lifecycleText = [IO.File]::ReadAllText($lifecycleFile).Replace("`r`n","`n")
+        foreach ($vm in $lifecycleEntry.vmTopology | Where-Object { $_.phase -in @('conditional','created') }) {
+            $prefix = if ($vm.phase -eq 'conditional') { 'Conditional until retired' } else { 'Created during exercise' }
+            foreach ($replacement in @('', ('* ' + $vm.guestHostname), ('* ' + $prefix + ': VN1-SRV99'))) {
+                [IO.File]::WriteAllText($lifecycleFile, $lifecycleText.Replace(('* ' + $prefix + ': ' + $vm.guestHostname), $replacement), $utf8)
+                if (!@(Test-CurriculumRules @($lifecycleEntry) $fixtureRoot | Where-Object { $_ -like ('*Required VMs ' + $vm.phase + ' lifecycle disagrees*') }).Count) { throw "Lifecycle mutation escaped: $($lifecycleEntry.path) $($vm.guestHostname)" }
+                $passed++
+            }
+            [IO.File]::WriteAllText($lifecycleFile, $lifecycleText, $utf8)
+        }
+    }
+    $profileCandidate = ($manifest.entries | Where-Object path -eq 'Instructions/Practices/Explore-intra-site-replication.md' | ConvertTo-Json -Depth 24) | ConvertFrom-Json
+    $profileCandidate.networkProfile = 'core'
+    if (!@(Test-CurriculumRules @($profileCandidate) $fixtureRoot | Where-Object { $_ -match 'unexplained profile downgrade' }).Count) { throw 'Unexplained profile downgrade escaped validation.' }
+    $passed++
+    $profileCandidate.profileTransitions = @([pscustomobject]@{dependency='Instructions/Labs/Deploying-domain-controllers.md';reason='Fixture explicitly records a separate isolated core forest.'})
+    if (@(Test-CurriculumRules @($profileCandidate) $fixtureRoot | Where-Object { $_ -match 'profile downgrade|invalid profile transition' }).Count) { throw 'Explicit profile transition was rejected.' }
+    $passed++
+    Test-CurriculumDependencyCycles $manifest.entries
+    $passed++
+    foreach ($graph in @(
+        @([pscustomobject]@{path='a';dependencies=@('b')},[pscustomobject]@{path='b';dependencies=@('a')}),
+        @([pscustomobject]@{path='a';dependencies=@('a')})
+    )) {
+        $rejected = $false
+        try { Test-CurriculumDependencyCycles $graph } catch { if ($_.Exception.Message -match 'Dependency cycle:') { $rejected = $true } else { throw } }
+        if (!$rejected) { throw 'Dependency cycle escaped validation.' }
+        $passed++
+    }
     $activationEntry = $manifest.entries | Where-Object path -eq 'Instructions/Practices/Authorize-DHCP-server-and-activate-scope.md'
     $activationFile = Join-Path $fixtureRoot $activationEntry.path
     $activationOriginal = [IO.File]::ReadAllText($activationFile)
@@ -134,6 +184,53 @@ try {
     if ($forbiddenCalls.Count -or $parseErrors.Count) { throw 'Preflight contains an authentication/mutation command or parse error.' }
     $passed++
     $engine = if ($PSVersionTable.PSEdition -eq 'Desktop') { Join-Path $PSHOME 'powershell.exe' } else { Join-Path $PSHOME 'pwsh.exe' }
+    $lifecycleRunner = Join-Path $fixtureRoot 'lifecycle-preflight.ps1'
+    [IO.File]::WriteAllText($lifecycleRunner, @'
+param($Preflight, $ManifestPath, $CurriculumPath, $Mode)
+$entry = ([IO.File]::ReadAllText($ManifestPath) | ConvertFrom-Json).entries | Where-Object path -eq $CurriculumPath
+$argsForCheck = @{CurriculumPath=$CurriculumPath; ManifestPath=$ManifestPath; SkipHostChecks=$true; AsJson=$true; FailOnWarning=$true; OutboundAvailable=$true; AzureSubscriptionId="<AZURE_SUBSCRIPTION_ID>"; AzureRegion="<AZURE_REGION>"; AzureResourceGroup="<AZURE_RESOURCE_GROUP>"; AzureBudgetName="<AZURE_BUDGET_NAME>"; CompletedPrerequisite=@($entry.dependencies); VmName=@($entry.vmTopology | Where-Object phase -in @('existing','existing-inner') | ForEach-Object guestHostname)}
+switch ($Mode) {
+    'present' { $argsForCheck.VmName += @($entry.vmTopology | Where-Object phase -eq 'conditional' | ForEach-Object guestHostname) }
+    'retired' { $argsForCheck.RetiredVmName = @($entry.vmTopology | Where-Object phase -eq 'conditional' | ForEach-Object guestHostname) }
+    'conflict' { $argsForCheck.VmName += 'VN1-SRV1'; $argsForCheck.RetiredVmName = @('VN1-SRV1') }
+    'mandatory' { $argsForCheck.RetiredVmName = @('CL1') }
+    'created-retired' { $argsForCheck.RetiredVmName = @($entry.vmTopology | Where-Object phase -eq 'created' | ForEach-Object guestHostname) }
+}
+& $Preflight @argsForCheck
+exit $LASTEXITCODE
+'@, $utf8)
+    foreach ($lifecycleCase in @(
+        @{Path='Instructions/Practices/Configure-a-fine-grained-password-policy.md';Mode='present';Exit=0;Name='Conditional VM';Status='Pass'},
+        @{Path='Instructions/Practices/Configure-a-fine-grained-password-policy.md';Mode='retired';Exit=0;Name='Conditional VM';Status='Skipped'},
+        @{Path='Instructions/Practices/Configure-a-fine-grained-password-policy.md';Mode='absent';Exit=1;Name='Conditional VM';Status='Warning'},
+        @{Path='Instructions/Practices/Configure-a-fine-grained-password-policy.md';Mode='conflict';Exit=1;Status='Error'},
+        @{Path='Instructions/Practices/Configure-a-fine-grained-password-policy.md';Mode='mandatory';Exit=1;Status='Error'},
+        @{Path='Instructions/Practices/Create-and-install-a-virtual-machine.md';Mode='absent';Exit=0;Name='Created VM';Status='Skipped'},
+        @{Path='Instructions/Practices/Create-and-install-a-virtual-machine.md';Mode='created-retired';Exit=1;Status='Error'}
+    )) {
+        $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $lifecycleRunner $preflight (Join-Path $RepositoryRoot 'metadata/curriculum-manifest.json') $lifecycleCase.Path $lifecycleCase.Mode
+        if ($LASTEXITCODE -ne $lifecycleCase.Exit) { throw "Lifecycle preflight exit failed: $($lifecycleCase.Mode). $output" }
+        $checks = $output -join "`n" | ConvertFrom-Json
+        if (!@($checks | Where-Object { $_.Status -eq $lifecycleCase.Status -and (!$lifecycleCase.Name -or $_.Name -eq $lifecycleCase.Name) }).Count) { throw "Lifecycle preflight status failed: $($lifecycleCase.Mode)" }
+        $passed++
+    }
+    foreach ($lifecycleEntry in $manifest.entries) {
+        $hasConditional = @($lifecycleEntry.vmTopology | Where-Object phase -eq 'conditional').Count -gt 0
+        $hasCreated = @($lifecycleEntry.vmTopology | Where-Object phase -eq 'created').Count -gt 0
+        $modes = @()
+        if ($hasConditional) { $modes += @('present','retired','absent') }
+        if ($hasCreated) { $modes += 'created' }
+        foreach ($mode in $modes) {
+            $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $lifecycleRunner $preflight (Join-Path $RepositoryRoot 'metadata/curriculum-manifest.json') $lifecycleEntry.path $mode
+            $expectedExit = if ($mode -eq 'absent') { 1 } else { 0 }
+            if ($LASTEXITCODE -ne $expectedExit) { throw "Whole-curriculum lifecycle preflight failed: $($lifecycleEntry.path) $mode. $output" }
+            $checks = $output -join "`n" | ConvertFrom-Json
+            $expectedName = if ($mode -eq 'created') { 'Created VM' } else { 'Conditional VM' }
+            $expectedStatus = switch ($mode) { 'present' {'Pass'}; 'absent' {'Warning'}; default {'Skipped'} }
+            if (!@($checks | Where-Object { $_.Name -eq $expectedName -and $_.Status -eq $expectedStatus }).Count) { throw "Whole-curriculum lifecycle status failed: $($lifecycleEntry.path) $mode" }
+            $passed++
+        }
+    }
     foreach ($jsonCase in @(
         @{ Arguments=@('-CurriculumPath','Instructions/Labs/BranchCache.md'); Exit=0 },
         @{ Arguments=@('-CurriculumPath','Instructions/Labs/does-not-exist.md'); Exit=1 },

@@ -12,7 +12,8 @@ function Get-CurriculumContract {
         $aliasNames = @($_.displayNameAliases | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() })
         $aliases = if ($aliasNames.Count) { 'accepted display aliases: ' + ($aliasNames -join ', ') } else { '' }
         $display = if ($_.layer -eq 'inner-hyper-v') { 'Hyper-V name: ' + $_.hyperVName } else { 'VMware display: ' + $_.vmwareDisplayName }
-        $details = @($display, $aliases, $_.phase) | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() }
+        $phaseText = switch ($_.phase) { 'created' { 'created in the designated task; not a preflight prerequisite' }; 'conditional' { 'conditional until retired; supply the guest or explicitly confirm retirement with -RetiredVmName' }; default { $_ } }
+        $details = @($display, $aliases, $phaseText) | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_.Trim() }
         $_.guestHostname.Trim() + ' (' + ($details -join '; ') + ')'
     })
     $machineText = if ($machines.Count) { $machines -join '; ' } else { 'No dedicated guest; use the host/browser or existing tenant context specified by this reference' }
@@ -46,6 +47,26 @@ function Get-CurriculumContract {
     $lines.Add('')
     $lines.Add('<!-- END GENERATED COMPLETION CONTRACT -->')
     return $lines -join "`n"
+}
+
+function Get-CurriculumRequiredVmLines {
+    param($Entry)
+    $alternativeNames = @($Entry.alternativeVmGroups | ForEach-Object { $_.names })
+    $lines = @($Entry.vmTopology | Where-Object { $_.phase -in @('existing','existing-inner') -and $_.guestHostname -notin $alternativeNames } | ForEach-Object { '* ' + $_.guestHostname })
+    $lines += @($Entry.alternativeVmGroups | ForEach-Object { '* One active domain controller: ' + ($_.names -join ' or ') })
+    $lines += @($Entry.vmTopology | Where-Object phase -eq 'conditional' | ForEach-Object { '* Conditional until retired: ' + $_.guestHostname })
+    $lines += @($Entry.vmTopology | Where-Object phase -eq 'created' | ForEach-Object { '* Created during exercise: ' + $_.guestHostname })
+    if (!$lines.Count) { return 'None; use the declared host/browser reference context.' }
+    return $lines -join "`n"
+}
+
+function Set-CurriculumRequiredVmText {
+    param([string]$Content, $Entry)
+    $Content = $Content.Replace("`r`n", "`n")
+    $pattern = '(?m)(^## Required VMs\n\n)(?:(?:\* |VN[123]-|CL\d|None;)[^\n]*\n?)+'
+    if (![regex]::IsMatch($Content, $pattern)) { throw "Required VMs list missing: $($Entry.path)" }
+    $list = Get-CurriculumRequiredVmLines $Entry
+    return [regex]::Replace($Content, $pattern, [Text.RegularExpressions.MatchEvaluator]{ param($match) $match.Groups[1].Value + $list + "`n" })
 }
 
 function Set-CurriculumContractText {

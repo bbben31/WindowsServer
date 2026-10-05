@@ -26,6 +26,12 @@ Use the [Milestone H optional and cost-gated guide](Optional-Cost-Gated-Topics.m
 
 Before each practice or lab, run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with only the paths, VM names, network values, and Azure placeholders relevant to that stage. Resolve blockers and review warnings, take a snapshot, perform the lab, verify the outcome, and then deallocate/delete disposable Azure resources and revert or clean up local lab state.
 
+## Required VM lifecycle and preflight
+
+The generated Required VMs list separates ordinary mandatory prerequisites, one-of alternatives, conditional controllers, and machines created during the exercise. Supply only existing prerequisites with `-VmName`; create machines marked **Created during exercise** in their designated tasks. For **Conditional until retired**, supply the active guest or explicitly confirm completed retirement with `-RetiredVmName`. A missing conditional guest without confirmation warns; supplying and retiring the same guest is an error. Mandatory and created machines cannot be declared retired.
+
+After retiring VN1-SRV1, verify the address/role handover documented in the final AD upgrade exercise, including VN1-SRV5 serving 10.1.1.8 in the enterprise profile. Controller promotion alone does not complete retirement. Never restart a retired controller to satisfy a checklist. `-FailOnWarning` succeeds only after all missing prerequisites and conditional retirement decisions are explicitly accounted for; preflight checks declarations, not guest role health.
+
 ## Media, licensing, and snapshots
 
 Obtain the **Windows Server 2025 Evaluation ISO** and **Windows 11 ISO** from official Microsoft download pages. Server 2022 evaluation media is an optional substitution where a lab requires it. Do not commit ISO files or product keys. Evaluation editions have time limits; record the activation date and comply with the license terms.

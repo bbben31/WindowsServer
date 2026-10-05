@@ -97,7 +97,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -110,7 +110,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Add-DHCP-reservations.md",
@@ -309,7 +310,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -322,7 +323,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Add-server-to-Azure-Arc.md",
@@ -335,7 +337,7 @@
         "VN1-SRV8"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -365,7 +367,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware."
       },
       "vmTopology": [
         {
@@ -412,7 +414,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -428,8 +430,9 @@
         ],
         "mode": "guest-vmnet8"
       },
-      "networkProfile": "core",
-      "hyperVTeaching": false
+      "networkProfile": "enterprise",
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Analyze-best-practices.md",
@@ -495,7 +498,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -508,7 +511,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Authorize-DHCP-server-and-activate-scope.md",
@@ -585,7 +589,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -598,7 +602,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-access-denied-assistance.md",
@@ -675,7 +680,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -688,7 +693,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-a-classification-schedule.md",
@@ -765,7 +771,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -778,7 +784,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-a-fine-grained-password-policy.md",
@@ -840,7 +847,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -856,7 +864,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -874,7 +882,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-aging-and-scavenging.md",
@@ -940,7 +949,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -953,7 +962,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-a-guest-operating-system.md",
@@ -1029,7 +1039,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "PM-SRV20 is a preexisting VMware Server Core guest with a VMnet10 AD-management NIC at 10.10.10.160/24 and a VMnet20 workload NIC at 10.10.20.160/24. AD DNS 10.10.10.10 must be reachable on the management NIC before joining."
       ],
@@ -1043,7 +1053,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-basic-Hyper-V-settings.md",
@@ -1131,7 +1142,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -1145,7 +1156,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-DHCP-server-options.md",
@@ -1245,7 +1257,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -1258,7 +1270,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-e-mail-notifications-in-FSRM.md",
@@ -1335,7 +1348,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -1348,7 +1361,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-forwarders.md",
@@ -1448,7 +1462,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -1463,7 +1477,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-Kerberos-contrained-delegation.md",
@@ -1479,7 +1494,7 @@
         "VN1-SRV7"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -1509,7 +1524,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware."
       },
       "vmTopology": [
         {
@@ -1550,7 +1565,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV4",
@@ -1586,7 +1602,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -1603,8 +1619,9 @@
         ],
         "mode": "guest-vmnet8"
       },
-      "networkProfile": "core",
-      "hyperVTeaching": false
+      "networkProfile": "enterprise",
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-nested-virtualization.md",
@@ -1678,7 +1695,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Provision a dedicated VMware guest as an intermediate Hyper-V host with two inner WIN-PM-SRV1/WIN-PM-SRV2 VMs. These commands run inside that host, never on the outer Windows VMware host.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.",
@@ -1694,7 +1711,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-password-and-account-lockout-policies.md",
@@ -1756,7 +1774,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -1772,7 +1791,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -1790,7 +1809,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-storage-report-options.md",
@@ -1867,7 +1887,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -1880,7 +1900,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-Windows-Admin-Center.md",
@@ -1958,7 +1979,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -1973,7 +1994,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Configure-Windows-Server-Update-Services-synchronization.md",
@@ -2051,7 +2073,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -2066,7 +2088,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-a-custom-Microsoft-Management-Console.md",
@@ -2133,7 +2156,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -2151,7 +2174,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-a-Log-Analytics-Workspace.md",
@@ -2209,7 +2233,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-an-Automation-account.md",
@@ -2266,7 +2291,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-an-Azure-Subscription.md",
@@ -2321,7 +2347,8 @@
         "mode": "host-browser"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-and-install-a-virtual-machine.md",
@@ -2409,7 +2436,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -2423,7 +2450,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-an-Entra-ID-tenant.md",
@@ -2478,7 +2506,8 @@
         "mode": "host-browser"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-an-exportable-web-server-certificate-template.md",
@@ -2554,7 +2583,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -2567,7 +2596,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-a-security-baseline-using-OSConfig.md",
@@ -2664,7 +2694,7 @@
       ],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -2680,7 +2710,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-Windows-Server-Update-Services-automatic-approval-rules.md",
@@ -2758,7 +2789,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -2773,7 +2804,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Create-Windows-Server-Update-Services-computer-groups.md",
@@ -2850,7 +2882,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -2863,7 +2895,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Delegate-password-reset-permissions.md",
@@ -2926,7 +2959,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -2952,7 +2986,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -2970,7 +3004,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Display-license-information.md",
@@ -3046,7 +3081,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -3059,7 +3094,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Enable-the-Active-Directory-Recycle-Bin.md",
@@ -3126,7 +3162,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -3144,7 +3180,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Explore-intra-site-replication.md",
@@ -3156,7 +3193,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -3185,7 +3222,7 @@
       },
       "compatibility": {
         "optional": true,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution."
+        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution."
       },
       "vmTopology": [
         {
@@ -3206,7 +3243,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -3239,7 +3277,7 @@
         }
       ],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -3256,8 +3294,9 @@
         ],
         "mode": "guest-vmnet8"
       },
-      "networkProfile": "core",
-      "hyperVTeaching": false
+      "networkProfile": "enterprise",
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Explore-PowerShell-return-types.md",
@@ -3322,7 +3361,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -3335,7 +3374,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Explore-Server-Manager.md",
@@ -3611,7 +3651,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -3629,7 +3669,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Explore-Windows-Terminal.md",
@@ -3696,7 +3737,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -3711,7 +3752,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Explore-winget.md",
@@ -3777,7 +3819,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -3794,7 +3836,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Find-PowerShell-commands-and-manage-modules.md",
@@ -3860,7 +3903,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -3876,7 +3919,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Getting-started-with-System-Insights.md",
@@ -3954,7 +3998,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -3972,7 +4016,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Harden-SMB.md",
@@ -4060,7 +4105,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4073,7 +4118,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-app-compatibility-feature-on-demand.md",
@@ -4139,7 +4185,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4154,7 +4200,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-File-Server-Resource-Manager.md",
@@ -4231,7 +4278,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4244,7 +4291,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-group-policy-management.md",
@@ -4310,7 +4358,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4325,7 +4373,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-prerequisites-for-file-serving.md",
@@ -4434,7 +4483,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4447,7 +4496,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-Remote-Server-Administration-Tools.md",
@@ -4513,7 +4563,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4528,7 +4578,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-roles-using-Server-Manager.md",
@@ -4606,7 +4657,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4624,7 +4675,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-roles-using-Windows-Admin-Center.md",
@@ -4712,7 +4764,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4725,7 +4777,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-the-DHCP-server-role.md",
@@ -4834,7 +4887,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4847,7 +4900,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-the-DNS-server-role.md",
@@ -4956,7 +5010,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -4969,7 +5023,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-the-Hyper-V-management-tools.md",
@@ -5035,7 +5090,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5050,7 +5105,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-the-Hyper-V-role.md",
@@ -5137,7 +5193,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -5151,7 +5207,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-the-Microsoft-Deployment-Toolkit.md",
@@ -5217,7 +5274,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5232,7 +5289,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-the-Microsoft-Office-Filter-Pack.md",
@@ -5309,7 +5367,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5324,7 +5382,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-the-Remote-Server-Administration-DHCP-Server-Tools.md",
@@ -5390,7 +5449,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5405,7 +5464,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-the-Remote-Server-Administration-DNS-Server-Tools.md",
@@ -5471,7 +5531,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5486,7 +5546,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-the-Remote-Server-Administration-Windows-Update-Services-Tools.md",
@@ -5552,7 +5613,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5567,7 +5628,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-Windows-Admin-Center-using-a-script.md",
@@ -5655,7 +5717,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5670,7 +5732,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-Windows-Server-manually.md",
@@ -5724,7 +5787,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5737,7 +5800,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-Windows-Server-Update-Services-role.md",
@@ -5835,7 +5899,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5848,7 +5912,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-Windows-Server-with-Desktop-Experience-manually.md",
@@ -5902,7 +5967,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5915,7 +5980,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Install-Windows-Terminal.md",
@@ -5981,7 +6047,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -5996,7 +6062,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Manage-dynamic-disks.md",
@@ -6084,7 +6151,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -6098,7 +6165,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Manage-features-using-PowerShell.md",
@@ -6208,7 +6276,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -6226,7 +6294,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Manage-local-groups.md",
@@ -6325,7 +6394,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -6338,7 +6407,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Manage-local-users.md",
@@ -6436,7 +6506,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -6449,7 +6519,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Manage-PowerShell-output.md",
@@ -6514,7 +6585,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -6527,7 +6598,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Manage-services-using-PowerShell.md",
@@ -6614,7 +6686,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -6627,7 +6699,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Manage-services-using-Windows-Admin-Center.md",
@@ -6715,7 +6788,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -6728,7 +6801,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Manage-the-guest-operating-system-from-the-host.md",
@@ -6816,7 +6890,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -6830,7 +6904,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Manage-the-status-of-a-virtual-machine.md",
@@ -6918,7 +6993,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -6932,7 +7007,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/NIC-teaming.md",
@@ -7008,7 +7084,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7021,7 +7097,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/PowerShell-remoting.md",
@@ -7108,7 +7185,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7121,7 +7198,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Query-DNS.md",
@@ -7199,7 +7277,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7214,7 +7292,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Register-Windows-Admin-Center-with-Azure.md",
@@ -7294,7 +7373,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7311,7 +7390,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Registry-editing-using-PowerShell.md",
@@ -7376,7 +7456,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7389,7 +7469,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Request-and-export-certificates-for-the-connection-broker-and-RD-web.md",
@@ -7488,7 +7569,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7501,7 +7582,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Restrict-the-Administrators-group-for-clients.md",
@@ -7574,7 +7656,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -7600,7 +7683,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7613,7 +7696,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Synchronize-Windows-Server-Update-Services-languages-products-and-categories.md",
@@ -7691,7 +7775,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7706,7 +7790,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Update-root-hints.md",
@@ -7784,7 +7869,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7799,7 +7884,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Update-the-active-directory-schema.md",
@@ -7828,7 +7914,7 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Labs/Deploying-domain-controllers.md"
+        "Instructions/General/AD-DNS-Foundation.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -7865,8 +7951,9 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Use the active core forest schema/infra masters; the enterprise DC-retirement lab is not a prerequisite. Confirm current schema version before adprep; a Windows Server 2025-created forest may already be current. Never downgrade or replay an upgrade unnecessarily."
       ],
       "verification": [
         "Schema version and replication reflect the intended upgrade; preserve the coordinated forest backup for recovery."
@@ -7878,7 +7965,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Use-a-group-managed-service-account.md",
@@ -7950,7 +8038,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -7966,7 +8055,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -7984,7 +8073,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Verify-DHCP-functionality.md",
@@ -8178,7 +8268,7 @@
         }
       ],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -8191,7 +8281,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Verify-the-sysvol-replication-mode.md",
@@ -8203,7 +8294,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -8231,7 +8322,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware."
       },
       "vmTopology": [
         {
@@ -8252,7 +8343,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -8268,7 +8360,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -8280,8 +8372,9 @@
         "endpoints": [],
         "mode": "none"
       },
-      "networkProfile": "core",
-      "hyperVTeaching": false
+      "networkProfile": "enterprise",
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/View-events-using-PowerShell.md",
@@ -8346,7 +8439,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -8359,7 +8452,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/View-events-using-Windows-Admin-Center.md",
@@ -8436,7 +8530,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -8449,7 +8543,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Work-without-and-with-Enhanced-Session-Mode.md",
@@ -8537,7 +8632,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -8551,7 +8646,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Work-with-PowerShell-arrays.md",
@@ -8660,7 +8756,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -8673,7 +8769,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Practices/Work-with-PowerShell-variables.md",
@@ -8738,7 +8835,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -8751,7 +8848,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Active-Directory-Rights-Management-Service.md",
@@ -8883,7 +8981,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -8896,7 +8994,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Audit-file-server-events.md",
@@ -8984,7 +9083,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -8997,7 +9096,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/BranchCache.md",
@@ -9118,7 +9218,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -9131,7 +9231,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Configure-external-access-to-Remote-Desktop-Services.md",
@@ -9264,7 +9365,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Record a dedicated Perimeter 10.1.200.0/24 VMware NAT segment and a separate VMnet8 external-client segment. TCP 443 on the host must be unused; restrict the temporary host listener/firewall to the external test client."
       ],
@@ -9280,7 +9381,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Configure-high-availability-for-Remote-Desktop-Services.md",
@@ -9435,7 +9537,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -9450,7 +9552,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Configuring-and-managing-Storage-Spaces-Direct-and-hyper-converged-virtualization.md",
@@ -9615,7 +9718,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -9629,7 +9732,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Data-Deduplication.md",
@@ -9717,7 +9821,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -9730,7 +9834,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Delegated-managed-service-accounts.md",
@@ -9807,7 +9912,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -9822,7 +9927,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Deploying-a-hybrid-cloud-model.md",
@@ -9836,7 +9942,7 @@
         "VN2-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 baseline; adapt historical Windows 10 UI labels unless the exercise explicitly tests legacy behavior.",
@@ -9867,7 +9973,7 @@
       },
       "compatibility": {
         "optional": true,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution."
+        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution."
       },
       "vmTopology": [
         {
@@ -9898,7 +10004,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -9924,7 +10031,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -9940,8 +10047,9 @@
         ],
         "mode": "guest-vmnet8"
       },
-      "networkProfile": "core",
-      "hyperVTeaching": false
+      "networkProfile": "enterprise",
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Deploying-and-managing-read-only-domain-controllers.md",
@@ -10017,7 +10125,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -10063,7 +10172,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -10081,7 +10190,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Deploying-domain-controllers.md",
@@ -10209,7 +10319,7 @@
         }
       ],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -10227,7 +10337,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Deploy-Remote-Desktop-Services.md",
@@ -10348,7 +10459,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -10361,7 +10472,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Distributed-File-System-and-Azure-File-Sync.md",
@@ -10485,7 +10597,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -10502,7 +10614,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Dynamic-Access-Control.md",
@@ -10590,7 +10703,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -10603,7 +10716,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Explore-Windows-Admin-Center.md",
@@ -10891,7 +11005,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -10912,7 +11026,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/File-server-resource-management.md",
@@ -11002,7 +11117,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -11017,7 +11132,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Finalizing-Active-Directory-upgrade.md",
@@ -11116,7 +11232,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -11129,7 +11245,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/FSLogix.md",
@@ -11295,7 +11412,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -11310,7 +11427,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Group-Policies-Management.md",
@@ -11388,7 +11506,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -11403,7 +11521,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Implementing-Active-Directory-Federation-Services.md",
@@ -11516,7 +11635,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV10",
@@ -11592,7 +11712,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -11607,7 +11727,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Implementing-and-managing-iSCSI-and-multipath-io.md",
@@ -11705,7 +11826,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -11718,7 +11839,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Implementing-and-managing-Storage-Spaces-and-Storage-Tiering.md",
@@ -11795,7 +11917,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -11808,7 +11930,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Implementing-DHCP-fault-tolerance.md",
@@ -11943,7 +12066,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -11958,7 +12081,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Implementing-DNS-Security.md",
@@ -12068,7 +12192,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -12081,7 +12205,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Implementing-IP-address-management.md",
@@ -12259,7 +12384,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "VN1-SRV3 already hosts the compatible lab SQL instance. Install current Microsoft-signed SSMS on CL1 from C:\\WindowsServerLab\\Resources\\Downloads; the VN1-SRV8 computer login maps to its IPAM database. DNS/DHCP and IPAM GPO access must be ready."
       ],
@@ -12275,7 +12400,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Installing-and-configuring-a-fail-over-cluster.md",
@@ -12397,7 +12523,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -12413,7 +12539,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Manage-domain-users-groups-and-computers.md",
@@ -12505,7 +12632,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -12526,7 +12653,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Manage-file-sharing.md",
@@ -12627,7 +12755,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -12640,7 +12768,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Manage-local-storage.md",
@@ -12739,7 +12868,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -12752,7 +12881,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Manage-servers-remotely-using-Microsoft-Management-Console.md",
@@ -12852,7 +12982,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -12865,7 +12995,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Managing-DNS.md",
@@ -12977,7 +13108,7 @@
         }
       ],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -12990,7 +13121,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Managing-hybrid-servers-using-Azure-Arc.md",
@@ -13001,7 +13133,7 @@
         "VN1-SRV8"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -13036,7 +13168,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware."
       },
       "vmTopology": [
         {
@@ -13068,7 +13200,7 @@
         }
       ],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -13084,8 +13216,9 @@
         ],
         "mode": "guest-vmnet8"
       },
-      "networkProfile": "core",
-      "hyperVTeaching": false
+      "networkProfile": "enterprise",
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Managing-Hyper-V.md",
@@ -13197,7 +13330,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
@@ -13213,7 +13346,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Managing-local-administrator-passwords.md",
@@ -13321,7 +13455,7 @@
       ],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -13334,7 +13468,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Managing-sites-and-replication.md",
@@ -13422,7 +13557,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV5",
@@ -13468,7 +13604,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -13486,7 +13622,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Managing-Windows-Server-Update-Services.md",
@@ -13597,7 +13734,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -13612,7 +13749,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Microsoft-Deployment-Toolkit.md",
@@ -13712,7 +13850,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -13727,7 +13865,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Migrate-Active-Directory.md",
@@ -13827,7 +13966,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -13845,7 +13984,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Monitor-Performance.md",
@@ -13921,7 +14061,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -13934,7 +14074,8 @@
         "mode": "none"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Multi-domain-environments.md",
@@ -13985,7 +14126,7 @@
       },
       "compatibility": {
         "optional": true,
-        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution."
+        "notes": "Enterprise multi-forest exercise. ADMT migration is a historical conceptual study on the Server 2025/Windows 11 baseline; verify the official limited-support policy and SQL prerequisites before any isolated legacy execution. Keep trust, UPN and DNS contexts distinct."
       },
       "vmTopology": [
         {
@@ -14046,7 +14187,8 @@
           ],
           "layer": "outer-vmware",
           "phase": "conditional",
-          "hyperVName": null
+          "hyperVName": null,
+          "retirementReason": "Required only before the documented first-controller retirement; supply the active original guest or confirm its completed retirement. Never restart a retired DC to satisfy a checklist."
         },
         {
           "guestHostname": "VN1-SRV10",
@@ -14112,9 +14254,10 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
-        "VN1-SRV3 hosts the SQL instance required for historical ADMT; verify current ADMT limitations before this optional migration portion."
+        "VN1-SRV3 hosts the SQL instance required for historical ADMT; verify current ADMT limitations before this optional migration portion.",
+        "AD forest ad.lab.test (AD), child clients.ad.lab.test (CLIENTS), same-forest tree extranet.lab.test (EXTRANET), and separate ad.contoso.com (CONTOSO) must keep their documented DNS and credential contexts distinct. The promoted/replacement root DC remains authoritative after VN1-SRV1 retirement."
       ],
       "verification": [
         "Child/tree/forest DNS and trusts work; paused VMware machines resume; selective authentication allows only the intended test resource access."
@@ -14123,12 +14266,15 @@
         "required": true,
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
-          "Approved DNS forwarders on UDP/TCP 53; public name resolution onlyOfficial Microsoft ADMT download; migration portion is optional legacy work"
+          "Approved DNS forwarders on UDP/TCP 53; public name resolution only",
+          "Official Microsoft ADMT download (download.microsoft.com); optional legacy migration component",
+          "Microsoft Windows Update capability service (*.windowsupdate.com, *.update.microsoft.com); RSAT DNS tools on CL3 when missing"
         ],
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Post-installation-configuration.md",
@@ -14240,7 +14386,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -14255,7 +14401,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Providing-the-Remote-Desktop-Web-Client.md",
@@ -14274,7 +14421,7 @@
         "VN2-SRV2"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -14303,7 +14450,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware."
       },
       "vmTopology": [
         {
@@ -14410,7 +14557,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -14425,8 +14572,9 @@
         ],
         "mode": "guest-vmnet8"
       },
-      "networkProfile": "core",
-      "hyperVTeaching": false
+      "networkProfile": "enterprise",
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Secure-Shell.md",
@@ -14503,7 +14651,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -14518,7 +14666,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Storage-migration.md",
@@ -14660,7 +14809,7 @@
       ],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -14675,7 +14824,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Storage-QoS.md",
@@ -14694,7 +14844,7 @@
         "VN1-SRV7"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -14723,7 +14873,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware."
       },
       "vmTopology": [
         {
@@ -14830,7 +14980,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.",
         "Retain VN1-CLST1 and VN1-CLST2 SOFS/CSV from the two cluster prerequisites; record owner nodes and actual CSV volume paths before moving VN1-SRV24."
@@ -14844,8 +14994,9 @@
         "endpoints": [],
         "mode": "none"
       },
-      "networkProfile": "core",
-      "hyperVTeaching": true
+      "networkProfile": "enterprise",
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Storage-Replica-and-stretched-cluster.md",
@@ -14981,7 +15132,7 @@
         }
       ],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.",
         "The cluster nodes are outer VMware VMs with nested Hyper-V enabled; control their outer failure/recovery in VMware and their inner workload in Hyper-V."
@@ -14996,7 +15147,8 @@
         "mode": "none"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": true
+      "hyperVTeaching": true,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Windows-Admin-Center.md",
@@ -15107,7 +15259,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -15122,7 +15274,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Windows-containers.md",
@@ -15199,7 +15352,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -15217,7 +15370,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Windows-Deployment-Services.md",
@@ -15266,7 +15420,7 @@
       },
       "compatibility": {
         "optional": true,
-        "notes": "Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution."
+        "notes": "Legacy isolated Server 2022 PXE/image study only; install-media boot.wim is not a supported Server 2025/Windows 11 deployment path. April 2026 hardening disables insecure hands-free deployment by default; record unattended portions as conceptual or skipped without disabling protection."
       },
       "vmTopology": [
         {
@@ -15393,7 +15547,7 @@
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -15408,7 +15562,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     },
     {
       "path": "Instructions/Labs/Windows-Subsystem-for-Linux.md",
@@ -15494,7 +15649,7 @@
       ],
       "referencedVms": [],
       "prerequisiteState": [
-        "Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping.",
+        "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
@@ -15509,7 +15664,8 @@
         "mode": "guest-vmnet8"
       },
       "networkProfile": "core",
-      "hyperVTeaching": false
+      "hyperVTeaching": false,
+      "profileTransitions": []
     }
   ]
 }

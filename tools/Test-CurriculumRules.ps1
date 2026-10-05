@@ -1,6 +1,26 @@
+function Test-CurriculumDependencyCycles {
+    param($CurriculumEntries)
+    $graph = @{}; $states = @{}; $stack = [System.Collections.Generic.List[string]]::new()
+    foreach ($item in $CurriculumEntries) { $graph[$item.path] = @($item.dependencies) }
+    $visit = {
+        param([string]$node)
+        if ($states[$node] -eq 'active') { throw ('Dependency cycle: ' + (($stack.ToArray() + $node) -join ' -> ')) }
+        if ($states[$node] -eq 'done') { return }
+        $states[$node] = 'active'; $stack.Add($node)
+        foreach ($next in $graph[$node]) { if ($graph.ContainsKey($next)) { & $visit $next } }
+        $stack.RemoveAt($stack.Count - 1); $states[$node] = 'done'
+    }
+    foreach ($node in $graph.Keys) { & $visit $node }
+}
+
 function Test-CurriculumRules {
     param($Entries, [string]$RepositoryRoot)
     $failures = [System.Collections.Generic.List[string]]::new()
+    $profileEntries = $Entries
+    $sourceFile = Join-Path $RepositoryRoot 'metadata/curriculum-source.json'
+    if (Test-Path -LiteralPath $sourceFile) { $profileEntries = ([IO.File]::ReadAllText($sourceFile) | ConvertFrom-Json).entries }
+    $profiles = @{}; foreach ($item in $profileEntries) { $profiles[$item.path] = $item }
+    foreach ($item in $Entries) { $profiles[$item.path] = $item }
     foreach ($entry in $Entries) {
         $path = Join-Path $RepositoryRoot $entry.path
         $content = [IO.File]::ReadAllText($path).Replace("`r`n", "`n")
@@ -25,7 +45,7 @@ function Test-CurriculumRules {
                 $failures.Add("${label}: prerequisite-created DHCP scope does not match GUI/PowerShell activation")
             }
         }
-        foreach ($field in @('vmTopology','alternativeVmGroups','referencedVms','prerequisiteState','verification','outbound','networkProfile','hyperVTeaching')) {
+        foreach ($field in @('vmTopology','alternativeVmGroups','referencedVms','prerequisiteState','verification','outbound','networkProfile','hyperVTeaching','profileTransitions')) {
             if (!$entry.PSObject.Properties[$field]) { $failures.Add("${label}: missing authoritative field $field") }
         }
         if (!$entry.azure.required -and $entry.cleanup -match '(?i)delete.+Azure|deallocate.+Azure|verify.+resource group.+empty') {
@@ -49,6 +69,16 @@ function Test-CurriculumRules {
         }
         foreach ($dependency in $entry.dependencies) {
             if ($dependency -eq $entry.path -or !(Test-Path -LiteralPath (Join-Path $RepositoryRoot $dependency) -PathType Leaf)) { $failures.Add("${label}: invalid prerequisite $dependency") }
+            if ($entry.networkProfile -eq 'core' -and $profiles.ContainsKey($dependency) -and $profiles[$dependency].networkProfile -ne 'core') {
+                $justified = @($entry.profileTransitions | Where-Object { $_.dependency -eq $dependency -and ![string]::IsNullOrWhiteSpace($_.reason) })
+                if ($justified.Count -ne 1) { $failures.Add("${label}: unexplained profile downgrade from $dependency") }
+            }
+        }
+        foreach ($transition in $entry.profileTransitions) {
+            if ($transition.dependency -notin $entry.dependencies -or !$profiles.ContainsKey($transition.dependency) -or [string]::IsNullOrWhiteSpace($transition.reason)) { $failures.Add("${label}: invalid profile transition justification") }
+        }
+        foreach ($vm in $entry.vmTopology | Where-Object phase -eq 'conditional') {
+            if ([string]::IsNullOrWhiteSpace($vm.retirementReason)) { $failures.Add("${label}: conditional VM lacks retirement explanation") }
         }
         $names = @($entry.vmTopology | ForEach-Object guestHostname)
         if (@($names | Group-Object | Where-Object Count -gt 1).Count) { $failures.Add("${label}: duplicate manifest VM") }
@@ -63,12 +93,17 @@ function Test-CurriculumRules {
         $declared = @([regex]::Matches($initial, '(?m)^(?:\* )?((?!One\b)[A-Z][A-Z0-9-]+)\b') | ForEach-Object { $_.Groups[1].Value.ToUpperInvariant() })
         if (@($declared | Group-Object | Where-Object Count -gt 1).Count) { $failures.Add("${label}: duplicate Required VMs") }
         $alternativeNames = @($entry.alternativeVmGroups | ForEach-Object { $_.names })
-        $mandatoryNames = @($names | Where-Object { $_ -notin $alternativeNames })
+        $mandatoryNames = @($entry.vmTopology | Where-Object { $_.phase -in @('existing','existing-inner') -and $_.guestHostname -notin $alternativeNames } | ForEach-Object guestHostname)
         if ((@($declared | Sort-Object -Unique) -join '|') -ne (@($mandatoryNames | Sort-Object -Unique) -join '|')) { $failures.Add("${label}: Required VMs disagree with mandatory authoritative topology") }
         if (@($declared | Where-Object { $_ -in $alternativeNames }).Count) { $failures.Add("${label}: alternatives rendered as unconditional requirements") }
         $documentGroups = @([regex]::Matches($initial, '(?m)^\* One active domain controller: ([A-Z0-9-]+(?: or [A-Z0-9-]+)+)\s*$') | ForEach-Object { ($_.Groups[1].Value -split ' or ' | Sort-Object) -join '|' })
         $metadataGroups = @($entry.alternativeVmGroups | ForEach-Object { if ($_.minimum -ne 1) { $failures.Add("${label}: Required VMs one-of syntax requires minimum=1") }; ($_.names | Sort-Object) -join '|' })
         if ((($documentGroups | Sort-Object) -join ';') -cne (($metadataGroups | Sort-Object) -join ';')) { $failures.Add("${label}: Required VMs alternative groups disagree with authoritative metadata") }
+        foreach ($kind in @(@{prefix='Conditional until retired';phase='conditional'},@{prefix='Created during exercise';phase='created'})) {
+            $documentNames = @([regex]::Matches($initial, '(?m)^\* ' + $kind.prefix + ': ([A-Z0-9-]+)\s*$') | ForEach-Object { $_.Groups[1].Value })
+            $phaseNames = @($entry.vmTopology | Where-Object phase -eq $kind.phase | ForEach-Object guestHostname)
+            if ((($documentNames | Sort-Object) -join '|') -cne (($phaseNames | Sort-Object) -join '|')) { $failures.Add("${label}: Required VMs $($kind.phase) lifecycle disagrees with metadata") }
+        }
         $used = @([regex]::Matches($procedure, '(?i)\b(?:VN[123]-SRV\d+|PM-SRV\d+|CL\d+)\b') | ForEach-Object { $_.Value.ToUpperInvariant() } | Sort-Object -Unique)
         $allowed = @($names) + @($entry.referencedVms | ForEach-Object name)
         foreach ($name in $used) { if ($name -notin $allowed) { $failures.Add("${label}: task/setup VM absent from Required VMs: $name") } }
@@ -80,6 +115,12 @@ function Test-CurriculumRules {
         }
         if (!$entry.hyperVTeaching -and $procedure -match '(?im)^\s*(?:[\w$]+\s*\|\s*)?(?:Get-VM(?:NetworkAdapter|HardDiskDrive)?|Set-VM(?:Processor|NetworkAdapter)?|Stop-VM|Start-VM|Suspend-VM|Resume-VM|Connect-VMNetworkAdapter)\b|^\s*1\. (?:Open|Switch to) \*\*Hyper-V[ -]Manager') {
             $failures.Add("${label}: outer Hyper-V management in non-Hyper-V exercise")
+        }
+        if (!$entry.hyperVTeaching) {
+            $codeText = ([regex]::Matches($procedure, '(?ms)^\s*(?:`{3,}|~{3,})powershell\s*\n(.*?)^\s*(?:`{3,}|~{3,})\s*$') | ForEach-Object { $_.Groups[1].Value }) -join "`n"
+            if ($codeText -match '(?i)\b[A-Za-z]+-(?:VM\w*|VHD\w*)\b') { $failures.Add("${label}: Hyper-V VM/VHD cmdlet outside nested teaching") }
+            $operationalLines = ($procedure -split "`n" | Where-Object { $_ -match '^\s*(?:\d+\.|In the instance|Perform|Switch to)' -and $_ -notmatch '(?i)not used|do not|never|not required' }) -join "`n"
+            if ($operationalLines -match '(?i)Hyper-V Manager|Virtual Machine Connection|Connection to virtual (?:computer|machine)|Enhanced Session|\bMedia\b.+\bDVD Drive\b|menu on the virtual machine connection') { $failures.Add("${label}: Hyper-V console operation outside nested teaching") }
         }
         foreach ($block in [regex]::Matches($procedure, '(?ms)^\s*(?:`{3,}|~{3,})powershell\s*\n(.*?)^\s*(?:`{3,}|~{3,})\s*$')) {
             $code = $block.Groups[1].Value
@@ -96,7 +137,8 @@ function Test-CurriculumRules {
         foreach ($match in [regex]::Matches($plain, '(?im)In Windows Admin Center, (?:on the connections page, )?click ([\w.-]+)\.[ \t]*\n1\. Connected to ([\w.-]+),')) {
             if ($match.Groups[1].Value -ine $match.Groups[2].Value) { $failures.Add("${label}: adjacent Windows Admin Center targets mismatch") }
         }
-        if ($procedure -match '(?i)comicrosoft\.com|smart\.etc|smpt\.ad\.lab\.test') { $failures.Add("${label}: known invalid domain") }
+        if ($procedure -match '(?i)comicrosoft\.com|smart\.etc|smpt\.ad\.lab\.test|clients\.ad\.contoso\.com|ad\.clients\.lab\.test') { $failures.Add("${label}: known invalid domain") }
+        if ((@($entry.outbound.endpoints) -join ' ') -match 'onlyOfficial') { $failures.Add("${label}: malformed combined outbound endpoint") }
         $adminPattern = '(?im)^\s*(?:Install-WindowsFeature|Enable-ADOptionalFeature|New-NetLbfoTeam|Set-NetIPInterface|Add-DhcpServer\w*|Set-DhcpServer\w*|Set-VMProcessor|Install-ADDS\w*|Set-ADForest|Set-ADDomain|Set-ItemProperty|Set-OSConfigDesiredConfiguration)\b'
         if ($procedure -match $adminPattern -and (@($entry.permissions) -join ' ') -notmatch '(?i)Administrator|Admin\b|delegated|authorization|Schema') { $failures.Add("${label}: administrative commands paired only with standard-user permissions") }
         $downloadPattern = '(?im)^\s*(?:Install-Module|Find-Module|Update-Module|Update-Help|Invoke-WebRequest|Add-WindowsCapability|git\s+(?:clone|pull)|winget\s+(?:install|upgrade))\b|^\s*1\. [^\n]*(?:download and install|Microsoft Store|Download .* from|download .*installer|Download .*<https?://)|docker image pull|wsl --install'

@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
 
@@ -21,7 +21,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -270,30 +270,14 @@ Leave the instances **Windows PowerShell (Admin)** or **Terminal** open with the
 
 ### Task 3: Simulate a disk failure
 
-Perform this task on the host.
+Perform this task in VMware Workstation on the host.
 
-1. Open a new instance of **Windows PowerShell (Admin)** or, in Terminal, open a new tab.
-1. Get the hard disks connected to VM WIN-VN1-SRV10 and store them in a variable.
+1. Record the guest `Get-PhysicalDisk` serial/unique IDs, capacities and pool membership, and match them to the VMware SCSI device nodes and VMDK filenames. Identify only the disposable 1 TB pool disks; never detach the OS disk or an unrelated disk. Keep the recorded mapping for the replacement tasks.
+1. Stop the copy loop with Ctrl+C. Shut down VN1-SRV10 cleanly and confirm VMware shows **Powered Off**; do not suspend it.
+1. In **VM > Settings**, select one recorded 1 TB pool hard disk and click **Remove**. Remove only its VM attachment, retaining the VMDK file for rollback. Do not delete files on the host.
+1. Start VN1-SRV10. Reconnect the share and restart the copy loop if the virtual disk is accessible. Record the degraded state in task 4.
 
-   ````powershell
-   $vMName = 'WIN-VN1-SRV10'
-   $vhd = Get-VMHardDiskDrive -VMName $vMName | Get-VHD | Where-Object { 
-      $PSItem.Size -eq 1TB
-   }
-   $vMHardDiskDrive = Get-VMHardDiskDrive -VMName $vMName | Where-Object {
-      $PSItem.Path -in $vhd.Path 
-   }
-   ````
-
-1. Remove one of the hard disks from the virtual machine. You may use a different index number of your choice.
-
-   ````powershell
-   $vMHardDiskDrive[0] | Remove-VMHardDiskDrive
-   ````
-
-   > The copy process should continue without an error.
-
-Leave all instances **Windows PowerShell (Admin)** or **Terminal** open with the copy process running while continuing with the next tasks.
+This is an offline missing-disk simulation. A power-off interrupts the copy workload; uninterrupted live I/O is not a promised VMware result. The objective remains observing three-way-mirror resilience and repair after loss of a pool member.
 
 ### Task 4: Validate the results from a failed disk
 
@@ -304,46 +288,22 @@ Perform this task on CL1.
 1. In File and Storage Services, click on **Storage Pools**.
 1. In Storage Pools, under **STORAGE POOLS**, click **TASKS**, **Refresh**.
 
-   > A warning sign will be displayed beside the storage pool **Data**, the virtual disk **Data**, and one of the physical disks. When hovering with the mouse over the warning signs, you receive a more detailed error description. The status will be **Degraded**.
+   > A warning sign will be displayed beside the storage pool **Pool1**, the virtual disk **Data**, and one of the physical disks. When hovering with the mouse over the warning signs, you receive a more detailed error description. The status will be **Degraded**.
 
 ### Task 5: Simulate another disk failure
 
-Perform this task on the host.
-
-In the instance of Windows PowerShell or Terminal, where you removed the hard disk, remove another hard disk. You may use a different index number of your choice.
-
-   ````powershell
-   $vMHardDiskDrive[2] | Remove-VMHardDiskDrive
-   ````
-
-   > The copy process should continue without an error.
-
-Leave all instances **Windows PowerShell (Admin)** or **Terminal** open with the copy process running, while continuing with the next tasks.
-
-Repeat [task 4](#task-4-validate-the-results-from-a-failed-disk).
+1. Stop the test copy loop and shut down VN1-SRV10; confirm **Powered Off** in VMware.
+1. In **VM > Settings**, remove the attachment of a second recorded 1 TB pool disk, retaining its VMDK. Do not detach the OS disk.
+1. Start the guest, reconnect the share and try the copy workload again. Repeat [task 4](#task-4-validate-the-results-from-a-failed-disk), recording actual pool/virtual-disk health and data availability rather than assuming uninterrupted I/O.
 
 ### Task 6: Add new virtual hard disks
 
-Perform this task on the host.
+Perform this task in VMware Workstation on the host.
 
-1. In the instance of Windows PowerShell or Terminal, where you removed the hard disk, create two new virtual hard disks of 1 TB in size.
-
-   ````powershell
-   $vhd = 0..1 | ForEach-Object { 
-      New-VHD `
-         -Path `
-            "C:\WindowsServerLab\WS2022\VMVirtualHardDisks\WIN-VN1-SRV10-Replacement-$PSItem.VHDX" `
-         -SizeBytes 1TB
-      }
-   ````
-
-1. Add the new virtual hard disks to WIN-VN1-SRV10.
-
-   ````powershell
-   $vhd | ForEach-Object { 
-      Add-VMHardDiskDrive -VMName $vMName -Path $PSItem.Path
-   }
-   ````
+1. Stop the workload and shut down VN1-SRV10; confirm **Powered Off**. Record its existing SCSI controller and device-node mapping.
+1. In **VM > Settings > Add > Hard Disk**, select **SCSI**, then **Create a new virtual disk**. Set capacity to **1024 GB (1 TB)**, keep the disk growable (do not allocate all space now), and choose the normal VMDK storage layout for this disposable VM. Use a new uniquely named replacement VMDK in the VM's recorded folder under `C:\WindowsServerLab`; never overwrite a detached disk. Reserve sufficient host space for actual data growth.
+1. Finish the wizard and verify the new disk uses an unused SCSI node. Repeat to create the second 1 TB replacement. Keep both disconnected old VMDKs for rollback.
+1. Start the guest, refresh its disk inventory and confirm both new disks are eligible to pool. Do not initialize or format them as standalone volumes; continue with pool repair.
 
 ### Task 7: Repair the storage pool
 
@@ -373,26 +333,10 @@ Perform this task on CL1.
 
 ### Task 8: Simulate a fatal failure
 
-Perform this task on the host.
-
-1. In the instance of Windows PowerShell or Terminal, where you removed the hard disks, remove three hard disk. You may use a different index numbers of your choice.
-
-   ````powershell
-   $vhd = Get-VMHardDiskDrive -VMName $vMName | Get-VHD | Where-Object { 
-      $PSItem.Size -eq 1TB
-   }
-   $vMHardDiskDrive = Get-VMHardDiskDrive -VMName $vMName | Where-Object {
-      $PSItem.Path -in $vhd.Path 
-   }
-   $vMHardDiskDrive[0, 2, 4] | Remove-VMHardDiskDrive
-   ````
-
-1. Switch to the Windows PowerShell instance or Terminal tab with the running copy process.
-
-   > The copy process will throw error messages.
-
-1. In the Windows PowerShell instance or Terminal tab with the running copy process, press CTRL + C.
-1. Remove the PowerShell drive **V**.
+1. Confirm the prior repair completed and the pool is healthy. Stop the copy workload and shut down VN1-SRV10; confirm **Powered Off** in VMware.
+1. In **VM > Settings**, remove the attachments of three recorded 1 TB disks from the repaired pool, retaining all VMDKs and their SCSI mappings. Never remove the OS disk.
+1. Start VN1-SRV10 and inspect storage health. Attempt the disposable copy again and record whether the virtual disk/share is unavailable after losses exceed its redundancy. Stop the loop with Ctrl+C; this is an offline failure simulation, not a hot-unplug availability benchmark.
+1. Remove the host test PowerShell drive if it still exists.
 
    ````powershell
    Remove-PSDrive V
@@ -448,27 +392,12 @@ Perform this task on CL1.
 
 ### Task 1: Add new disks
 
-Perform these steps on the host.
+Perform these steps in VMware Workstation on the host.
 
-1. In the context-menu of *Start*, click **Windows PowerShell (Admin)** or **Terminal (Administrator)**.
-1. In Windows PowerShell (Admin) or Terminal, create three new virtual hard disks of 1 TB size each.
-
-   ````powershell
-   $vhd = 2..4 | ForEach-Object { 
-      New-VHD `
-         -Path `
-            "C:\WindowsServerLab\WS2022\VMVirtualHardDisks\WIN-VN1-SRV10-Replacement-$PSItem.VHDX" `
-         -SizeBytes 1TB
-      }
-   ````
-
-1. Add the new virtual hard disks to WIN-VN1-SRV10.
-
-   ````powershell
-   $vhd | ForEach-Object { 
-      Add-VMHardDiskDrive -VMName WIN-VN1-SRV10 -Path $PSItem.Path
-   }
-   ````
+1. Shut down VN1-SRV10 and confirm **Powered Off**. In **VM > Settings > Add > Hard Disk**, select **SCSI > Create a new virtual disk**.
+1. Create three new **1024 GB (1 TB)** growable VMDKs with unique filenames in the VM's recorded `C:\WindowsServerLab` folder and unused SCSI nodes. Do not overwrite the detached files or preallocate the full capacities on the learner host.
+1. Retain the existing 100 GB disks used for the fast tier. Start VN1-SRV10, rescan storage and verify the new 1 TB disks are available for pooling without initializing standalone volumes.
+1. The guest media-type assignments in task 2 are a lab simulation: VMware virtual disks do not prove distinct physical SSD/HDD performance. Preserve the tier configuration objective and record that limitation.
 
 ### Task 2: Set the media type of physical disks
 

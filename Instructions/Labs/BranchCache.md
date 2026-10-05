@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); CL4 (VMware display: CL4; accepted display aliases: WIN-CL4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
 
@@ -21,7 +21,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -70,12 +70,12 @@ This lab is optional. [Upstream issue 201](https://github.com/EnterpriseTraining
 
 ## Exercise 1: Configuring the file server and Active Directory for BranchCache
 
-1. [Validate a slow network connection to VN1-SRV10](#task-1-validate-a-slow-network-connection-to-vn1-srv10)
+1. [Record the optional WAN simulation limitation](#task-1-record-the-optional-wan-simulation-limitation)
 1. [Install the BranchCache service role](#task-2-install-the-branchcache-service-role) on VN1-SRV10
 1. [Enable hash publication for BranchCache](#task-3-enable-hash-publication-for-branchcache)
 1. [Enable BranchCache for shares](#task-4-enable-branchcache-for-shares) IT and Marketing on VN1-SRV10
 
-### Task 1: Validate a slow network connection to VN1-SRV10
+### Task 1: Record the optional WAN simulation limitation
 
 Perform this task on CL3.
 
@@ -170,11 +170,11 @@ Repeat from step 4 for the share **Marketing**.
 
 1. [Install the BranchCache feature](#task-1-install-the-branchcache-feature) on VN3-SRV1
 1. [Configure the hosted cache](#task-2-configure-the-hosted-cache) on VN3-SRV1
-1. [Configure BranchCache for clients](#task-3-configure-branchcache-for-clients) on VNet2
+1. [Configure BranchCache for clients](#task-3-configure-branchcache-for-clients) on VNet3
 1. [Prehash and export a BranchCache package](#task-4-prehash-and-export-a-branchcache-package) of share IT on VN1-SRV10
-1. [Remove the bandwidth limit on virtual machine](#task-5-remove-the-bandwidth-limit-on-virtual-machine) WIN-VN1-SRV10
+1. [Record skipped WAN unthrottling](#task-5-record-skipped-wan-unthrottling) WIN-VN1-SRV10
 1. [Import the BranchCache package](#task-6-import-the-branchcache-package) on VN3-SRV1
-1. [Set the bandwidth limit on virtual machine](#task-7-set-the-bandwidth-limit-on-virtual-machine) WIN-VN1-SRV10 (optional timing-only placeholder; no VMware throttle is applied)
+1. [Record skipped WAN throttling](#task-7-record-skipped-wan-throttling) WIN-VN1-SRV10 (optional timing-only placeholder; no VMware throttle is applied)
 1. [Validate BranchCache](#task-8-validate-branchcache) on CL3
 
 ### Task 1: Install the BranchCache feature
@@ -310,7 +310,7 @@ Perform this task on CL1.
     Remove-CimSession -CimSession $cimSession
     ````
 
-### Task 5: Remove the bandwidth limit on virtual machine
+### Task 5: Record skipped WAN unthrottling
 
 No outer bandwidth setting is changed in this VMware adaptation. Skip this timing-only step; retain the package export/import and cache configuration tasks.
 
@@ -361,7 +361,7 @@ Perform this task on CL1.
     Remove-PSSession $pSSession
     ````
 
-### Task 7: Set the bandwidth limit on virtual machine
+### Task 7: Record skipped WAN throttling
 
 No outer bandwidth setting is changed in this VMware adaptation. Skip this timing-only step; retain the package export/import and cache configuration tasks.
 

@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/General/AD-DNS-Foundation.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Use the active core forest schema/infra masters; the enterprise DC-retirement lab is not a prerequisite. Confirm current schema version before adprep; a Windows Server 2025-created forest may already be current. Never downgrade or replay an upgrade unnecessarily.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
 
@@ -41,7 +41,14 @@ Perform these steps on CL1.
 
 1. Sign in as **ad\Administrator**.
 1. Open **Terminal**.
-1. Prepare the forest for the latest version of Windows Server.
+1. Check the current schema before attempting an upgrade. If the forest already has the target schema, record its version and skip both adprep commands. Use a deliberately older supported forest for the actual upgrade exercise; never downgrade a forest to replay it. Confirm the schema master is reachable. Forest preparation requires Schema Admins/Enterprise Admins; domain preparation requires Domain Admins.
+
+    ````powershell
+    Get-ADObject (Get-ADRootDSE).schemaNamingContext -Properties objectVersion |
+        Select-Object objectVersion
+    ````
+
+1. Prepare the forest for the latest version of Windows Server only when its recorded schema requires an upgrade.
 
     ````powershell
     D:\support\adprep\adprep.exe /forestprep
@@ -56,4 +63,4 @@ Perform these steps on CL1.
 
 Perform these steps on the host.
 
-1. In the menu of **"WIN-CL1" on "..." - Connection to virtual computer**, click **Media**, **DVD Drive**, **Eject "2025_x64_EN_Eval.iso"**.
+1. In VMware Workstation, select CL1 and open **VM > Settings > CD/DVD**. Clear **Connected** and **Connect at power on** for the installation ISO; retain the original recorded device configuration.

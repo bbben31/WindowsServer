@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. PM-SRV20 is a preexisting VMware Server Core guest with a VMnet10 AD-management NIC at 10.10.10.160/24 and a VMnet20 workload NIC at 10.10.20.160/24. AD DNS 10.10.10.10 must be reachable on the management NIC before joining.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. PM-SRV20 is a preexisting VMware Server Core guest with a VMnet10 AD-management NIC at 10.10.10.160/24 and a VMnet20 workload NIC at 10.10.20.160/24. AD DNS 10.10.10.10 must be reachable on the management NIC before joining.
 
 **Machines and network profile:** VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); PM-SRV20 (VMware display: PM-SRV20; accepted display aliases: WIN-PM-SRV20; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
 
@@ -26,6 +26,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 * VN1-SRV1
 * CL1
 * PM-SRV20
+
+> **Scenario boundary:** This practice configures the outer VMware guest PM-SRV20. The separately scoped nested Hyper-V creation practice reuses that hostname for an inner guest. Keep these scenarios isolated; do not run or domain-join both copies on the same lab network.
 
 ## Task
 

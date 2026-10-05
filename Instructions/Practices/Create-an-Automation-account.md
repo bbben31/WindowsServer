@@ -23,7 +23,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 ## Required VMs
 
-None; use the existing reference context.
+None; use the declared host/browser reference context.
 
 ## Setup
 

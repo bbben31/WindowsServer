@@ -75,7 +75,7 @@ if ((Read-Utf8Text $manifestPath).Replace("`r`n", "`n") -cne $canonical) {
 foreach ($entry in $manifest.entries) {
     $documentPath = Join-Path $RepositoryRoot $entry.path
     $current = Read-Utf8Text $documentPath
-    $expected = Set-CurriculumContractText $current $entry
+    $expected = Set-CurriculumRequiredVmText (Set-CurriculumContractText $current $entry) $entry
     if ($current.Replace("`r`n", "`n") -cne $expected) {
         $drift.Add($entry.path)
         if (!$Check -and $PSCmdlet.ShouldProcess($documentPath, 'Regenerate completion contract')) {

@@ -5,9 +5,9 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Base-Images-and-Templates.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Base-Images-and-Templates.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** VN1-SRV20 (VMware display: VN1-SRV20; accepted display aliases: WIN-VN1-SRV20; created). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+**Machines and network profile:** VN1-SRV20 (VMware display: VN1-SRV20; accepted display aliases: WIN-VN1-SRV20; created in the designated task; not a preflight prerequisite). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
 
 **Permissions:** VMware VM creation/settings permission and guest Local Administrator for OS installation; no AD administration until domain-join steps.
 
@@ -23,7 +23,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 ## Required VMs
 
-* VN1-SRV20 (created during this exercise)
+* Created during exercise: VN1-SRV20
 
 
 ## Task

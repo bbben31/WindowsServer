@@ -10,6 +10,7 @@ param(
     [Alias('Windows10IsoPath')]
     [string]$ClientIsoPath,
     [string[]]$VmName,
+    [string[]]$RetiredVmName,
     [string]$ExpectedDnsServer,
     [string]$ExpectedSubnet,
     [string]$AzureSubscriptionId,
@@ -139,6 +140,13 @@ if ([string]::IsNullOrWhiteSpace($CurriculumPath)) {
             elseif ($mapped.Count -gt 1) { Add-Check 'Supplied VM comparison' 'Error' "Ambiguous display-name mapping: $name" }
             else { Add-Check 'Supplied VM comparison' 'Warning' "VM is not declared for this exercise: $name" }
         }
+        $retiredGuests = @()
+        foreach ($name in $RetiredVmName) {
+            $mapped = @($selectedEntry.vmTopology | Where-Object { $name -ieq $_.guestHostname -or $name -ieq $_.vmwareDisplayName -or $name -ieq $_.hyperVName -or $name -in $_.displayNameAliases })
+            if ($mapped.Count -ne 1 -or $mapped[0].phase -ne 'conditional') { Add-Check 'Retirement confirmation' 'Error' "$name is not a declared conditional VM; mandatory and created machines cannot be declared retired."; continue }
+            if ($mapped[0].guestHostname -in $suppliedGuestNames) { Add-Check 'Retirement confirmation' 'Error' "$name cannot be supplied and declared retired simultaneously."; continue }
+            $retiredGuests += $mapped[0].guestHostname
+        }
         $alternatives = @($selectedEntry.alternativeVmGroups | ForEach-Object { $_.names })
         $requiredNow = @($selectedEntry.vmTopology | Where-Object { $_.phase -notin @('created','conditional') -and $_.guestHostname -notin $alternatives } | ForEach-Object guestHostname)
         $missingNames = @($requiredNow | Where-Object { $_ -notin $suppliedGuestNames })
@@ -148,9 +156,12 @@ if ([string]::IsNullOrWhiteSpace($CurriculumPath)) {
             $present = @($group.names | Where-Object { $_ -in $suppliedGuestNames }).Count
             Add-Check 'Alternative VM group' $(if ($present -ge $group.minimum) { 'Pass' } else { 'Warning' }) "Need $($group.minimum) of [$($group.names -join ', ')]; supplied=$present. $($group.reason)"
         }
-        foreach ($vm in $selectedEntry.vmTopology | Where-Object { $_.phase -eq 'conditional' -and $_.guestHostname -notin $suppliedGuestNames }) {
-            Add-Check 'Conditional VM' 'Warning' "$($vm.guestHostname) is required only in the documented pre-retirement DC lineage. Confirm that it is retired or supply its name; never restart a retired DC merely to satisfy preflight."
+        foreach ($vm in $selectedEntry.vmTopology | Where-Object phase -eq 'conditional') {
+            if ($vm.guestHostname -in $suppliedGuestNames) { Add-Check 'Conditional VM' 'Pass' "$($vm.guestHostname) was supplied for the pre-retirement lineage." }
+            elseif ($vm.guestHostname -in $retiredGuests) { Add-Check 'Conditional VM' 'Skipped' "$($vm.guestHostname) is explicitly confirmed retired; do not restart it." }
+            else { Add-Check 'Conditional VM' 'Warning' "$($vm.guestHostname) is conditional until retired. Supply it or confirm retirement with -RetiredVmName; never restart a retired DC merely to satisfy preflight." }
         }
+        foreach ($vm in $selectedEntry.vmTopology | Where-Object phase -eq 'created') { Add-Check 'Created VM' 'Skipped' "$($vm.guestHostname) is created in the designated exercise task, not required to exist during preflight." }
         $VmName = @($suppliedGuestNames | Select-Object -Unique)
         if ($selectedEntry.outbound.required) {
             Add-Check 'Required outbound access' $(if ($OutboundAvailable) { 'Pass' } else { 'Warning' }) ("$($selectedEntry.outbound.method) Endpoints: $($selectedEntry.outbound.endpoints -join '; '). Connectivity is user-reported, not independently verified.")

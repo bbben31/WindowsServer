@@ -60,6 +60,8 @@ if ($practices.Count -ne 89 -or $labs.Count -ne 50) {
 $curriculumFiles = @(Get-ChildItem -LiteralPath (Join-Path $RepositoryRoot 'Instructions\Practices'), (Join-Path $RepositoryRoot 'Instructions\Labs') -File -Filter '*.md')
 $curriculumPaths = @($curriculumFiles | ForEach-Object { $_.FullName.Substring($RepositoryRoot.Length + 1).Replace('\', '/') })
 $declaredPaths = @($entries | ForEach-Object path)
+. (Join-Path $scriptRoot 'Test-CurriculumRules.ps1')
+Test-CurriculumDependencyCycles $entries
 $missingManifestEntries = @($curriculumPaths | Where-Object { $_ -notin $declaredPaths })
 $unexpectedManifestEntries = @($declaredPaths | Where-Object { $_ -notin $curriculumPaths })
 if ($missingManifestEntries.Count -or $unexpectedManifestEntries.Count) {

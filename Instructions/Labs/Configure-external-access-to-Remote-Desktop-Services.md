@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploy-Remote-Desktop-Services.md. Provision the declared roles, disks, certificates and test data before the first task; preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Record a dedicated Perimeter 10.1.200.0/24 VMware NAT segment and a separate VMnet8 external-client segment. TCP 443 on the host must be unused; restrict the temporary host listener/firewall to the external test client.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploy-Remote-Desktop-Services.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Record a dedicated Perimeter 10.1.200.0/24 VMware NAT segment and a separate VMnet8 external-client segment. TCP 443 on the host must be unused; restrict the temporary host listener/firewall to the external test client.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); PM-SRV3 (VMware display: PM-SRV3; accepted display aliases: WIN-PM-SRV3; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing); VN1-SRV9 (VMware display: VN1-SRV9; accepted display aliases: WIN-VN1-SRV9; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
@@ -21,7 +21,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -151,10 +151,10 @@ Perform these steps on CL1.
 ## Exercise 2: Verify the RD Gateway
 
 1. [Connect to Remote Desktop Services using RD Web](#task-1-connect-to-remote-desktop-services-using-rd-web) from CL1.
-1. [Create an external network switch](#task-2-create-an-external-network-switch) on the host computer
-1. [Add a static NetNat mapping](#task-3-add-a-static-netnat-mapping) on the host computer forwarding port 443 to 10.1.200.24 and find out the external IP address of the Perimeter network.
-1. [Connect WIN-CL2 to the external network switch](#task-4-connect-win-cl2-to-the-external-network-switch)
-1. [Configure the network on the client](#task-5-configure-the-network-on-the-client) CL2: Set the network adapter to use DHCP for all configurations and add remote.lab.test with the external IP address of the Perimeter network
+1. [Configure VMware custom NAT](#task-2-configure-vmware-custom-nat) on the host computer
+1. [Add VMware port forwarding](#task-3-add-vmware-port-forwarding) on the host computer forwarding port 443 to 10.1.200.24 and record the host VMnet8 endpoint.
+1. [Connect CL2 to the VMware external-client network](#task-4-connect-cl2-to-the-vmware-external-client-network)
+1. [Configure the network on the client](#task-5-configure-the-network-on-the-client) CL2: Set the network adapter to use DHCP for all configurations and add remote.lab.test with the recorded host VMnet8 endpoint
 1. [Connect to Remote Desktop Services from the external network](#task-6-connect-to-remote-desktop-services-from-the-external-network) on CL2
 
 ### Task 1: Connect to Remote Desktop Services using RD Web
@@ -184,20 +184,20 @@ Perform these steps on CL1.
 1. Click **OK**.
 1. Close the Remote Desktop Connection.
 
-### Task 2: Create an external network switch
+### Task 2: Configure VMware custom NAT
 
 Perform these steps in VMware Workstation on the host.
 
 1. Record the current custom VMnet mapped to **Perimeter (10.1.200.0/24)** and all attached guests. In **Edit > Virtual Network Editor > Change Settings**, configure that dedicated VMnet as **NAT** for this exercise. Keep its existing subnet; record the actual NAT gateway. Disable VMware DHCP on the Perimeter segment to preserve the guests' static addresses.
 1. Use **VMnet8** as the external test-client segment. Record the host's VMnet8 adapter address and CL2's lease. This models an external client through a lab NAT boundary; it does not publish a service on the Internet or bridge a physical adapter.
 
-### Task 3: Add a static NetNat mapping
+### Task 3: Add VMware port forwarding
 
 1. In the Perimeter custom VMnet's **NAT Settings > Port Forwarding > Add**, map an unused host **TCP 443** port to **10.1.200.24 TCP 443** (PM-SRV3, the RD Gateway/Web server). Verify no host service already owns port 443; if it does, stop this optional portion rather than displacing it.
 1. Restrict any temporary host firewall allowance to the VMnet8 adapter and the recorded CL2 address. Do not open the physical LAN interface. Record the exact forwarding/firewall settings for removal.
 1. Record the host's VMnet8 adapter address as the external endpoint for the next task. The original Windows `Perimeter` NetNat object is not used on the VMware host.
 
-### Task 4: Connect WIN-CL2 to the external network switch
+### Task 4: Connect CL2 to the VMware external-client network
 
 1. Shut down CL2. In VMware **VM > Settings > Network Adapter**, select **NAT (VMnet8)** for its test NIC, and disconnect other NICs that bypass this boundary.
 1. Start CL2 and verify its VMnet8 lease and access to the recorded host endpoint. Preserve the original NIC settings for cleanup.
