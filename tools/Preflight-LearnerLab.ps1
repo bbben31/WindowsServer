@@ -92,23 +92,30 @@ function Test-IPv4InCidr {
     return $true
 }
 
-if (Test-Path -LiteralPath $ManifestPath) {
-    try {
-        $manifest = [IO.File]::ReadAllText((Resolve-Path -LiteralPath $ManifestPath).Path) | ConvertFrom-Json
+$manifest = $null
+$manifestReady = $false
+try {
+    if (Test-Path -LiteralPath $ManifestPath -PathType Leaf) {
+        $ManifestPath = (Resolve-Path -LiteralPath $ManifestPath).ProviderPath
+        $manifest = [IO.File]::ReadAllText($ManifestPath) | ConvertFrom-Json
+        if (!$manifest -or !$manifest.PSObject.Properties['entries'] -or !@($manifest.entries).Count) { throw 'Manifest has no curriculum entries.' }
+        $repositoryRoot = [IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $ManifestPath) '..'))
+        $manifestReady = $true
         Add-Check 'Manifest' 'Pass' "$($manifest.entries.Count) curriculum entries loaded."
-    } catch {
-        Add-Check 'Manifest' 'Error' 'Manifest could not be parsed as JSON.'
+    } else {
+        Add-Check 'Manifest' 'Error' "Manifest was not found: $ManifestPath"
     }
-} else {
-    Add-Check 'Manifest' 'Error' "Manifest was not found: $ManifestPath"
+} catch {
+    Add-Check 'Manifest' 'Error' 'Manifest could not be loaded as curriculum JSON.'
 }
 
 $selectedEntry = $null
 if ([string]::IsNullOrWhiteSpace($CurriculumPath)) {
     Add-Check 'Curriculum selection' 'Error' 'Supply -CurriculumPath with exactly one practice or lab path; curriculum selection is required.'
+} elseif (!$manifestReady) {
+    Add-Check 'Curriculum selection' 'Skipped' 'Curriculum selection requires a valid manifest.'
 } else {
     $normalizedPath = $CurriculumPath.Replace('\', '/').TrimStart('.', '/')
-    $repositoryRoot = [IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $ManifestPath) '..'))
     if ([IO.Path]::IsPathRooted($CurriculumPath)) {
         $absolute = [IO.Path]::GetFullPath($CurriculumPath)
         if ($absolute.StartsWith($repositoryRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {

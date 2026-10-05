@@ -291,6 +291,35 @@ try {
     if ($forbiddenCalls.Count -or $parseErrors.Count) { throw 'Preflight contains an authentication/mutation command or parse error.' }
     $passed++
     $engine = if ($PSVersionTable.PSEdition -eq 'Desktop') { Join-Path $PSHOME 'powershell.exe' } else { Join-Path $PSHOME 'pwsh.exe' }
+    $matrixManifest = Join-Path $fixtureRoot 'metadata/path-matrix.json'
+    [IO.File]::WriteAllText($matrixManifest, ($manifest | ConvertTo-Json -Depth 24), $utf8)
+    [IO.File]::WriteAllText((Join-Path $fixtureRoot 'metadata/invalid-matrix.json'), '{ invalid JSON', $utf8)
+    [IO.File]::WriteAllText((Join-Path $fixtureRoot 'metadata/empty-matrix.json'), '{}', $utf8)
+    $pathRunner = Join-Path $fixtureRoot 'path-preflight.ps1'
+    [IO.File]::WriteAllText($pathRunner, @'
+param($Preflight, $WorkingDirectory, $ManifestPath, $CurriculumPath)
+Set-Location -LiteralPath $WorkingDirectory
+& $Preflight -SkipHostChecks -AsJson -ManifestPath $ManifestPath -CurriculumPath $CurriculumPath
+exit $LASTEXITCODE
+'@, $utf8)
+    foreach ($form in @('bare','nested','absolute')) {
+        foreach ($curriculumForm in @('relative','absolute')) {
+            foreach ($state in @('valid','missing','invalid','empty')) {
+                $fileName = switch ($state) { 'valid' {'path-matrix.json'}; 'missing' {'missing-matrix.json'}; 'invalid' {'invalid-matrix.json'}; 'empty' {'empty-matrix.json'} }
+                $workingDirectory = if ($form -eq 'bare') { Join-Path $fixtureRoot 'metadata' } else { $fixtureRoot }
+                $manifestArgument = switch ($form) { 'bare' {$fileName}; 'nested' {'metadata/' + $fileName}; 'absolute' {Join-Path $fixtureRoot ('metadata/' + $fileName)} }
+                $curriculumArgument = if ($curriculumForm -eq 'absolute') { Join-Path $fixtureRoot 'Instructions/Labs/BranchCache.md' } else { 'Instructions/Labs/BranchCache.md' }
+                $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $pathRunner $preflight $workingDirectory $manifestArgument $curriculumArgument 2>&1
+                $expectedExit = if ($state -eq 'valid') { 0 } else { 1 }
+                if ($LASTEXITCODE -ne $expectedExit) { throw "Manifest path matrix exit failed: $form/$curriculumForm/$state. $output" }
+                $checks = $output -join "`n" | ConvertFrom-Json
+                $manifestStatus = if ($state -eq 'valid') { 'Pass' } else { 'Error' }
+                $selectionStatus = if ($state -eq 'valid') { 'Pass' } else { 'Skipped' }
+                if (!@($checks | Where-Object { $_.Name -eq 'Manifest' -and $_.Status -eq $manifestStatus }).Count -or !@($checks | Where-Object { $_.Name -eq 'Curriculum selection' -and $_.Status -eq $selectionStatus }).Count) { throw "Manifest path matrix checks failed: $form/$curriculumForm/$state" }
+                $passed++
+            }
+        }
+    }
     $mdt = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Microsoft-Deployment-Toolkit.md'
     $s2d = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Configuring-and-managing-Storage-Spaces-Direct-and-hyper-converged-virtualization.md'
     $existingInner = $s2d.vmTopology | Where-Object guestHostname -eq 'VN1-SRV23'
