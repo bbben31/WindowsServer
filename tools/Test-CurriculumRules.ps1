@@ -13,6 +13,86 @@ function Test-CurriculumDependencyCycles {
     foreach ($node in $graph.Keys) { & $visit $node }
 }
 
+function Get-CurriculumSemanticSlug([string]$Text) {
+    return ([regex]::Replace($Text.Trim().ToLowerInvariant(), '[^\p{L}\p{N}\p{M}\p{Pc}\- ]', '') -replace ' ', '-')
+}
+
+function Test-CurriculumSemantics {
+    param($Entry, [string]$Procedure)
+    $errors = [System.Collections.Generic.List[string]]::new()
+    $plain = $Procedure.Replace('**','').Replace('`','')
+    $vmPattern = '(?i)\b(?:VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\b'
+    foreach ($binding in $Entry.addressBindings) {
+        $parsed = $null
+        if (![Net.IPAddress]::TryParse($binding.address, [ref]$parsed) -or $parsed.AddressFamily -ne [Net.Sockets.AddressFamily]::InterNetwork -or !@($binding.names).Count -or [string]::IsNullOrWhiteSpace($binding.reason)) { $errors.Add('invalid address binding'); continue }
+        foreach ($match in [regex]::Matches($plain, '\b' + [regex]::Escape($binding.address) + '\s*\(\s*((?:VN\d+-SRV\d+|PM-SRV\d+|CL\d+))\s*\)', 'IgnoreCase')) {
+            if ($match.Groups[1].Value -notin $binding.names) { $errors.Add('incorrect machine/address association: ' + $match.Value) }
+        }
+    }
+    # Restrict numeric checks to explicit address fields; versions and subnet prefixes are not addresses.
+    foreach ($field in [regex]::Matches($plain, '(?im)(?:\bIP addresses?\b|-(?:StaticAddress|IPAddress)\b)\s*(?:of\s+|is\s+|are\s+|[:=]\s*)?([\d., /a-z-]+)')) {
+        if ($field.Groups[1].Value -match '(?i)starting|prefix|subnet') { continue }
+        foreach ($number in [regex]::Matches($field.Groups[1].Value, '(?<![\d.])\d+(?:\.\d+){2,}(?![\d.])')) {
+            $octets = $number.Value -split '\.'
+            if ($octets.Count -ne 4 -or @($octets | Where-Object { [int]$_ -gt 255 }).Count) { $errors.Add('malformed IPv4 address in address context: ' + $number.Value) }
+        }
+    }
+    foreach ($line in $plain -split "`n") {
+        if ($line -match '(?i)\b([\w-]+(?:\.[\w-]+)+)\s+point(?:ing|s)\s+to\s+\1\b') { $errors.Add('DNS record described as pointing to itself: ' + $Matches[1]) }
+        if ($line -match '(?i)\bon\s+(VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\s+and\s+\1\b') { $errors.Add('repeated machine where distinct targets are required: ' + $Matches[1]) }
+    }
+    # Existing anchors can still link to the wrong task: match labels to actual heading titles.
+    $titles = @{}; $counts = @{}; $anchorTitles = @{}
+    foreach ($heading in [regex]::Matches($Procedure, '(?m)^#{1,6}\s+([^\n]+)')) {
+        $title = $heading.Groups[1].Value.Trim()
+        $anchor = Get-CurriculumSemanticSlug $title
+        if ($counts.ContainsKey($anchor)) { $counts[$anchor]++; $anchor += '-' + $counts[$anchor] } else { $counts[$anchor] = 0 }
+        $key = Get-CurriculumSemanticSlug ([regex]::Replace($title, '^(?:Task|Exercise) \d+:\s*', ''))
+        $titles[$key] = @($titles[$key]) + $anchor
+        $anchorTitles[$anchor] = $key
+    }
+    foreach ($link in [regex]::Matches($Procedure, '(?m)^\s*\d+\.\s+\[([^\]]+)\]\(#([^\)]+)\)')) {
+        $key = Get-CurriculumSemanticSlug $link.Groups[1].Value
+        $target = $link.Groups[2].Value
+        $expandedTitle = $anchorTitles.ContainsKey($target) -and $anchorTitles[$target].StartsWith($key + '-', [StringComparison]::Ordinal)
+        if ($titles.ContainsKey($key) -and $target -notin $titles[$key] -and !$expandedTitle) { $errors.Add('semantically wrong outline anchor: ' + $link.Value.Trim()) }
+    }
+    foreach ($scope in $Entry.procedureScopes) {
+        $section = [regex]::Match($plain, '(?ms)^### ' + [regex]::Escape($scope.heading) + '\s*\n(.*?)(?=^### |^## |\z)').Groups[1].Value
+        $scopeLine = [regex]::Match($section, '(?m)^Perform (?:this task|these steps|these tasks) on[^\n]+').Value
+        $declared = @([regex]::Matches($scopeLine, $vmPattern) | ForEach-Object { $_.Value.ToUpperInvariant() } | Sort-Object)
+        if (($declared -join '|') -cne (($scope.targets | Sort-Object) -join '|')) { $errors.Add('procedure scope target set disagrees with metadata: ' + $scope.heading) }
+        $continuation = [regex]::Match($section, '(?im)^.*' + $scope.continuationPattern + '.*$').Value
+        $continued = @([regex]::Matches($continuation, $vmPattern) | ForEach-Object { $_.Value.ToUpperInvariant() } | Sort-Object)
+        if (($continued -join '|') -cne ($declared -join '|')) { $errors.Add('continuation machines do not match procedure scope: ' + $scope.heading) }
+        foreach ($name in $scope.excluded) { if ($section -match ('(?i)\b' + [regex]::Escape($name) + '\b')) { $errors.Add('excluded machine later included in procedure: ' + $name) } }
+    }
+    if ($Entry.clusterIdentity) {
+        $cluster = $Entry.clusterIdentity
+        $creation = [regex]::Match($plain, '(?ms)\bNew-Cluster\s+(.*?)(?=\n\s*````|\n\s*1\.|\z)').Groups[1].Value
+        $name = [regex]::Match($creation, '(?i)-Name\s+([\w-]+)').Groups[1].Value
+        $nodeField = [regex]::Match($creation, '(?i)-Node\s+([^\r\n]+)').Groups[1].Value
+        $nodes = @([regex]::Matches($nodeField, $vmPattern) | ForEach-Object Value | Sort-Object)
+        $addressField = [regex]::Match($creation, '(?i)-StaticAddress\s+([^\r\n]+)').Groups[1].Value
+        $addresses = @([regex]::Matches($addressField, '\b\d+(?:\.\d+){3}\b') | ForEach-Object Value | Sort-Object)
+        if ($name -ine $cluster.name -or ($nodes -join '|') -ine (($cluster.nodes | Sort-Object) -join '|') -or ($addresses -join '|') -cne (($cluster.addresses | Sort-Object) -join '|')) { $errors.Add('cluster creation identity disagrees with metadata') }
+        foreach ($label in [regex]::Matches($plain, '(?i)cluster (?:with the name|named)\s+([\w-]+)')) {
+            if ($label.Groups[1].Value -ine $cluster.name) { $errors.Add('cluster name in prose disagrees with creation identity') }
+        }
+        foreach ($assignment in [regex]::Matches($plain, '(?i)(?:Add|and)\s+(VN\d+-SRV\d+)\s+to the site\s+([\w-]+)|Set-ClusterFaultDomain\s+-Name\s+(VN\d+-SRV\d+)\s+-Parent\s+([\w-]+)')) {
+            $node = if ($assignment.Groups[1].Success) { $assignment.Groups[1].Value } else { $assignment.Groups[3].Value }
+            $site = if ($assignment.Groups[2].Success) { $assignment.Groups[2].Value } else { $assignment.Groups[4].Value }
+            if (!@($cluster.sites | Where-Object { $_.node -ieq $node -and $_.name -ieq $site }).Count) { $errors.Add('cluster site assignment disagrees with metadata') }
+        }
+        foreach ($assignment in [regex]::Matches($plain, '(?i)(VN\d+-SRV\d+) to ([\w-]+) \((\d+(?:\.\d+){3}/\d+)\)')) {
+            if (!@($cluster.sites | Where-Object { $_.node -ieq $assignment.Groups[1].Value -and $_.name -ieq $assignment.Groups[2].Value -and $_.subnet -eq $assignment.Groups[3].Value }).Count) { $errors.Add('cluster site subnet disagrees with metadata') }
+        }
+        $preferred = [regex]::Match($plain, '(?i)\.PreferredSite\s*=\s*[\x27\x22]([\w-]+)').Groups[1].Value
+        if ($preferred -ine $cluster.preferredSite) { $errors.Add('cluster preferred site disagrees with metadata') }
+    }
+    return $errors.ToArray()
+}
+
 function Test-CurriculumRules {
     param($Entries, [string]$RepositoryRoot)
     $failures = [System.Collections.Generic.List[string]]::new()
@@ -86,7 +166,22 @@ function Test-CurriculumRules {
         foreach ($vm in $entry.vmTopology) {
             if (($vm.layer -eq 'outer-vmware' -and !$vm.vmwareDisplayName) -or ($vm.layer -eq 'inner-hyper-v' -and !$vm.hyperVName) -or $vm.layer -notin @('outer-vmware','inner-hyper-v') -or $vm.phase -notin @('existing','existing-inner','created','conditional')) { $failures.Add("${label}: incomplete display/hostname/layer mapping") }
         }
-        foreach ($reference in $entry.referencedVms) { if ([string]::IsNullOrWhiteSpace($reference.reason)) { $failures.Add("${label}: unexplained reference-only VM") } }
+        $procedureLines = @($procedure -split "`n" | ForEach-Object { $_.Trim() })
+        foreach ($reference in $entry.referencedVms) {
+            if ([string]::IsNullOrWhiteSpace($reference.reason)) { $failures.Add("${label}: unexplained reference-only VM") }
+            if ($reference.kind -notin @('dns-record-data','illustrative-example','excluded-scope','deferred-inner') -or !@($reference.contexts | Where-Object { ![string]::IsNullOrWhiteSpace($_) }).Count -or $reference.name -in $names) { $failures.Add("${label}: invalid scoped reference-only VM") }
+            foreach ($context in $reference.contexts) {
+                if ($context -cnotin $procedureLines -or $context -notmatch ('(?i)\b' + [regex]::Escape($reference.name) + '\b')) { $failures.Add("${label}: stale or unrelated reference-only context") }
+                $dataContext = switch ($reference.kind) {
+                    'dns-record-data' { $context -match '(?i)^\||Host name|record data|CNAME target' }
+                    'illustrative-example' { $context -match '(?i)^\||^>|^<!--|^Illustrative|^Example|^Template' }
+                    'excluded-scope' { $context -match '(?i)except for|explicitly excluded|do not (?:start|configure)|never restart' }
+                    'deferred-inner' { $context -match '(?i)reference only|created later|created in a later' }
+                    default { $false }
+                }
+                if (!$dataContext) { $failures.Add("${label}: reference-only context authorizes operational use") }
+            }
+        }
         $requiredSection = [regex]::Match($procedure, '(?ms)^## Required VMs\s*\n(.*?)(?=^## |\z)').Groups[1].Value
         # Parse the initial list as mandatory machines plus explicit one-of groups.
         $initial = [regex]::Match($requiredSection.TrimStart(), '(?m)\A(?:(?:\* |VN[123]-|CL\d)[^\n]*\n?)+').Value
@@ -104,15 +199,21 @@ function Test-CurriculumRules {
             $phaseNames = @($entry.vmTopology | Where-Object phase -eq $kind.phase | ForEach-Object guestHostname)
             if ((($documentNames | Sort-Object) -join '|') -cne (($phaseNames | Sort-Object) -join '|')) { $failures.Add("${label}: Required VMs $($kind.phase) lifecycle disagrees with metadata") }
         }
-        $used = @([regex]::Matches($procedure, '(?i)\b(?:VN[123]-SRV\d+|PM-SRV\d+|CL\d+)\b') | ForEach-Object { $_.Value.ToUpperInvariant() } | Sort-Object -Unique)
-        $allowed = @($names) + @($entry.referencedVms | ForEach-Object name)
-        foreach ($name in $used) { if ($name -notin $allowed) { $failures.Add("${label}: task/setup VM absent from Required VMs: $name") } }
+        foreach ($line in $procedureLines) {
+            foreach ($use in [regex]::Matches($line, '(?i)\b(?:VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\b')) {
+                $name = $use.Value.ToUpperInvariant()
+                if ($name -in $names) { continue }
+                $scoped = @($entry.referencedVms | Where-Object { $_.name -ieq $name -and $line -cin $_.contexts -and $_.kind -in @('dns-record-data','illustrative-example','excluded-scope','deferred-inner') })
+                if ($scoped.Count -ne 1) { $failures.Add("${label}: task/setup VM absent from Required VMs: undeclared operational or unscoped VM $name") }
+            }
+        }
         # A reference exemption cannot excuse an actual execution/connection target.
-        $operationalPattern = '(?i)(?:Perform (?:this task|these steps|these tasks) on|Connected to|On)\s+\*{0,2}(?:WIN-)?(VN[123]-SRV\d+|PM-SRV\d+|CL\d+)\b|-(?:ComputerName|VMName)\s+[\x27\x22]?(?:WIN-)?(VN[123]-SRV\d+|PM-SRV\d+|CL\d+)\b'
+        $operationalPattern = '(?i)(?:Perform (?:this task|these steps|these tasks) on|Connected to|On|Enter-PSSession|Connect-VM)\s+\*{0,2}(?:WIN-)?(VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\b|-(?:ComputerName|VMName)\s+[\x27\x22]?(?:WIN-)?(VN\d+-SRV\d+|PM-SRV\d+|CL\d+)\b'
         foreach ($target in [regex]::Matches($procedure, $operationalPattern)) {
             $targetName = if ($target.Groups[1].Success) { $target.Groups[1].Value } else { $target.Groups[2].Value }
             if ($targetName -notin $names) { $failures.Add("${label}: operational task/setup VM absent from Required VMs: $targetName") }
         }
+        foreach ($semanticError in Test-CurriculumSemantics $entry $procedure) { $failures.Add("${label}: $semanticError") }
         if (!$entry.hyperVTeaching -and $procedure -match '(?im)^\s*(?:[\w$]+\s*\|\s*)?(?:Get-VM(?:NetworkAdapter|HardDiskDrive)?|Set-VM(?:Processor|NetworkAdapter)?|Stop-VM|Start-VM|Suspend-VM|Resume-VM|Connect-VMNetworkAdapter)\b|^\s*1\. (?:Open|Switch to) \*\*Hyper-V[ -]Manager') {
             $failures.Add("${label}: outer Hyper-V management in non-Hyper-V exercise")
         }

@@ -3190,7 +3190,8 @@
       "requiredVmsOrTopology": [
         "CL1",
         "VN1-SRV1",
-        "VN1-SRV5"
+        "VN1-SRV5",
+        "VN2-SRV1"
       ],
       "networks": [
         "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.",
@@ -3255,30 +3256,24 @@
           "layer": "outer-vmware",
           "phase": "existing",
           "hyperVName": null
+        },
+        {
+          "guestHostname": "VN2-SRV1",
+          "vmwareDisplayName": "VN2-SRV1",
+          "displayNameAliases": [
+            "WIN-VN2-SRV1"
+          ],
+          "layer": "outer-vmware",
+          "phase": "existing",
+          "hyperVName": null
         }
       ],
       "alternativeVmGroups": [],
-      "referencedVms": [
-        {
-          "name": "PM-SRV1",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
-        },
-        {
-          "name": "VN1-SRV7",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
-        },
-        {
-          "name": "VN2-SRV1",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
-        },
-        {
-          "name": "VN2-SRV5",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
-        }
-      ],
+      "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Use only the single ad.lab.test forest created by Deploying domain controllers: live VN1-SRV1 (unless retired), VN1-SRV5 and VN2-SRV1. Record observed KCC partners and naming contexts; the table is an illustrative blank template, not a fixed multi-domain result."
       ],
       "verification": [
         "repadmin output identifies the actual configured DC replication partners and converged replication; example output is not a VM requirement."
@@ -8264,7 +8259,11 @@
       "referencedVms": [
         {
           "name": "VN1-SRV7",
-          "reason": "Excluded DHCP server; no task executes on it."
+          "reason": "Explicitly excluded from conversion to DHCP; no continuation or operation may target it.",
+          "kind": "excluded-scope",
+          "contexts": [
+            "On CL1 and all servers on VNet1, except for VN1-SRV6 and VN1-SRV7, change the IP assignment mode of the network adapter connected to VNet1 to use DHCP."
+          ]
         }
       ],
       "prerequisiteState": [
@@ -8282,7 +8281,26 @@
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false,
-      "profileTransitions": []
+      "profileTransitions": [],
+      "procedureScopes": [
+        {
+          "heading": "SConfig",
+          "targets": [
+            "VN1-SRV1",
+            "VN1-SRV3",
+            "VN1-SRV4",
+            "VN1-SRV5",
+            "VN1-SRV11",
+            "VN1-SRV12",
+            "VN1-SRV13"
+          ],
+          "excluded": [
+            "VN1-SRV6",
+            "VN1-SRV7"
+          ],
+          "continuationPattern": "success messages, press ENTER"
+        }
+      ]
     },
     {
       "path": "Instructions/Practices/Verify-the-sysvol-replication-mode.md",
@@ -8995,7 +9013,16 @@
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false,
-      "profileTransitions": []
+      "profileTransitions": [],
+      "addressBindings": [
+        {
+          "address": "10.1.1.24",
+          "names": [
+            "VN1-SRV3"
+          ],
+          "reason": "SQL host used by rmsdb.ad.lab.test."
+        }
+      ]
     },
     {
       "path": "Instructions/Labs/Audit-file-server-events.md",
@@ -10312,12 +10339,7 @@
         }
       ],
       "alternativeVmGroups": [],
-      "referencedVms": [
-        {
-          "name": "VN1-SRV2",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
-        }
-      ],
+      "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
@@ -10338,7 +10360,23 @@
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false,
-      "profileTransitions": []
+      "profileTransitions": [],
+      "addressBindings": [
+        {
+          "address": "10.1.2.8",
+          "names": [
+            "VN2-SRV1"
+          ],
+          "reason": "Enterprise VNet2 domain-controller DNS address."
+        },
+        {
+          "address": "10.1.1.40",
+          "names": [
+            "VN1-SRV5"
+          ],
+          "reason": "Second enterprise VNet1 domain-controller DNS address before retirement handover."
+        }
+      ]
     },
     {
       "path": "Instructions/Labs/Deploy-Remote-Desktop-Services.md",
@@ -13096,15 +13134,28 @@
       "referencedVms": [
         {
           "name": "VN1-SRV2",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
+          "reason": "DNS record data only; creating/querying records does not provision or administer this guest.",
+          "kind": "dns-record-data",
+          "contexts": [
+            "| rca        | vn1-srv2.ad.lab.test |"
+          ]
         },
         {
           "name": "VN1-SRV3",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
+          "reason": "DNS record data only; creating/querying records does not provision or administer this guest.",
+          "kind": "dns-record-data",
+          "contexts": [
+            "| sql1       | vn1-srv3.ad.lab.test |"
+          ]
         },
         {
           "name": "VN2-SRV2",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
+          "reason": "DNS record data only; creating/querying records does not provision or administer this guest.",
+          "kind": "dns-record-data",
+          "contexts": [
+            "| 10.1.2.16  | vn2-srv2.ad.lab.test |",
+            "1. In New Resource Record, under **Host IP Address**, type **10.1.2.16**. Under **Host name**, type **vn2-srv2.ad.lab.test** and click **OK**."
+          ]
         }
       ],
       "prerequisiteState": [
@@ -13193,12 +13244,7 @@
         }
       ],
       "alternativeVmGroups": [],
-      "referencedVms": [
-        {
-          "name": "VN1-SRV5",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
-        }
-      ],
+      "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
@@ -15030,7 +15076,8 @@
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
-        "Instructions/General/Member-Servers-and-Clients.md"
+        "Instructions/General/Member-Servers-and-Clients.md",
+        "Instructions/Labs/Installing-and-configuring-a-fail-over-cluster.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -15125,17 +15172,13 @@
         }
       ],
       "alternativeVmGroups": [],
-      "referencedVms": [
-        {
-          "name": "VN3-SRV2",
-          "reason": "Example output, excluded target, or inventory record only; no setup/task execution on this guest."
-        }
-      ],
+      "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.",
-        "The cluster nodes are outer VMware VMs with nested Hyper-V enabled; control their outer failure/recovery in VMware and their inner workload in Hyper-V."
+        "The cluster nodes are outer VMware VMs with nested Hyper-V enabled; control their outer failure/recovery in VMware and their inner workload in Hyper-V.",
+        "Before starting, provision the independent file-share witness \\\\vn1-clst1-fs\\Witness and the Witness Modify group/permissions; validate witness DNS and SMB reachability from both sites. Use cluster VN2-VN3-CLST1 at 10.1.2.9 and 10.1.3.9, with VN2-SRV1 in Primary (10.1.2.0/24) and VN3-SRV1 in Secondary (10.1.3.0/24)."
       ],
       "verification": [
         "Replication/cluster roles and the intended test workload recover on the documented surviving site; record data/log disks and recovery results."
@@ -15148,7 +15191,31 @@
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": true,
-      "profileTransitions": []
+      "profileTransitions": [],
+      "clusterIdentity": {
+        "name": "VN2-VN3-CLST1",
+        "nodes": [
+          "VN2-SRV1",
+          "VN3-SRV1"
+        ],
+        "addresses": [
+          "10.1.2.9",
+          "10.1.3.9"
+        ],
+        "sites": [
+          {
+            "name": "Primary",
+            "node": "VN2-SRV1",
+            "subnet": "10.1.2.0/24"
+          },
+          {
+            "name": "Secondary",
+            "node": "VN3-SRV1",
+            "subnet": "10.1.3.0/24"
+          }
+        ],
+        "preferredSite": "Primary"
+      }
     },
     {
       "path": "Instructions/Labs/Windows-Admin-Center.md",

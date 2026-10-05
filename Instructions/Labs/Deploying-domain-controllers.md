@@ -262,7 +262,7 @@ You want to introduce new domain controllers to the domain running the latest ve
 
 1. On CL1 or, if you want to use SConfig, on VN1-SRV5 configure the DNS client settings for VN1-SRV5 as follows:
 
-    Preferred DNS server: 10.1.2.8 (VN1-SRV2)
+    Preferred DNS server: 10.1.2.8 (VN2-SRV1)
     Secondary DNS server: 127.0.0.1
 
     ````powershell
@@ -274,7 +274,7 @@ You want to introduce new domain controllers to the domain running the latest ve
 1. On CL1 or, if you want to use SConfig, on VN1-SRV1 configure the DNS client settings for VN1-SRV1 as follows:
 
     Preferred DNS server: 10.1.1.40 (VN1-SRV5)
-    Secondary DNS server: 10.1.2.8 (VN1-SRV2)
+    Secondary DNS server: 10.1.2.8 (VN2-SRV1)
 
     ````powershell
     $serverAddresses = '10.1.1.40', '10.1.2.8'

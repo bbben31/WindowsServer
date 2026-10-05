@@ -119,7 +119,9 @@ Perform this task on the host computer.
 
 ## Exercise 2: Using Windows Admin Center in the Azure Portal
 
-1. [Install Windows Admin Center in the Azure portal](#task-1-install-windows-admin-center-in-the-azure-portal) for VN1-SRV5
+> **Eligibility gate:** Verify the current [Windows Server management entitlement](https://learn.microsoft.com/en-us/azure/azure-arc/servers/windows-server-management-overview) for the Arc-enabled VN1-SRV8 before installing this optional extension. Attest Software Assurance/subscription coverage only when the recorded machine license actually qualifies. If an evaluation guest lacks the required entitlement, record Exercise 2 as conceptual/skipped; do not enable billable licensing just to complete it. Continue with other eligible Arc exercises under their existing cost gates.
+
+1. [Install Windows Admin Center in the Azure portal](#task-1-install-windows-admin-center-in-the-azure-portal) for VN1-SRV8
 1. [Assign user to the role Windows Admin Center Administrator login](#task-2-assign-user-to-the-role-windows-admin-center-administrator-login)
 1. [Validate Windows Admin Center in the Azure portal](#task-3-validate-windows-admin-center-in-the-azure-portal)
 
@@ -135,11 +137,11 @@ Perform this task on the host computer.
 
 1. Open **Microsoft Edge** and navigate to <https://portal.azure.com>
 1. Sign in to Azure.
-1. In **Search resources, services and docs (G+/)**, type **VN1-SRV5** and click it.
-1. In VN1-SRV5, under **Licenses**, click **Windows Server**.
-1. In VN1-SRV5 | Windows Server, under **Azure Benefits**, click to activate **By checking this box, you attest that your Windows Server licenses have active Software Assurance or your Windows Server licenses are active subscription licenses.** Click **Confirm**.
-1. In VN1-SRV5, under **Settings**, click **Windows Admin Center (preview)**.
-1. In VN1-SRV5 | Windows Admin Center (preview), click **Set up**.
+1. In **Search resources, services and docs (G+/)**, type **VN1-SRV8** and click it.
+1. In VN1-SRV8, under **Licenses**, click **Windows Server**.
+1. Only after confirming the eligibility gate, in VN1-SRV8 | Windows Server, under **Azure Benefits**, attest the documented coverage and click **Confirm**. If coverage cannot be confirmed, stop this exercise and record the skip.
+1. In VN1-SRV8, under **Settings**, click **Windows Admin Center (preview)**.
+1. In VN1-SRV8 | Windows Admin Center (preview), click **Set up**.
 1. In the pane Windows Admin Center, take a note of the **Listening port**, e.g., 6516 and click **Install**.
 
     The deployment will take a few minutes. You may continue with the lab. The deployment has to complete before you can use Windows Admin Center.
@@ -150,9 +152,9 @@ Perform this task on the host computer.
 
 1. Open **Microsoft Edge** and navigate to <https://portal.azure.com>
 1. Sign in to Azure.
-1. In **Search resources, services and docs (G+/)**, type **VN1-SRV5** and click it.
-1. In VN1-SRV5, click **Access control (IAM)**.
-1. In VN1-SRV5 | Access control (IAM), click **Add**, **Add role assignment**.
+1. In **Search resources, services and docs (G+/)**, type **VN1-SRV8** and click it.
+1. In VN1-SRV8, click **Access control (IAM)**.
+1. In VN1-SRV8 | Access control (IAM), click **Add**, **Add role assignment**.
 1. In Add role assignment, on tab Role, click **Windows Admin Center Administrator login** and click **Next**.
 1. On tab Members, ensure **User, group, or service principal** is selected and click **+ Select members**.
 1. In the pane Select members, search and click your Azure AD user account and click **Select**.
@@ -167,9 +169,9 @@ Perform this task on the host computer.
 
 1. Open **Microsoft Edge** and navigate to <https://portal.azure.com>
 1. Sign in to Azure.
-1. In **Search resources, services and docs (G+/)**, type **VN1-SRV5** and click it.
-1. In VN1-SRV5, under **Settings**, click **Windows Admin Center (preview)**.
-1. In VN1-SRV5 | Windows Admin Center (preview), click **Connect**.
+1. In **Search resources, services and docs (G+/)**, type **VN1-SRV8** and click it.
+1. In VN1-SRV8, under **Settings**, click **Windows Admin Center (preview)**.
+1. In VN1-SRV8 | Windows Admin Center (preview), click **Connect**.
 1. In Windows Admin Center, unter **Tools**, click **Settings**.
 1. In Settings, click **Remote Desktop**.
 1. In Settings | Remote Desktop, click **Allow remote connections to this computer** and click **Save**.
@@ -195,7 +197,7 @@ Perform this task on the host computer.
     Get-ComputerInfo
     ````
 
-    Confirm, that you see the information of VN1-SRV5.
+    Confirm, that you see the information of VN1-SRV8.
 
 1. Exit from the remote PowerShell session.
 

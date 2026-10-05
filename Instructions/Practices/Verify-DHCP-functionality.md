@@ -123,7 +123,7 @@ Perform this task on VN1-SRV1, VN1-SRV3, VN1-SRV4, VN1-SRV5, VN1-SRV11, VN1-SRV1
 1. In Network settings, enter the **Index#** of a network adapter with an **IP address** starting with **10.1.1**.
 1. In Network Adapter Settings, enter **1**.
 1. Enter **D**.
-1. On **VN1-SRV2**, **VN1-SRV3**, **VN1-SRV4**, **VN1-SRV5**, and **VN1-SRV7**: Under a number auf success messages, press ENTER.
+1. On **VN1-SRV1**, **VN1-SRV3**, **VN1-SRV4**, **VN1-SRV5**, **VN1-SRV11**, **VN1-SRV12**, and **VN1-SRV13**: After the DHCP success messages, press ENTER.
 1. Enter **4**.
 
     If the server has more than one network adapter connected to VNet1, repeat from step 3.

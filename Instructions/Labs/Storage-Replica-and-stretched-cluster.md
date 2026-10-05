@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer. The cluster nodes are outer VMware VMs with nested Hyper-V enabled; control their outer failure/recovery in VMware and their inner workload in Hyper-V.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Installing-and-configuring-a-fail-over-cluster.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer. The cluster nodes are outer VMware VMs with nested Hyper-V enabled; control their outer failure/recovery in VMware and their inner workload in Hyper-V. Before starting, provision the independent file-share witness \\vn1-clst1-fs\Witness and the Witness Modify group/permissions; validate witness DNS and SMB reachability from both sites. Use cluster VN2-VN3-CLST1 at 10.1.2.9 and 10.1.3.9, with VN2-SRV1 in Primary (10.1.2.0/24) and VN3-SRV1 in Secondary (10.1.3.0/24).
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV20 (Hyper-V name: VN2-SRV20; accepted display aliases: WIN-VN2-SRV20; created in the designated task; not a preflight prerequisite); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
 
@@ -324,7 +324,7 @@ From **\\\VN2-SRV1\\C$\\Temp** open the report in a browser.
 
 1. [Install the failover clustering feature](#task-1-install-the-failover-clustering-feature) on VN2-SRV1 and VN3-SRV1
 1. [Add cluster nodes to group](#task-2-add-cluster-nodes-to-group) Witness Modify: VN2-SRV1 and VN3-SRV1
-1. [Create a failover cluster](#task-3-create-a-failover-cluster) with VN2-SRV1 and VN3-SRV1 as nodes and the IP addresses 10.1.2.9 and 10.3.9; use \\\\vn1-clst1-fs\\Witness as witness and set the resilience default period to 10; set the preffered site to the 10.1.2.0 subnet; add all available disks to the cluster
+1. [Create a failover cluster](#task-3-create-a-failover-cluster) named VN2-VN3-CLST1 with VN2-SRV1 and VN3-SRV1 as nodes and IP addresses 10.1.2.9 and 10.1.3.9; use \\\\vn1-clst1-fs\\Witness as witness and set the resiliency default period to 10 seconds; assign VN2-SRV1 to Primary (10.1.2.0/24) and VN3-SRV1 to Secondary (10.1.3.0/24), prefer Primary, and add all available disks to the cluster
 1. [Add disk to cluster shared volume](#task-4-add-disk-to-cluster-shared-volumes): disk Data from VN2-SRV1
 1. [Configure storage replica](#task-5-configure-storage-replica) to replicate the Data volume from VN2-SRV1 to VN3-SRV1 using the Log volume as log disk
 
@@ -378,12 +378,12 @@ Perform this task on CL1.
 1. In Active Directory Administrative Center, click **ad (local)**.
 1. In ad (local), double-click **Entitling groups**.
 1. In Entitling groups, double-click **Witness Modify**.
-1. In Witness VN1-CLST Modify, click **Members**.
+1. In Witness Modify, click **Members**.
 1. Under Members, click **Add...**.
 1. In Select Users, Contacts, Computers, Services Accounts, or Groups, click **Object Types...**.
 1. In Object Types, activate **Computers** and click **OK**.
 1. In **Select Users, Contacts, Computers, Services Accounts, or Groups**, under **Enter the object names to select**, type **VN2-SRV1; VN3-SRV1** and click **OK**.
-1. In **Witness VN1-CLST Modify**, click **OK**.
+1. In **Witness Modify**, click **OK**.
 
 ### Task 3: Create a failover cluster
 
@@ -392,7 +392,7 @@ Perform this task on CL1.
 Perform this task on VN2-SRV1.
 
 1. Open **Windows PowerShell (Admin)**
-1. Create a new failover cluster with the name **VN2-VN3-CLST** and the IP address **10.1.2.9** and **10.1.3.9**. Include **VN2-SRV1** and **VN3-SRV1** as nodes.
+1. Create a new failover cluster with the name **VN2-VN3-CLST1** and the IP address **10.1.2.9** and **10.1.3.9**. Include **VN2-SRV1** and **VN3-SRV1** as nodes.
 
    ````powershell
    $cluster = New-Cluster `
@@ -422,7 +422,7 @@ Perform this task on VN2-SRV1.
    New-ClusterFaultDomain -Name Secondary -Type Site
    ````
 
-1. Add **VN2-SRV1** to the site **Primary** and **VN3-SRV2** to the site **Secondary**.
+1. Add **VN2-SRV1** to the site **Primary** and **VN3-SRV1** to the site **Secondary**.
 
    ````powershell
    Set-ClusterFaultDomain -Name VN2-SRV1 -Parent Primary
@@ -504,7 +504,7 @@ You can continue with the lab, but the failover will only succeed, when the **Re
 ## Exercise 4: Test stretched Hyper-V cluster failover
 
 1. [Install Hyper-V](#task-1-install-hyper-v) on VN2-SRV1 and VN3-SRV1
-1. [Create a virtual machine](#task-2-create-a-virtual-machine) with Windows Server 2022 from a differencing disk the cluster node VN2-SRV1
+1. [Create a virtual machine](#task-2-create-a-virtual-machine) with the TinyCorePure64 Generation 1 test image on cluster node VN2-SRV1 using a differencing disk
 1. [Simulate a failure](#task-3-simulate-a-failure) by turning off VN2-SRV1
 1. [Verify failover](#task-4-verify-failover)
 1. [Simulate recovery](#task-5-simulate-recovery)

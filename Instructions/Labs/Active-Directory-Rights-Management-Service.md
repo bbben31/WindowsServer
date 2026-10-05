@@ -76,9 +76,9 @@ To prevent leaks of confidential documents from your organization, you configure
 ## Exercise 1: Create an Active Directory Rights Management Cluster
 
 1. [Create a service account](#task-1-create-a-service-account)
-1. [Create DNS A records](#task-2-create-dns-a-records) for **rms.ad.lab.test** pointing to **VN2-SRV1** and **VN2-SRV2** and for **rmsdb.ad.lab.test** pointing to **rmsdb.ad.lab.test**.
+1. [Create DNS A records](#task-2-create-dns-a-records) for **rms.ad.lab.test** pointing to **VN2-SRV1** and **VN2-SRV2** and for **rmsdb.ad.lab.test** pointing to **10.1.1.24 (VN1-SRV3)**.
 1. [Configure a group policy for Internet options to assign all https sites in the domain to the Intranet zone](#task-3-configure-a-group-policy-for-internet-options-to-assign-all-https-sites-in-the-domain-to-the-intranet-zone)
-1. [Install Active Directory Rights Managment Server Role](#task-4-install-active-directory-rights-managment-server-role) on **VN2-SRV1** and **VN2-SRV1**
+1. [Install Active Directory Rights Managment Server Role](#task-4-install-active-directory-rights-managment-server-role) on **VN2-SRV1** and **VN2-SRV2**
 1. [Request a web server certificate](#task-5-request-a-web-server-certificate) for **rms.ad.lab.test** on **VN2-SRV1**
 1. [Create the RMS cluster](#task-6-create-the-rms-cluster) on **VN2-SRV1** using **rmsdb.ad.lab.test** as database server and **https://rms.ad.lab.test** as cluster URL
 1. [Request a web server certificate](#task-7-request-a-web-server-certificate) for **rms.ad.lab.test** on **VN2-SRV2**
@@ -583,7 +583,7 @@ Perform this task on CL1.
 1. On page **AD RMS**, click **Next >**.
 1. On page **AD RMS Cluster**, ensure **Join an existing AD RMS Cluster** is selected, and click **Next >**.
 1. On page **Configuration Database**, under **Server**, type **rmsdb.ad.lab.test** and click **List**.
-1. Click the drop-down under **Database Instance**, click **DefaultInstance**, in the drop-down under **Configuration Database Name**, click **DRMS_Config_rms_ad_adatum_com_80**, and click **Next >**.
+1. Click the drop-down under **Database Instance**, click **DefaultInstance**. Under **Configuration Database Name**, select the actual configuration database created for the HTTPS rms.ad.lab.test root cluster in Task 6; record its exact name from SQL/cluster configuration instead of using an unrelated adatum/HTTP example. Click **Next >**.
 1. On page **Database Information**, in **Password** and **Confirm Password**, type the cluster key password, you noted before and click **Next >**.
 1. On page **Service Account**, click **Select...**
 1. In **User name**, type **SvcRMS@ad.lab.test**, type the **Password** of that account and click **OK**.
@@ -595,7 +595,7 @@ Perform this task on CL1.
 #### PowerShell
 
 1. Run **Windows PowerShell (Administrator)**.
-1. Import the module **ADRM** and create a new PowerShell drive with the provider **ADRMSInstall**, the name **RC** and the root **RootCluster**.
+1. Import **ADRMS** and create a PowerShell drive with provider **ADRMSInstall**, name **RC** and root **JoinCluster** to join the existing root cluster.
 
     ````powershell
     Import-Module ADRMS
@@ -611,14 +611,15 @@ Perform this task on CL1.
 
     In **Windows PowerShell credential request**, enter the credentials for **ad\svcrms**.
 
-1. Configure the AD RMS server to use **rmsdb.ad.lab.test** as database server and **DRMS_Config_rms_ad_adatum_com_443** as database.
+1. Configure the AD RMS server to use **rmsdb.ad.lab.test** as database server and the exact configuration database created in Task 6. Supply the same recorded name selected by the GUI path; do not substitute an unrelated forest name or port.
 
     ````powershell
     Set-ItemProperty -Path RC:\ClusterDatabase -Name ServerName -Value rmsdb.ad.lab.test
+    $configurationDatabaseName = Read-Host 'Exact configuration database name from the existing root cluster'
     Set-ItemProperty `
         -Path RC:\ClusterDatabase `
         -Name DatabaseName `
-        -Value DRMS_Config_rms_ad_adatum_com_443
+        -Value $configurationDatabaseName
     ````
 
 1. Securely store the cluster key password string in a variable.
@@ -670,7 +671,7 @@ Perform this task on CL1.
 
 1. [Configure the extranet URLs](#task-1-configure-the-extranet-urls) to use **rms.lab.test** as FQDN.
 1. [Backup Server Licensor Certificate](#task-2-backup-the-server-licensor-certificate)
-1. [Create a rights policy template](#task-3-create-a-rights-policy-template) for the locale **en-us** with the display name **Reasearch**, granting **research@lab.test** the rights **Edit**, **Reply**, and **ReplyAll**. The use license should expire after 7 days.
+1. [Create a rights policy template](#task-3-create-a-rights-policy-template) for the locale **en-us** with the display name **Research**, granting **research@lab.test** the rights **Edit**, **Reply**, and **ReplyAll**. The use license should expire after 7 days.
 
 ### Task 1: Configure the extranet URLs
 
@@ -794,7 +795,7 @@ Perform this task on VN2-SRV1.
     New-PSDrive -PSProvider AdRmsAdmin -Name RMS -Root https://vn2-srv1
     ````
 
-1. Create a rights policy template for the locale **en-us** with the display name **Reasearch**, granting **research@lab.test** the rights **Edit**, **Reply**, and **ReplyAll**. The use license should expire after 7 days.
+1. Create a rights policy template for the locale **en-us** with the display name **Research**, granting **research@lab.test** the rights **Edit**, **Reply**, and **ReplyAll**. The use license should expire after 7 days.
 
     ````powershell
     New-Item `

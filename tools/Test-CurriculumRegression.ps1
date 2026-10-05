@@ -62,6 +62,84 @@ try {
         $passed++
     }
     [IO.File]::WriteAllText($documentPath, $original, $utf8)
+    $semanticCases = @(
+        @{Path='Instructions/Labs/Managing-hybrid-servers-using-Azure-Arc.md';Name='Arc portal target';From='VN1-SRV8';To='VN1-SRV5';Expected='undeclared operational or unscoped VM VN1-SRV5'},
+        @{Path='Instructions/Labs/Deploying-domain-controllers.md';Name='old DNS machine label';From='10.1.2.8 (VN2-SRV1)';To='10.1.2.8 (VN1-SRV2)';Expected='incorrect machine/address association'},
+        @{Path='Instructions/Labs/Deploying-domain-controllers.md';Name='wrong declared DNS machine';From='10.1.2.8 (VN2-SRV1)';To='10.1.2.8 (VN1-SRV4)';Expected='incorrect machine/address association'},
+        @{Path='Instructions/Labs/Storage-Replica-and-stretched-cluster.md';Name='wrong site node';From='**VN3-SRV1** to the site **Secondary**';To='**VN3-SRV2** to the site **Secondary**';Expected='undeclared operational or unscoped VM VN3-SRV2'},
+        @{Path='Instructions/Labs/Storage-Replica-and-stretched-cluster.md';Name='three-octet cluster address';From='IP addresses 10.1.2.9 and 10.1.3.9';To='IP addresses 10.1.2.9 and 10.3.9';Expected='malformed IPv4 address in address context'},
+        @{Path='Instructions/Labs/Storage-Replica-and-stretched-cluster.md';Name='wrong cluster name in prose';From='name **VN2-VN3-CLST1**';To='name **VN2-VN3-CLST**';Expected='cluster name in prose disagrees'},
+        @{Path='Instructions/Labs/Storage-Replica-and-stretched-cluster.md';Name='wrong complete cluster address';From='-StaticAddress 10.1.2.9, 10.1.3.9';To='-StaticAddress 10.1.2.9, 10.1.2.10';Expected='cluster creation identity disagrees'},
+        @{Path='Instructions/Labs/Storage-Replica-and-stretched-cluster.md';Name='wrong declared site node';From='Set-ClusterFaultDomain -Name VN3-SRV1 -Parent Secondary';To='Set-ClusterFaultDomain -Name VN1-SRV5 -Parent Secondary';Expected='cluster site assignment disagrees'},
+        @{Path='Instructions/Labs/Storage-Replica-and-stretched-cluster.md';Name='wrong site subnet';From='VN3-SRV1 to Secondary (10.1.3.0/24)';To='VN3-SRV1 to Secondary (10.1.2.0/24)';Expected='cluster site subnet disagrees'},
+        @{Path='Instructions/Labs/Storage-Replica-and-stretched-cluster.md';Name='wrong preferred site';From=".PreferredSite = 'Primary'";To=".PreferredSite = 'Secondary'";Expected='cluster preferred site disagrees'},
+        @{Path='Instructions/Practices/Verify-DHCP-functionality.md';Name='excluded DHCP continuation';From='On **VN1-SRV1**, **VN1-SRV3**, **VN1-SRV4**, **VN1-SRV5**, **VN1-SRV11**, **VN1-SRV12**, and **VN1-SRV13**: After';To='On **VN1-SRV1**, **VN1-SRV3**, **VN1-SRV4**, **VN1-SRV5**, **VN1-SRV11**, **VN1-SRV12**, and **VN1-SRV7**: After';Expected='excluded machine later included'},
+        @{Path='Instructions/Practices/Verify-DHCP-functionality.md';Name='missing processed DHCP machine';From='On **VN1-SRV1**, **VN1-SRV3**, **VN1-SRV4**, **VN1-SRV5**, **VN1-SRV11**, **VN1-SRV12**, and **VN1-SRV13**: After';To='On **VN1-SRV3**, **VN1-SRV4**, **VN1-SRV5**, **VN1-SRV11**, **VN1-SRV12**, and **VN1-SRV13**: After';Expected='continuation machines do not match'},
+        @{Path='Instructions/Practices/Explore-intra-site-replication.md';Name='unprovisioned replication partner';From='| [live partner] | [selected controller] |';To='| PM-SRV1 | VN1-SRV5 |';Expected='undeclared operational or unscoped VM PM-SRV1'},
+        @{Path='Instructions/Practices/Explore-intra-site-replication.md';Name='uncreated child-domain partner';From='| [live partner] | [selected controller] |';To='| VN1-SRV7 | VN1-SRV5 |';Expected='undeclared operational or unscoped VM VN1-SRV7'},
+        @{Path='Instructions/Practices/Explore-intra-site-replication.md';Name='uncreated second-site partner';From='| [live partner] | [selected controller] |';To='| VN2-SRV5 | VN1-SRV5 |';Expected='undeclared operational or unscoped VM VN2-SRV5'},
+        @{Path='Instructions/Labs/Installing-and-configuring-a-fail-over-cluster.md';Name='existing but wrong task anchor';From='[Create a failover cluster](#task-4-create-a-failover-cluster)';To='[Create a failover cluster](#task-4-create-a-virtual-machine)';Expected='semantically wrong outline anchor'},
+        @{Path='Instructions/Labs/Active-Directory-Rights-Management-Service.md';Name='repeated RMS role target';From='on **VN2-SRV1** and **VN2-SRV2**';To='on **VN2-SRV1** and **VN2-SRV1**';Expected='repeated machine where distinct targets'},
+        @{Path='Instructions/Labs/Active-Directory-Rights-Management-Service.md';Name='self-pointing RMS database record';From='for **rmsdb.ad.lab.test** pointing to **10.1.1.24 (VN1-SRV3)**';To='for **rmsdb.ad.lab.test** pointing to **rmsdb.ad.lab.test**';Expected='DNS record described as pointing to itself'}
+    )
+    foreach ($case in $semanticCases) {
+        $candidate = $manifest.entries | Where-Object path -eq $case.Path
+        $file = Join-Path $fixtureRoot $case.Path
+        $before = [IO.File]::ReadAllText($file)
+        if (!$before.Contains($case.From)) { throw "Semantic mutation did not alter its intended fixture: $($case.Name)" }
+        try {
+            [IO.File]::WriteAllText($file, $before.Replace($case.From, $case.To), $utf8)
+            $errors = @(Test-CurriculumRules @($candidate) $fixtureRoot)
+            if (!@($errors | Where-Object { $_ -like ('*' + $case.Expected + '*') }).Count) { throw "Semantic mutation escaped: $($case.Name). $($errors -join '; ')" }
+            $passed++
+        } finally { [IO.File]::WriteAllText($file, $before, $utf8) }
+    }
+    $dnsEntry = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Managing-DNS.md'
+    $candidate = ($manifest.entries | Where-Object path -eq 'Instructions/Practices/Explore-intra-site-replication.md' | ConvertTo-Json -Depth 24) | ConvertFrom-Json
+    $candidate.vmTopology = @($candidate.vmTopology | Where-Object guestHostname -ne 'VN2-SRV1')
+    $candidate.requiredVmsOrTopology = @($candidate.requiredVmsOrTopology | Where-Object { $_ -ne 'VN2-SRV1' })
+    if (!@(Test-CurriculumRules @($candidate) $fixtureRoot | Where-Object { $_ -match 'undeclared operational or unscoped VM VN2-SRV1' }).Count) { throw 'Required prerequisite-created replication partner was allowed to disappear from topology.' }
+    $passed++
+    $dnsFile = Join-Path $fixtureRoot $dnsEntry.path
+    $dnsOriginal = [IO.File]::ReadAllText($dnsFile)
+    if (@(Test-CurriculumRules @($dnsEntry) $fixtureRoot).Count) { throw 'Intentional scoped DNS-record data was rejected.' }
+    $passed++
+    foreach ($operation in @(
+        '1. In VN1-SRV2, under Settings, click Windows Admin Center.',
+        '1. In the portal search, type **VN4-SRV99** and click it.',
+        '$computerNames = @("VN2-SRV2"); Invoke-Command -ComputerName $computerNames { Get-Service }'
+    )) {
+        [IO.File]::WriteAllText($dnsFile, ($dnsOriginal + "`n" + $operation + "`n"), $utf8)
+        if (!@(Test-CurriculumRules @($dnsEntry) $fixtureRoot | Where-Object { $_ -match 'undeclared operational or unscoped VM' }).Count) { throw "Scoped reference leaked into operation: $operation" }
+        $passed++
+    }
+    [IO.File]::WriteAllText($dnsFile, $dnsOriginal, $utf8)
+    $candidate = ($dnsEntry | ConvertTo-Json -Depth 24) | ConvertFrom-Json
+    $candidate.referencedVms[0].PSObject.Properties.Remove('contexts')
+    if (!@(Test-CurriculumRules @($candidate) $fixtureRoot | Where-Object { $_ -match 'invalid scoped reference-only VM' }).Count) { throw 'Reason-only reference exemption was accepted.' }
+    $passed++
+    $operation = '1. In VN1-SRV2, under Settings, click Windows Admin Center.'
+    $candidate = ($dnsEntry | ConvertTo-Json -Depth 24) | ConvertFrom-Json
+    ($candidate.referencedVms | Where-Object name -eq 'VN1-SRV2').contexts += $operation
+    [IO.File]::WriteAllText($dnsFile, ($dnsOriginal + "`n" + $operation + "`n"), $utf8)
+    if (!@(Test-CurriculumRules @($candidate) $fixtureRoot | Where-Object { $_ -match 'reference-only context authorizes operational use' }).Count) { throw 'An operational GUI target was approved as reference-only data.' }
+    $passed++
+    [IO.File]::WriteAllText($dnsFile, $dnsOriginal, $utf8)
+    foreach ($referenceCase in @(
+        @{Kind='dns-record-data';Line='| record data | PM-SRV99 |'},
+        @{Kind='illustrative-example';Line='> Illustrative example only: PM-SRV99 is not provisioned.'},
+        @{Kind='deferred-inner';Line='> Reference only: PM-SRV99 is created in a later, separate nested exercise.'}
+    )) {
+        $candidate = $entryJson | ConvertFrom-Json
+        $candidate.referencedVms += [pscustomobject]@{name='PM-SRV99';kind=$referenceCase.Kind;reason='Fixture reference data only, not an execution target.';contexts=@($referenceCase.Line)}
+        [IO.File]::WriteAllText($documentPath, ($original + "`n" + $referenceCase.Line + "`n"), $utf8)
+        if (@(Test-CurriculumRules @($candidate) $fixtureRoot).Count) { throw "Explicit reference context rejected: $($referenceCase.Kind)" }
+        $passed++
+        [IO.File]::WriteAllText($documentPath, ($original + "`n" + $referenceCase.Line + "`n1. Connect to PM-SRV99 in the portal.`n"), $utf8)
+        if (!@(Test-CurriculumRules @($candidate) $fixtureRoot | Where-Object { $_ -match 'undeclared operational or unscoped VM' }).Count) { throw 'Reference data escaped its exact declared context.' }
+        $passed++
+    }
+    [IO.File]::WriteAllText($documentPath, $original, $utf8)
     foreach ($cmdlet in @('New-VHD','Add-VMHardDiskDrive','Get-VMFirmware')) {
         $text = $original + "`n1. Run the host command:`n`n````````powershell`n$cmdlet -VMName 'WIN-VN1-SRV10'`n`````````n"
         [IO.File]::WriteAllText($documentPath, $text, $utf8)

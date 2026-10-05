@@ -218,7 +218,7 @@ Perform this task on CL1.
 1. [Install the Remote Server Administration Failover Clustering Tools](#task-1-install-the-remote-server-administration-failover-clustering-tools) on CL1
 1. [Install the failover clustering feature](#task-2-install-the-failover-clustering-feature) on VN1-SRV4 and VN1-SRV5
 1. [Validate the configuration](#task-3-validate-the-configuration) on VN1-SRV4 and VN1-SRV5
-1. [Create a failover cluster](#task-4-create-a-virtual-machine) with VN1-SRV4 and VN1-SRV5 as nodes with the name VN1-CLST1 and the IP address 10.1.1.33
+1. [Create a failover cluster](#task-4-create-a-failover-cluster) with VN1-SRV4 and VN1-SRV5 as nodes with the name VN1-CLST1 and the IP address 10.1.1.33
 1. [Configure the quorum](#task-5-configure-the-quorum) to use the smallest disk as disk witness
 1. [Configure Cluster Shared Volumes](#task-6-configure-cluster-shared-volumes) according to the table below.
 
