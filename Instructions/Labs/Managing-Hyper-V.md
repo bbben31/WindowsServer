@@ -15,7 +15,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Risk, cost and optional status:** high; local-only; optional=false. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware.
 
-**Success verification:** Inner VM configuration, checkpoints, export/import and live migration match the procedure and the test guest remains usable.
+**Success verification:** Inner Hyper-V differencing disks, checkpoints, switches/NAT and VM replication match the selected tasks; the disposable guest remains usable. Record the measured replication state and recovery-point result.
 
 **Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
 
@@ -365,9 +365,9 @@ Perform this task on CL1.
 
     > What is the IP address of any new network adapter on PM-SRV1?
 
-    Configure any new network adapter on PM-SRV1 with the IP address 10.0.201.1/24.
+    Configure any new network adapter on PM-SRV1 with the IP address 10.1.201.1/24.
 
-    Change the IP addresses of PM-SRV20 and PM-SRV21 to 10.0.201.160/24 and 10.0.201.168/24.
+    Change the IP addresses of PM-SRV20 and PM-SRV21 to 10.1.201.160/24 and 10.1.201.168/24.
 
     > Can the virtual machines connect to the host?
 
@@ -556,6 +556,7 @@ Perform this task on CL1.
 1. Open **Hyper-V Manager**.
 1. In Hyper-V Manager, **PM-SRV1**.
 1. Under Virtual Machines, double-click **PM-SRV21**.
+1. Also open the **PM-SRV20** console. On its Windows guest, identify the adapter attached to **Internal** and configure **10.1.201.160/24**, gateway **10.1.201.1**, and AD DNS **10.1.1.8**. Record/remove its previous address on that adapter; do not change an unrelated adapter. Return to PM-SRV21 for the Linux configuration below.
 1. In PM-SRV21 on PM-SRV1 - Virtual Machine Connection, click on the desktop, **System tools**, **ControlPanel**.
 1. In ControlPanel, click **Network**.
 1. In Network, under **IP Address**, type  **10.1.201.168**. Under **Gateway**, type **10.1.201.1**. Under **NameServers**, type **10.1.1.8**. Ensure that under **Save Configuration**, **Yes** is selected. Click **Apply** and click **Exit**.

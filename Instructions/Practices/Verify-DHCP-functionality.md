@@ -72,7 +72,7 @@ Perform this task on CL1.
 1. Verify the IP configuration.
 
     ````powershell
-    Get-NetIPConfiguration -ComputerName $computerName
+    Invoke-Command -ComputerName $computerName { Get-NetIPConfiguration }
     ````
 
     At least one network adapter should haven an IP address in the 10.1.1.0 subnet, the IPv4DefaultGateway of 10.1.1.1 and DNSServer of 10.1.1.8.
@@ -105,7 +105,9 @@ $computerName = @(
 If you used an array for ````$computerName````, you must change verification command like this:
 
 ````powershell
-$computerName | ForEach-Object { Get-NetIPConfiguration -ComputerName $PSItem }
+$computerName | ForEach-Object {
+    Invoke-Command -ComputerName $PSItem { Get-NetIPConfiguration }
+}
 ````
 
 ### SConfig

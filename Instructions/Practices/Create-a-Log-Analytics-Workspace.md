@@ -52,6 +52,7 @@ Perform this task on the host computer.
 1. On the tab Review + Create, click **Create**.
 
     Wait for the deployment to complete, then record the workspace name privately.
+1. Open the workspace's **Usage and estimated costs > Data Retention** settings (or the current equivalent) and explicitly set/verify **30 days** for the disposable lab. Record the effective default/table retention and do not enable longer retention or data ingestion without an approved cost estimate; a budget notification is not a spending hard stop.
 
 1. When the lab is complete, delete the disposable workspace and verify the resource group contains no unexpected resources.
 

@@ -57,4 +57,4 @@ Perform these steps inside the declared nested Hyper-V host.
 1. Switch to **Hyper-V Manager**.
 1. In the context-menu of **WIN-PM-SRV1**, click **Start**.
 
-Repeat this task from step 3 for **WIN-PM-SRV2**.
+Repeat this task from the **Shut down** step for **WIN-PM-SRV2**, and verify its state is **Off** before exposing processor extensions or changing fixed memory. Apply MAC spoofing to every declared inner NIC, not to an assumed pair if the recorded topology differs.

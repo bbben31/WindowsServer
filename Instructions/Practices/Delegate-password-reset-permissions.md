@@ -5,9 +5,9 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-Remote-Server-Administration-Tools.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-Remote-Server-Administration-Tools.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional until retired; supply the guest or explicitly confirm retirement with -RetiredVmName); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional until retired; supply the guest or explicitly confirm retirement with -RetiredVmName); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup.
 
 **Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup.
 
@@ -48,7 +48,7 @@ Perform these steps on CL1.
 1. In the context-menu of **IT**, click **New**, **Group**.
 1. In New Object - Group, in **Group name**, type **Helpdesk**. Under **Group scope**, ensure **Global** is selected. Under **Group type**, ensure **Security** is selected. Click **OK**.
 1. In **Active Directory Users and Computers**, in **IT**, click **Dante Dabney**, hold down CTRL, and click **Ida Alksne**, **Lara Raisic**, and  **Stefan Deboer**.
-1. In the **Tasks** pane, under **4 items selected**, click **Add to group...**.
+1. In the context menu of the selected users in **Active Directory Users and Computers**, click **Add to a group...**.
 1. In Select Groups, under **Enter the object names to select**, type **Helpdesk** and click **OK**.
 1. In **Active Directory Users and Computers**, click **Entitling groups**.
 1. In the context-menu of **Entitling Groups**, click **New**, **Group**.
@@ -75,8 +75,10 @@ Perform these steps on CL1.
 
     > You cannot edit any properties.
 
-1. In Abbie Parsons, click **Cancel**.
+1. In Ada Russell, click **Cancel**.
 1. In **Active Directory Administrative Center**, in **ad-Sales**, in the context-menu of **Abbie Parsons**, click **Reset password...**.
 1. In Reset Password, in **Password** and **Confirm password**, type a secure password. Click to deactivate **User must change password at next log on** and click **OK**.
 
     > You have reset the password of a user successfully.
+
+1. As the same delegated user, try to reset the password of a disposable test user in another OU (not an administrator or service account). Record **Access denied**. If it succeeds, inspect inherited permissions and group memberships before claiming the delegation is restricted to Sales.

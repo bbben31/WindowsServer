@@ -5,9 +5,9 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md; Instructions/Practices/Install-File-Server-Resource-Manager.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md; Instructions/Practices/Install-File-Server-Resource-Manager.md; Instructions/Practices/Configure-storage-report-options.md; Instructions/Practices/Configure-access-denied-assistance.md; Instructions/Practices/Configure-e-mail-notifications-in-FSRM.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
 **Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
 
@@ -41,8 +41,10 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 1. On **CL1**, sign in as **ad\\Administrator**.
 2. Complete [Install prerequisites for file server](../Practices/Install-prerequisites-for-file-serving.md) and verify the `Users` share on VN1-SRV10.
+   Complete [Install File Server Resource Manager](../Practices/Install-File-Server-Resource-Manager.md), [Configure storage report options](../Practices/Configure-storage-report-options.md), [Configure Access-Denied Assistance](../Practices/Configure-access-denied-assistance.md), and [Configure e-mail notifications](../Practices/Configure-e-mail-notifications-in-FSRM.md) before the relevant tasks. The e-mail practice is configuration-only without SMTP: inspect local events/reports, and do not claim mail was delivered. To test delivery, separately provision an authorized isolated SMTP sink, record its address/recipients, and successfully send the FSRM test e-mail first.
 3. On **CL2**, sign in as **ad\Lara**.
 4. On VN1-SRV10, verify `C:\WindowsServerLab\Resources\Sample Documents\Travel Packages` contains more than 100 MB of disposable data. If it does not, copy the repository `Resources` directory and run `Solutions\Initialize-SampleDocuments.ps1` there.
+5. In File Server Resource Manager connected to VN1-SRV10, open **Configure Options > File Screen Audit** and activate **Record file screening activity in audit database** before the intentional violations. Record the original audit setting for cleanup. Verify the controlled IT copy dataset is larger than 50 MB but no larger than 75 MB, the mapped `Users\User1` folder exists, and the classification/expiration fixtures include matching/nonmatching content plus recent/older-than-365-day files. Do not use unrelated real documents for the destructive expiration test.
 
 ## Introduction
 
@@ -360,14 +362,14 @@ Perform this task on CL1.
 
 1. Switch to **File Server Resource Manager**.
 1. In **Quotas**, double-click the quota on **D:\\Shares\\Users\\User1**.
-1. In Quota Properties of D:\\Shares\\Users\\User1, under **Limit**, type **100** and click **OK**.
+1. In Quota Properties of D:\\Shares\\Users\\User1, under **Limit**, type **200** **MB** and click **OK**. Confirm existing data plus the staged Travel Packages dataset fits within this limit; the default sample dataset itself exceeds 100 MB.
 
     Alternatively you could use the following PowerShell commands in **Terminal**:
 
     ````powershell
     Enter-PSSession VN1-SRV10
-    Set-FSRMQuota -Path D:\Shares\Users\User1\ -Size 100MB
-    Exit-PSSesseion
+    Set-FSRMQuota -Path D:\Shares\Users\User1\ -Size 200MB
+    Exit-PSSession
     ````
 
 1. Retry to copy **\\\\VN1-SRV10\\c$\\WindowsServerLab\\Resources\\Sample Documents\\Travel Packages** to **U:**. Use either File Explorer, or in **Terminal**, PowerShell.
@@ -628,7 +630,7 @@ Perform this task on CL1.
     Enter-PSSession VN1-SRV10
     ````
 
-1. For **D:\\Shares\\Users**, set the folder usage property to **User Files**.
+1. For **D:\\Shares\\Finance**, set the folder's **Access-Denied Assistance Message** to the text below.
 
     ````powershell
     Set-FsrmMgmtProperty `
@@ -650,7 +652,7 @@ Perform this task on CL2.
 1. In **File Explorer**, navigate to **\\\\VN1-SRV10**.
 1. In \\\\VN1-SRV10 double-click **Marketing**.
 
-    > You should see a custom error message as in [figure 1].
+    > For an account denied Marketing access, the global message configured in the prerequisite should appear. Verify the client assistance policy is applied; screenshots are examples, not proof of mail delivery.
 
 1. In \\\\VN1-SRV10 double-click **Finance**.
 
@@ -659,7 +661,7 @@ Perform this task on CL2.
 ## Exercise 4: Manage classification
 
 1. [Add a local property](#task-1-add-a-local-property) named Confidentiality with the possible values Confidential, PII, and Secret.
-1. [Create classification rules](#task-2-create-classification-rules) for all group files according to the table below.
+1. [Create classification rules](#task-2-create-classification-rules) for all group and user files according to the table below.
 
     | Rule name                                          | Confidentiality | Expression Type | Expression  |
     |----------------------------------------------------|-----------------|-----------------|-------------|
@@ -926,7 +928,7 @@ Perform this task on CL1.
 
     > Which files are confidential, secret, or contain PII?
 
-    > The file screen audit report does not list anything, because there are no violations of file screens.
+    > With auditing enabled before Exercise 2, the file screen audit report should include the intentional blocked ps1 copy. If it is empty, verify the audit setting, report scope/time window and attempted violation; an empty audit database does not prove there were no violations.
 
     > What are the largest files?
 
@@ -1003,7 +1005,8 @@ Perform this task on CL1.
             New-FsrmFmjCondition `
                 -Property File.DateLastModified `
                 -Condition LessThan `
-                -Value 'Date.Now'
+                -Value 'Date.Now' `
+                -DateOffset -365
         )
     )
     ````

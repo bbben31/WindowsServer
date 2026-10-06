@@ -79,7 +79,7 @@ Perform these steps on CL1.
     Invoke-Command -Session $pSSession {
         $cert = Get-ChildItem `
             -Path "Cert:\LocalMachine\My\$(($using:rdCertificate).Thumbprint)"
-        New-Item -Path c:\Certs -ItemType Directory
+        New-Item -Path c:\Certs -ItemType Directory -Force | Out-Null
         Export-Certificate `
             -Type CERT -FilePath c:\Certs\rdcb.cer -Cert $cert -Force
     }
@@ -88,6 +88,7 @@ Perform these steps on CL1.
 1. Copy the certificate file to CL1.
 
     ````powershell
+    New-Item -Path C:\Certs -ItemType Directory -Force | Out-Null
     Copy-Item `
         -FromSession $pSSession -Path c:\Certs\rdcb.cer -Destination c:\Certs
     ````
@@ -204,13 +205,13 @@ Perform these steps on CL1.
 1. Under Work Resources, click **Standard Desktop**.
 1. In Access local resources, explore the settings and click **Allow**.
 1. In the Remote Desktop Web Client navigation bar ([figure 1]), click the icon *Upload new file*.
-1. In Open, from the local disk of CL1, select a file to upload, e.g., **c:\Certs.rdcb.cer**, and click **Open**.
+1. In Open, from the local disk of CL1, select a file to upload, e.g., **C:\Certs\rdcb.cer**, and click **Open**.
 1. In the remote connection, open **File Explorer**.
 1. In File Explorer, expand **This PC**, **Remote Desktop Virtual Drive on RDWebClient** and click **Uploads**.
 
     You should see the file just uploaded.
 
-1. Copy a file to the **Downloads** folder, e.g., **C:\Bootstrap\Bootstrap-*.txt**.
+1. Copy the disposable file just uploaded from **Uploads** to the **Downloads** folder on **Remote Desktop Virtual Drive on RDWebClient**.
 1. In the dialog Are you sure, you want to download 1 file(s)?, click **Confirm**.
 
     The file should be downloaded to the Downloads folder on CL1.

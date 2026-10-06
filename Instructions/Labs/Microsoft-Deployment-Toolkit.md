@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-the-Microsoft-Deployment-Toolkit.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-the-Microsoft-Deployment-Toolkit.md; Instructions/Labs/Windows-Deployment-Services.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Complete WDS's isolated role, R: data-volume, DHCP/PXE and boot-image preparation. Install ADK Deployment Tools and the matching PE add-on on CL1 before generating MDT boot images; verify compatibility in the historical disposable snapshot.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV20 (VMware display: WIN-VN1-SRV20; accepted display aliases: VN1-SRV20; created in the designated task; not a preflight prerequisite); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
@@ -38,6 +38,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 * Created during exercise: VN1-SRV20
 
 ## Setup
+
+In the isolated historical snapshot, first complete the role, data-volume, DHCP/PXE and boot-image prerequisites of [Windows Deployment Services](Windows-Deployment-Services.md). Confirm VN1-SRV8 has the recorded **R:** deployment volume, WDS is configured, and CL1 has both ADK Deployment Tools and the matching Windows PE add-on installed. The MDT installation practice alone does not create R: or a PXE service. Do not modify the primary Server 2025/Windows 11 environment to make retired MDT work.
 
 1. In VMware Workstation, open the settings for **CL1**, select **CD/DVD**, choose **Use ISO image file**, and select `C:\WindowsServerLab\ISOs\2022_x64_EN_Eval.iso`. Connect the drive only for the import steps that require it.
 1. On **CL1**, sign in as **ad\administrator**.
@@ -377,4 +379,4 @@ Perform these steps on the host computer.
 
 1. On page Ready, click **Begin**.
 
-You do not have to wait for the installation to complete.
+Wait for deployment and the required restarts to complete. In the new guest, verify the selected edition, the recorded computer name, AD DNS, domain membership and a healthy secure channel. A started task sequence is not a successfully deployed server.

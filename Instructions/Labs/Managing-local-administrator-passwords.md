@@ -5,15 +5,15 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-group-policy-management.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-group-policy-management.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. CL2 must run Windows 11 24H2 or later for automatic account-management policy; verify matching LAPS administrative templates. Older clients cannot complete this automatic-mode exercise.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). At least 1 of [VN1-SRV1, VN1-SRV5]: Use the active AD DNS/controller from the documented deployment lineage; do not restart a retired DC. Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). At least 1 of [VN1-SRV1, VN1-SRV5]: Use the active AD DNS/controller from the documented deployment lineage; do not restart a retired DC. Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.
 
 **Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup.
 
 **Outbound access:** Isolated lab; no online download is required by the selected procedure.
 
-**Risk, cost and optional status:** high; local-only; optional=true. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution.
+**Risk, cost and optional status:** high; local-only; optional=true. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution. Automatic account management requires Windows 11 24H2, Windows Server 2025 or later.
 
 **Success verification:** LAPS backs up/rotates the intended client password and only authorized delegated readers can retrieve it; never copy it to reports.
 
@@ -38,6 +38,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 * One active domain controller: VN1-SRV1 or VN1-SRV5
 
 ## Setup
+
+Verify **CL2 runs Windows 11 24H2 or later** and the installed LAPS administrative templates expose the policy used below. [Microsoft's account-management requirements](https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-concepts-account-management-modes) limit automatic account management to Windows 11 24H2, Windows Server 2025 and later releases. On an older client, stop this automatic-mode exercise or use a separate supported client lineage; do not claim the policy automatically creates/manages an account there.
 
 1. On **CL1**, sign in as **ad\Administrator**.
 1. Open **Active Directory Administrative Center**.

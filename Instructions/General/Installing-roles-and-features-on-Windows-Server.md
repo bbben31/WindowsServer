@@ -24,7 +24,7 @@
 ## Windows Admin Center
 
 1. Navigate to **Windows Admin Center**.
-1. If necessary, add the server to install the role or feature on to Server Manager.
+1. If necessary, add the target server to Windows Admin Center.
 
     [Adding servers to Windows Admin Center](./Adding-servers-to-Windows-Admin-Center.md)
 

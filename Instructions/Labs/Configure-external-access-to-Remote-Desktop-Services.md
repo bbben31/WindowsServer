@@ -231,6 +231,8 @@ Perform these steps on CL2.
 
 Perform these steps on CL2.
 
+Before browsing from this workgroup/external baseline, obtain the enterprise CA's **public root certificate only** from the CA or the previously verified trusted CL1 store. Record and compare its thumbprint, copy the public .cer to CL2, and import it through **Certificates (Local Computer) > Trusted Root Certification Authorities > Certificates > All Tasks > Import**. Do not copy the CA private key or accept an unrelated certificate. Verify the remote.lab.test certificate's name, issuer and chain in the browser. Missing root trust and CRL reachability are different failures; stop on a name/issuer mismatch rather than clicking through it.
+
 1. Open **Microsoft Edge**.
 1. In Microsoft Edge, navigate to <https://remote.lab.test/RDWeb>
 1. On page Work Resources, sign in with **AD\Ada**.

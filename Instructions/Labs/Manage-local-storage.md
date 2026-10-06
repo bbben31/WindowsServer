@@ -5,9 +5,9 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Manage-servers-remotely-using-Microsoft-Management-Console.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Manage-servers-remotely-using-Microsoft-Management-Console.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Use a separate disposable storage lineage, with two recorded blank 1 TB data disks on VN1-SRV10 and one on VN1-SRV5. Identify each disk by unique ID; never format the OS, shared iSCSI or existing file-serving data.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.
 
 **Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
 
@@ -35,6 +35,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 * VN1-SRV5
 
 ## Setup
+
+Use a disposable storage snapshot separate from the file-serving baseline: this lab initializes/formats data disks. In VMware with each guest powered off, attach **two blank 1 TB thin-provisioned data disks to VN1-SRV10** and **one blank 1 TB data disk to VN1-SRV5**. The SRV10 NTFS maximum-size D: disk and 512 GB ReFS E: disk are different disks. SRV5 needs capacity for its 512 GB and 128 GB partitions. Record VMware disk files, controller positions, guest disk numbers/unique IDs and sizes; exclude the OS disk and existing prerequisite data. Example disk numbering is illustrative. If disks already contain another exercise's shares/iSCSI targets, stop and use the storage snapshot rather than overwrite them.
 
 1. On **CL1**, sign in as **ad\Administrator**.
 1. On **VN1-SRV10**, sign in as **ad\Administrator**.
@@ -160,7 +162,7 @@ Perform these steps on CL1.
     | VN1-SRV5 | 1    | 512 GB  | REFS        | ReFS 512GB | D            |
     | VN1-SRV5 | 1    | 128 GB  | NTFS        | NTFS 128GB | E            |
 
-1. [Extend volume](#task-2-extend-volume) NTFS 512GB on VN1-SRV10 to 768GB
+1. [Extend volume](#task-2-extend-volume) ReFS 512GB on VN1-SRV10 to 768GB
 
 ### Task 1: Create volumes
 
@@ -226,10 +228,14 @@ Perform these steps on CL1.
     ````powershell
     # Learner input: Change the disk number, the size, and the drive letter
     $diskNumber = 1
-    $size = 1TB
+    $size = $null # Maximum in the table; set e.g. 512GB for a fixed-size partition
     $driveLetter = 'D'
 
-    $partition = New-Partition -DiskNumber $diskNumber -Size $size -DriveLetter D
+    if ($null -eq $size) {
+        $partition = New-Partition -DiskNumber $diskNumber -UseMaximumSize -DriveLetter $driveLetter
+    } else {
+        $partition = New-Partition -DiskNumber $diskNumber -Size $size -DriveLetter $driveLetter
+    }
     ````
 
 1. Format the new partition.
@@ -262,7 +268,7 @@ Perform these steps on CL1.
 1. Open **Server Manager**.
 1. In Server Manager, in the left pane, click **File and Storage Services**.
 1. In File and Storage Services > Servers, on the left, click **Disks**.
-1. On **VN1-SRV10**, click disk 2 with a **Capacity** of **1 TB** and the **Bus Type** **File Backed Virtual**.
+1. On **VN1-SRV10**, select the recorded second VMware data disk with a **Capacity** of **1 TB**. Confirm its disk number and existing ReFS volume; VMware's controller type need not display **File Backed Virtual**.
 1. Under **VOLUMES**, in the context-menu of the volume with **Capacity** of **512 GB**, click **Extend Volume...**
 1. In Extend Volume, in **New size**, type 768. Ensure **GB** is selected and click **OK**.
 
@@ -331,7 +337,7 @@ Perform these steps on CL1.
 1. In Server Manager, in the left pane, click **File and Storage Services**.
 1. In File and Storage Services > Servers, under **SERVICES** (scroll down), in the context-menu of the service **SERVER**, click **Restart Services**.
 1. On the left, click **Disks**.
-1. On **VN1-SRV10**, click disk 2 with a **Capacity** of **1 TB** and the **Bus Type** **File Backed Virtual**.
+1. On **VN1-SRV10**, select the recorded second VMware data disk with a **Capacity** of **1 TB**. Confirm its disk number and remaining unallocated capacity, not a Hyper-V-specific bus-type label.
 1. Under **VOLUMES**, in the context-menu of the volume **E:**, click **Manage Drive Letter and Access Paths...**
 1. In Manage drive letter and access paths, click **Browse...**.
 1. In Select Folder, click **NTFS 1TB (D:)**.
@@ -364,6 +370,8 @@ Perform these steps on CL1.
     Get-Partition | 
     Add-PartitionAccessPath -AccessPath $path
     ````
+
+1. Run `Exit-PSSession` to return to CL1 before the next task opens a new session.
 
 ### Task 2: Validate mount points
 
@@ -411,7 +419,7 @@ Perform these steps on CL1.
 
 ## Exercise 4: Manage links and junctions
 
-Before Task 1, copy `C:\WindowsServerLab\Resources\Samples\BootStrap.ps1` on VN1-SRV10 to `C:\BootStrap\BootStrap.ps1`. Create `C:\BootStrap` first if necessary. This disposable sample is the target for the link exercises.
+Before Task 1, copy `C:\WindowsServerLab\Resources\Samples\BootStrap.ps1` on VN1-SRV10 to `C:\BootStrap\BootStrap.ps1`. Create `C:\BootStrap` first if necessary. Also create a disposable text file `C:\BootStrap\junction-test.txt` with Notepad or `Set-Content -LiteralPath C:\BootStrap\junction-test.txt -Value 'Disposable junction test'`. These disposable samples are the targets for the link exercises; do not delete a real certificate.
 
 1. [Create a hard link](#task-1-create-a-hard-link) targeting C:\BootStrap\BootStrap.ps1
 1. [Compare contents of the hard link with the original file](#task-2-compare-contents-of-the-hard-link-with-the-original-file)
@@ -546,10 +554,10 @@ Perform this task on CL1.
     Get-ChildItem D:\Setup\
     ````
 
-1. Delete **D:\\Setup\\LabRoot.cer**.
+1. Delete **D:\\Setup\\junction-test.txt**.
 
     ````powershell
-    Remove-Item D:\Setup\LabRoot.cer
+    Remove-Item -LiteralPath D:\Setup\junction-test.txt
     ````
 
 1. List the content of **C:\\Bootstrap**
@@ -558,7 +566,7 @@ Perform this task on CL1.
     Get-ChildItem C:\Bootstrap
     ````
 
-    > You should not see **Labroot.cer** anymore.
+    > You should not see **junction-test.txt** anymore. Deleting through the junction removed the file from the target directory as well.
 
 1. Close the remote PowerShell session.
 

@@ -11,7 +11,7 @@ Milestone F follows the validated [Milestone E administration stage](Core-Window
 | **Optional** | Useful curriculum extension, but not needed for the core path | WSL, containers, Azure File Sync |
 | **Dedicated** | Requires extra VMs/disks, nested virtualization, Azure resources, or a quorum design | failover clusters, S2D, Storage Replica, RDS HA, nested Hyper-V |
 
-Before every topic, run preflight, record the required VMs/disks, and take a named checkpoint. Do not use snapshots as backups for data, domain controllers, clusters, or replicated storage. Never revert one node of an active cluster or replicated pair while its peers continue running. Stop dependent guests first.
+Before every selected practice/lab, run preflight with its manifest `-CurriculumPath`, record its declared VMs/disks, and take a named checkpoint. The core `VN1-SRV20`/`VN1-SRV21` snippets below illustrate administration checks, not the prerequisites for every linked enterprise lab. Use each lab's exact named roles, addresses, disks, and setup in a separate enterprise lineage; do not replace those machines with the core members. Execute Windows administration snippets in Windows PowerShell 5.1 in the indicated guest. Do not use snapshots as backups for data, domain controllers, clusters, or replicated storage. Never revert one node of an active cluster or replicated pair while its peers continue running. Stop dependent guests first.
 
 ## Topic runbooks
 
@@ -19,7 +19,7 @@ Before every topic, run preflight, record the required VMs/disks, and take a nam
 
 **Objective:** inspect disks and volumes, create a disposable data volume, serve files, and apply file-server resource management.
 
-**Prerequisites/topology:** `VN1-SRV20` joined to `ad.lab.test`, VMnet10 management plus VMnet20 workload NIC, and one or more extra virtual disks (for example `<DATA_DISK_VHDX>`). Use [Manage local storage](../Labs/Manage-local-storage.md), [Manage file sharing](../Labs/Manage-file-sharing.md), [Install prerequisites for file serving](../Practices/Install-prerequisites-for-file-serving.md), and [Install File Server Resource Manager](../Practices/Install-File-Server-Resource-Manager.md).
+**Prerequisites/topology:** a domain-joined disposable file server and the selected procedure's exact disk/role baseline. The linked enterprise labs use `VN1-SRV10` and their declared management/AD guests; `VN1-SRV20` below is only an independent core illustration. Use [Manage local storage](../Labs/Manage-local-storage.md), [Manage file sharing](../Labs/Manage-file-sharing.md), [Install prerequisites for file serving](../Practices/Install-prerequisites-for-file-serving.md), and [Install File Server Resource Manager](../Practices/Install-File-Server-Resource-Manager.md). Do not substitute an empty core member for the prepared enterprise file server.
 
 **Safe sequence:** snapshot `F1-before-storage`; identify disks before initializing; use the GUI or source commands to bring only the disposable disk online, initialize it with the selected partition style, create a volume, and label it. Install the file-server/FSRM roles only when the selected lab requires them. Create test shares and quotas with disposable data. Never format the OS or AD volumes.
 
@@ -37,7 +37,7 @@ Get-WindowsFeature -ComputerName VN1-SRV20 -Name FS-FileServer,FS-Resource-Manag
 
 **Objective:** learn pools, virtual disks, resiliency, and storage tiers.
 
-**Prerequisites/topology:** `VN1-SRV20` plus at least two or more empty, equal-sized disposable virtual disks; Storage Spaces Direct needs multiple eligible nodes and additional disks. Use [Implementing and managing Storage Spaces and Storage Tiering](../Labs/Implementing-and-managing-Storage-Spaces-and-Storage-Tiering.md).
+**Prerequisites/topology:** the selected procedure's server and exact disposable disk count/sizes. [Implementing and managing Storage Spaces and Storage Tiering](../Labs/Implementing-and-managing-Storage-Spaces-and-Storage-Tiering.md) uses enterprise `VN1-SRV10`, not the illustrative core `VN1-SRV20` below. Storage Spaces Direct is a separate multi-node topology; two generic disks are not its complete prerequisite.
 
 **Safe sequence:** snapshot `F2-before-pool`; confirm disk identity and emptiness; create a pool/virtual disk only through the source procedure; record resiliency and tier choices; test a disposable volume. Do not include the OS disk, AD database, or a disk containing required data.
 
@@ -54,7 +54,7 @@ Storage Spaces and S2D are not backups. Pool removal, disk retirement, and tier 
 
 **Objective:** provide and consume block storage over iSCSI and understand multipath failover.
 
-**Prerequisites/topology:** an iSCSI target VM and an initiator VM, separate VMnet20 storage paths where the source lab requires them, and at least two independent virtual NIC/path designs for MPIO. Use [Implementing and managing iSCSI and MPIO](../Labs/Implementing-and-managing-iSCSI-and-multipath-io.md).
+**Prerequisites/topology:** an iSCSI target VM and an initiator VM, separate VMnet11 storage paths where the source lab requires them, and at least two independent virtual NIC/path designs for MPIO. Use [Implementing and managing iSCSI and MPIO](../Labs/Implementing-and-managing-iSCSI-and-multipath-io.md).
 
 **Safe sequence:** snapshot target and initiator; use unique IQNs and disposable LUNs; connect the initiator through the documented target portal; enable MPIO only after confirming the supported path design; format and mount only the new LUN. Never expose the target to the physical LAN.
 
@@ -72,7 +72,7 @@ Expected state is a connected disposable LUN and, for MPIO, the intended number 
 
 **Objective:** compare namespace/file replication with cloud-backed synchronization.
 
-**Prerequisites/topology:** two disposable file servers (`VN1-SRV20`, `VN1-SRV21`) and test shares for DFS; Azure File Sync additionally needs an existing Azure subscription, storage account, endpoint permissions, outbound access, and cost review. Use [Distributed File System and Azure File Sync](../Labs/Distributed-File-System-and-Azure-File-Sync.md).
+**Prerequisites/topology:** the exact servers, identities, shares, and DFS roles declared by [Distributed File System and Azure File Sync](../Labs/Distributed-File-System-and-Azure-File-Sync.md), including enterprise `VN1-SRV10` and `VN1-SRV6`. The `VN1-SRV20`/`VN1-SRV21` check below illustrates a separate core pair, not a substitution for that lab. Azure File Sync additionally needs an existing Azure subscription, storage account, endpoint permissions, persistent approved outbound access while syncing, and cost review.
 
 **Safe sequence:** create only disposable namespace roots and test files; document the authoritative copy before enabling replication. For Azure File Sync, use a dedicated resource group and budget controls, connect VMnet8 only for the approved operation, and remove the cloud endpoint after testing.
 
@@ -108,7 +108,7 @@ Nested virtualization can be unsupported or slow depending on VMware/Windows ver
 
 **Objective:** learn quorum, clustered roles, replicated storage, and hyper-converged design.
 
-**Prerequisites/topology:** at least two or three disposable member servers, a stable AD/DNS foundation, dedicated VMnet20 management/storage paths, extra disks, and a witness location where the source lab requires it. Use [Installing and configuring a fail-over cluster](../Labs/Installing-and-configuring-a-fail-over-cluster.md), [Storage Replica and stretched cluster](../Labs/Storage-Replica-and-stretched-cluster.md), and [Configuring and managing S2D](../Labs/Configuring-and-managing-Storage-Spaces-Direct-and-hyper-converged-virtualization.md).
+**Prerequisites/topology:** at least two or three disposable member servers, a stable AD/DNS foundation, dedicated VMnet11 management/storage paths, extra disks, and a witness location where the source lab requires it. Use [Installing and configuring a fail-over cluster](../Labs/Installing-and-configuring-a-fail-over-cluster.md), [Storage Replica and stretched cluster](../Labs/Storage-Replica-and-stretched-cluster.md), and [Configuring and managing S2D](../Labs/Configuring-and-managing-Storage-Spaces-Direct-and-hyper-converged-virtualization.md).
 
 **Safe sequence:** snapshot every node and data disk as `F6-before-cluster`; validate names, DNS, time, firewall, identical patch level, and disk eligibility; run the source validation wizard; define quorum/witness deliberately; create only disposable clustered roles; test one planned failure at a time.
 
@@ -118,7 +118,8 @@ Get-ClusterNode
 Get-ClusterQuorum
 Get-ClusterGroup
 Get-ClusterSharedVolume
-Test-Cluster -Node VN1-SRV20,VN1-SRV21
+# Run Test-Cluster separately in the selected lab's validation phase;
+# it is not a read-only inventory check and can disrupt storage/roles.
 Get-SRGroup -ComputerName VN1-SRV20 -ErrorAction SilentlyContinue
 ```
 
@@ -143,4 +144,4 @@ WSUS consumes disk and bandwidth; RDS and public access can create licensing/sec
 
 ## F verification gate
 
-Milestone F is complete only for the selected topic when its required VMs/disks/resources exist, the source lab’s verification commands pass, the named checkpoint is recorded, and cleanup/rollback has been rehearsed or documented. Run the curriculum manifest and preflight again. Do not call a topic complete merely because a role installed successfully.
+Milestone F is complete only for the selected topic when its required VMs/disks/resources exist, the source lab’s verification commands pass, the named checkpoint is recorded, and cleanup/rollback has been rehearsed or documented. Validate the curriculum manifest and run preflight again with the selected item's `-CurriculumPath`. Do not call a topic complete merely because a role installed successfully.

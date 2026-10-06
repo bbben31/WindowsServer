@@ -5,9 +5,9 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Use seven recorded new eligible disks (five 1 TB HDD-labelled and two 100 GB SSD-labelled) separate from the OS and D: file-serving baseline; use the verified unused R: letter for disposable pool volumes. Simulated media types do not prove physical SSD acceleration.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.
 
 **Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
 
@@ -35,6 +35,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 ## Setup
 
 On CL1 sign in as ad\administrator.
+
+Before starting, use VMware with VN1-SRV10 powered off to attach **five new growable 1 TB HDD-labelled data disks and two new growable 100 GB SSD-labelled data disks** to unused SCSI nodes. Record each VMDK/SCSI node and map it to the guest's physical-disk unique ID after startup. Do not initialize them as standalone volumes. Require all seven to be eligible to pool and separate from the OS and the prerequisite D: file-serving volume. This exercise uses the unused letter **R:** for its pool volumes so it does not overwrite or conflict with `D:\Shares`; verify R: is free before proceeding. The simulated hardware/media types do not provide real SSD acceleration, and host free space must cover actual growth.
 
 ## Introduction
 
@@ -124,7 +126,7 @@ Perform these steps on CL1.
 1. In **New Volume Wizard**, on page Before You Begin, click **Next >**.
 1. On page Server and Disk, under **Server**, ensure **VN1-SRV10** is selected. Under Disk, ensure the **Virtual Disk** **Data** is selected. Click **Next >**.
 1. On page Size, ensure, in **Volume size**, **1024** is filled in and **GB** is selected. Click **Next >**.
-1. On page Drive Letter or Folder, ensure, beside **Drive letter**, **D** is selected and click **Next >**.
+1. On page Drive Letter or Folder, select the unused **R** drive letter and click **Next >**. Leave the prerequisite D: volume unchanged.
 1. On page File System settings, beside **File System**, click **ReFS**. In **Volume label**, type **Data**. Click **Next >**.
 1. On page Confirmation, click **Create**.
 1. On page Results, click **Close**.
@@ -164,7 +166,7 @@ Perform these steps on CL1.
    New-Volume `
       -FriendlyName 'Data' `
       -FileSystem ReFS `
-      -DriveLetter D `
+      -DriveLetter R `
       -DiskUniqueId $virtualDisk.UniqueId `
       -CimSession $cIMSession
    ````
@@ -246,13 +248,13 @@ Peform this task on CL1.
 Perform this task on the host.
 
 1. In the context-menu of *Start*, click **Windows PowerShell (Admin)** or **Terminal (Administrator)**.
-1. In Windows PowerShell (Admin) or Terminal, create a drive with the name **V** using the **FileSystem** provider with the root **\\\\vn1-srv10\\d$** using the credentials of **Administrator**.
+1. In Windows PowerShell (Admin) or Terminal, create a drive with the name **V** using the **FileSystem** provider with the root **\\\\vn1-srv10\\r$** using the authorized lab credentials. This is the new disposable pool volume, not the D: file-serving baseline.
 
    ````powershell
    New-PSDrive `
       -Name V `
       -PSProvider FileSystem `
-      -Root \\vn1-srv10\d$ `
+      -Root \\vn1-srv10\r$ `
       -Credential Administrator
    ````
 
@@ -314,18 +316,20 @@ Perform this task on CL1.
 1. In File and Storage Services, click on **Storage Pools**.
 1. In Storage Pools, under **STORAGE POOLS**, click **TASKS**, **Refresh**.
 1. In the context-menu of the storage pool **Pool1**, click **Add Physical Disk...**
-1. In Add Physical Disk, activate one disk with **Capacity** of **1,00 TB** and click **OK**.
+1. In Add Physical Disk, activate **both** recorded new replacement disks with **Capacity** of **1,00 TB** and click **OK**. Verify their unique IDs rather than selecting unrelated pool candidates.
 1. In **Server Manager**, **Storage Pools**, under **STORAGE POOLS**, ensure **Pool1** is selected. Under **PHYSICAL DISKS** in the context menu of one disk with the warning sign, click **Remove Disk**.
 1. In the message box Remove Physical Disk, click **Yes**.
 1. In the message box Remove Physical Disk, click **OK**.
 
    The **Usage** of the physical disk will change to **Retired**.
 
+1. Retire the second recorded failed disk in the same way. Before the final removal of either retired disk, repair **Data** using `Get-VirtualDisk -CimSession VN1-SRV10 | Where-Object FriendlyName -eq 'Data' | Repair-VirtualDisk -CimSession VN1-SRV10` as required. Monitor `Get-StorageJob -CimSession VN1-SRV10` until repair finishes, verify both replacements are in Pool1, and require the virtual disk to be healthy with the old disks' data evacuated. Do not continue to final removal while repair is incomplete.
+
 1. In **Server Manager**, **Storage Pools**, under **STORAGE POOLS**, ensure **Pool1** is selected. Under **PHYSICAL DISKS** in the context menu of the disk with the **Usage** of **Retired**, click **Remove Disk**.
 1. In the message box Remove Physical Disk, click **Yes**.
 1. In the message box Remove Physical Disk, click **OK**.
 
-   Repeat from step 5 for the second disk with warning sign.
+   Repeat the final removal for the second recorded retired disk only after the repair checks above pass. Require the pool and virtual disk to be healthy before the fatal-failure task.
 
 1. In **Server Manager**, **Storage Pools**, under **STORAGE POOLS**, click **TASKS**, **Refresh**.
 
@@ -519,7 +523,7 @@ Perform these steps on CL1.
 1. In **New Volume Wizard**, on page Before You Begin, click **Next >**.
 1. On page Server and Disk, under **Server**, ensure **VN1-SRV10** is selected. Under Disk, ensure the **Virtual Disk** **Tiered Disk 1** is selected. Click **Next >**.
 1. On page Size, click **Next >**.
-1. On page Drive Letter or Folder, ensure, beside **Drive letter**, **D** is selected and click **Next >**.
+1. On page Drive Letter or Folder, select **R** (freed when the previous disposable pool volume was removed) and click **Next >**. Keep D: intact.
 1. On page File System settings, in **Volume label**, type **Data**. Click **Next >**.
 1. On page Confirmation, click **Create**.
 1. On page Results, click **Close**.
@@ -535,7 +539,7 @@ Perform these steps on CL1.
    $cIMSession = New-CimSession -ComputerName VN1-SRV10
    ````
 
-1. On VN1-SRV10, select the storage pool **Pool1** and store it in a variable.
+1. On VN1-SRV10, select the storage pool **TieredPool1** and store it in a variable.
 
    ````powershell
    $storagePool = `
@@ -563,12 +567,12 @@ Perform these steps on CL1.
       -StorageTierSizes 32GB, 64GB
    ````
 
-1. Create a new volume on the new virtual disk and assign it to the drive letter D.
+1. Create a new volume on the new virtual disk and assign it to the unused drive letter R.
 
    ```powershell
    New-Volume `
       -FriendlyName 'Data' `
-      -DriveLetter D `
+      -DriveLetter R `
       -DiskUniqueId $virtualDisk.UniqueId `
       -CimSession $cimSession
    ````
@@ -611,7 +615,7 @@ Perform this task on CL1.
 As our HDDs are simulated, we will not see any acceleration in this lab. Note that you could assign files permanently to the SSD tier, for example:
 
 ````powershell
-$filePath = 'D:\VM1\Virtual hard Disks\VM1.vhdx'
+$filePath = 'R:\VM1\Virtual hard Disks\VM1.vhdx'
 Set-FileStorageTier `
     -FilePath $filePath `
     -DesiredStorageTierFriendlyName 'SSD_Tier'

@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Prepare the VNet3 AD site and its 10.1.3.0/24 subnet mapping using Managing sites and replication Exercise 1 only; this prerequisite does not require the later GC/site-link experiments.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); CL4 (VMware display: CL4; accepted display aliases: WIN-CL4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
 
@@ -37,6 +37,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 * VN3-SRV1
 
 ## Setup
+
+Prepare the named file shares and disposable data through [Install prerequisites for file serving](../Practices/Install-prerequisites-for-file-serving.md). For hosted-cache automatic discovery, complete only the site/subnet preparation in [Managing sites and replication, Exercise 1](Managing-sites-and-replication.md#exercise-1-create-sites): **10.1.3.0/24** must map to **VNet3**. Verify `nltest /DSGETSITE` reports VNet3 on VN3-SRV1 and the hosted-cache clients after their move; an absent/mismatched AD site is not a valid SCP-discovery baseline.
 
 1. On the host, open **VMware Workstation**.
 1. Shut down CL3 and CL4. In VMware Workstation, attach each lab NIC to the custom VMnet mapped to source **VNet3**, then start both guests.
@@ -331,7 +333,8 @@ Perform this task on CL1.
     Copy-Item `
         -Path '\\vn1-srv10\d$\Shares\BCCachePackage' `
         -ToSession $pSSession `
-        -Destination c:\
+        -Destination c:\ `
+        -Recurse
     ````
 
 1. Enter the remote PowerShell session.

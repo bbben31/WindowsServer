@@ -96,7 +96,7 @@ Perform this task on the host computer.
 1. In Assign policy, on tab Basics, under **Scope**, click the ellipsis.
 1. In the pane Scope, click the **Subscription**, **Resource Group**, and click **Select**.
 1. In Assign policy, under **Basics**, **Policy definition**, click the ellipsis.
-1. In the pane Available Definitions, in search, type **Log Analytics extension should be installed on your Windows Azure Arc machines**. Click **\[Preview\]: Log Analytics extension should be installed on your Windows Azure Arc machines** and click **Add**.
+1. In Available Definitions, select **Windows Arc-enabled machines should have Azure Monitor Agent installed**, with **AuditIfNotExists**, from the [current built-in Arc policy reference](https://learn.microsoft.com/en-us/azure/azure-arc/servers/policy-reference). Scope it only to the exercise resource group. Do not select the retired legacy Log Analytics/MMA agent policy or a DeployIfNotExists initiative for this audit task.
 1. Click **Review + Create**.
 1. On tab Review + Create, click **Create**.
 
@@ -109,11 +109,11 @@ Perform this task on the host computer.
 1. In **Search resources, services and docs (G+/)**, type **Policy** and click it.
 1. In **Policy**, click **Compliance**.
 
-    > The policy Audit Windows VMs with a pending reboot will have the state Non-Compliant with a resource compliance of 0 out of 1, because VN1-SRV8 should not have a pending reboot.
+    > After assessment completes, the pending-reboot audit should be Compliant when VN1-SRV8 has no pending reboot, and Non-Compliant when it has a pending reboot. Record the actual assessment; Not started or an assessment error is not proof of compliance.
 
-    > The policy Audit Windows machines that contain certificate expiring within the specified number of days will have the state Non-Compliant with a resource compliance of 0 out of 1, because VN1-SRV8 should not have expiring certificates.
+    > After assessment completes, the expiring-certificate audit should be Compliant when no certificate meets its expiry condition, and Non-Compliant when a certificate does. Record the actual result and configured expiry threshold.
 
-    > The policy \[Preview\]: Log Analytics extension should be installed on your Windows Azure Arc machines will have the state Non-Compliant with a resource compliance of 0 out of 1, because VN1-SRV8 does not have an agent installed yet. You will fix that in an upcoming exercise.
+    > After assessment, the AMA installation audit should report Non-Compliant for the eligible VN1-SRV8 resource until the upcoming exercise installs Azure Monitor Agent. Reassess it afterward. Not applicable/unsupported region or an assessment error must be recorded separately from agent absence.
 
     You may want to click one or the other of the policy to review details.
 
@@ -288,7 +288,7 @@ Perform this task on the host computer.
 1. In the breadcrumb navigation at the top, click **VN1-SRV8 | Change tracking**.
 1. Under **Operations** section, click **Inventory**.
 
-    The tabs Software, Files, Windows Registry, and Windows Services will show no data, because no changes were detected recently
+    Wait for the initial inventory collection. Software and Windows Services can show current-state inventory even without changes; Files/Registry depend on the selected collection configuration. An initially empty inventory indicates pending collection or a configuration/agent problem, not proof that no changes occurred. Verify collection/agent health before drawing conclusions.
 
 You might want to revisit this task at the end of the lab to see changes.
 
@@ -340,7 +340,7 @@ Perform this task on the host computer.
 1. Navigate to <https://portal.azure.com> and sign in to Azure, if necessary.
 1. In Microsoft Azure, in **Search resource, service, and docs (G+/)**, type **Azure Update Manager** and click it.
 1. In Azure Update Manager, under **Resources**, click **Machines**.
-1. Under Azure Update Manager | Machines, activate the checkbox **Select all**, click **One-time update** and click **Install Now**.
+1. Under Azure Update Manager | Machines, filter to the exercise resource group and select **VN1-SRV8 only**, click **One-time update** and click **Install Now**. Do not update unrelated subscription machines.
 1. In Install one-time updates, on tab Machines, ensure **VN1-SRV8** was added, and click **Next**.
 1. On tab Updates, review the Windows updates to install and click **Next**.
 1. On tab Properties, beside **Reboot option**, click **Reboot of required**. Beside **Maintenance windows (in minutes)**, type **60**. Click **Next**.

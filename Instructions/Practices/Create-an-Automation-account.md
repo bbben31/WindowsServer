@@ -46,9 +46,9 @@ Perform this task on the host computer.
 1. In Create a resource, in **Search services and marketplace**, enter **Automation**.
 1. In Marketplace, click **Automation** ([figure 1]).
 1. In Automation, click **Create**.
-1. In Create an Automation Account, on the tab Basics, select the existing subscription and `<AZURE_RESOURCE_GROUP>`. Use a disposable name such as `auto-<LAB_SUFFIX>` and set the region to UK South after checking availability. Confirm the £10 hard limit, quota, and cleanup plan before selecting **Review + Create**.
+1. In Create an Automation Account, on the tab Basics, select the existing subscription and `<AZURE_RESOURCE_GROUP>`. Use a disposable name such as `auto-<LAB_SUFFIX>` and set the region to UK South after checking availability. Confirm headroom below the learner-imposed £10 monthly safety limit, quota, and cleanup plan before selecting **Review + Create**. Budget alerts do not enforce a spending cap or stop resources.
 1. On the tab Review + Create, click **Create**.
 
-    Wait for the deployment to complete, then remove the account and any runbooks, identities, schedules, or diagnostic data created for the practice.
+    Wait for the deployment to complete and record the account privately. Retain it only while the explicitly selected dependent exercises require it; do not delete their prerequisite prematurely. When those exercises finish, remove the account and only the runbooks, identities, schedules or diagnostic data created for this disposable sequence, and verify cleanup/billing.
 
 [figure 1]: /images/Automation.png

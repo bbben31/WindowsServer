@@ -7,7 +7,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV13 (VMware display: VN1-SRV13; accepted display aliases: WIN-VN1-SRV13; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV13 (VMware display: VN1-SRV13; accepted display aliases: WIN-VN1-SRV13; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
 **Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
 
@@ -15,7 +15,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Risk, cost and optional status:** high; local-only; optional=true. Optional nested Windows-container exercise. Verify VMware nesting and Microsoft host/image compatibility. Preserve the historical SDK 6 sample only in disposable compatibility work; skip sample-app building if its SDK/runtime/framework cannot be validated, and retain the basic container exercise.
 
-**Success verification:** The pinned installer hash matches, Nano Server image runs, and the built sample image produces the intended output.
+**Success verification:** The pinned installer hash matches and the compatible Nano Server image runs. The optional historical sample image is built only when its SDK/runtime/host compatibility gate passes; otherwise record the explicit skip and retain the basic container result.
 
 **Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
 
@@ -68,6 +68,7 @@ Perform this task on VN1-SRV13.
 1. Download and install Docker CE from Github.
 
     ````powershell
+    New-Item -Path C:\WindowsServerLab\Resources\Downloads -ItemType Directory -Force | Out-Null
     Set-Location C:\WindowsServerLab\Resources\Downloads
     $uri = 'https://raw.githubusercontent.com/microsoft/Windows-Containers/9fd4c4d85597ce75834f4e1cd21695c34642de3d/helpful_tools/Install-DockerCE/install-docker-ce.ps1'
     $expectedHash = '09DED921D046EE98723ED533E6E517691C744A916769C181AA1C4A2DC784E63E'
@@ -135,10 +136,11 @@ Perform this task on VN1-SRV13.
 
     You are now in a `cmd.exe` session inside the container.
 
-1. In the container, create a simple text file **Hello.txt** in **C:\\Users\\ContainerUser** and exit from the container.
+1. In the container, run `echo %USERNAME%` and verify **ContainerAdministrator**, as explicitly selected by the preceding `--user ContainerAdministrator` run command. If it is not the administrator identity, stop and correct the disposable container's run configuration before writing at C:\.
+1. In that verified administrator container, create a simple text file **C:\\Hello.txt** and exit from the container.
 
     ````shell
-    echo "Hello World!" > Hello.txt
+    echo "Hello World!" > C:\Hello.txt
     exit
     `````
 
@@ -169,10 +171,10 @@ Perform this task on VN1-SRV13.
 
     You should see the helloworld image in addition to the Nano server image.
 
-1. Run the new container, type the content of **C:\\Users\\ContainerUser\\Hello.txt** and remove the container.
+1. Run the new container, type the content of **C:\\Hello.txt** and remove the container.
 
     ````powershell
-    docker container run --rm helloworld cmd.exe /s /c type Hello.txt
+    docker container run --rm helloworld cmd.exe /s /c type C:\Hello.txt
     ````
 
     You should see the content of Hello.txt.
@@ -310,7 +312,8 @@ Perform this task on CL1.
 
     *Note:* This step deliberately demonstrates Hyper-V isolation. It is a teaching choice; consult the compatibility matrix before claiming that image/host versions require it.
 
-1. Open **Microsoft Edge**.
+1. On VN1-SRV13, allow the published port only from CL1's recorded lab address, using an exercise-specific inbound TCP rule for **5000** (Domain profile). Record any existing rule; do not open the port to unrelated networks.
+1. Exit the remote PowerShell session to return to **CL1**. Open **Microsoft Edge**.
 1. In Microsoft Edge, navigate to <http://VN1-SRV13:5000>.
 
     You should see a sample web site.

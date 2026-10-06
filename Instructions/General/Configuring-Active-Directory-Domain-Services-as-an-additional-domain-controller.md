@@ -49,7 +49,9 @@ These are the steps to configure Active Directory Domain services locally on the
 
     # Change these parameters as required
 
-    $siteName = $null
+    $siteName = $null # Set an existing AD site name if required
+    $siteParameters = @{}
+    if (![string]::IsNullOrWhiteSpace($siteName)) { $siteParameters.SiteName = $siteName }
 
     $installDns = $true
     $noGlobalCatalog = $false
@@ -73,6 +75,7 @@ These are the steps to configure Active Directory Domain services locally on the
         -SafeModeAdministratorPassword:$safeModeAdministratorPassword `
         -InstallDns:$installDns `
         -NoGlobalCatalog:$noGlobalCatalog `
+        @siteParameters `
         -CreateDnsDelegation:$createDnsDelegation `
         -DnsDelegationCredential:$dnsDelegationCredential `
         -ReplicationSourceDC:$replicationSourceDC `
@@ -122,7 +125,9 @@ These are the steps to configure Active Directory Domain services remotely.
 
         # Change these parameters as required
 
-        $siteName = $null
+        $siteName = $null # Set an existing AD site name if required
+        $siteParameters = @{}
+        if (![string]::IsNullOrWhiteSpace($siteName)) { $siteParameters.SiteName = $siteName }
 
         $installDns = $true
         $noGlobalCatalog = $false
@@ -148,6 +153,7 @@ These are the steps to configure Active Directory Domain services remotely.
             -SafeModeAdministratorPassword:$safeModeAdministratorPassword `
             -InstallDns:$installDns `
             -NoGlobalCatalog:$noGlobalCatalog `
+            @siteParameters `
             -CreateDnsDelegation:$createDnsDelegation `
             -DnsDelegationCredential:$dnsDelegationCredential `
             -ReplicationSourceDC:$replicationSourceDC `

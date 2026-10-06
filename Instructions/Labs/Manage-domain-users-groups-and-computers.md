@@ -5,9 +5,9 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Manage-local-groups.md; Instructions/Practices/Enable-the-Active-Directory-Recycle-Bin.md; Instructions/Labs/Explore-Windows-Admin-Center.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Manage-local-groups.md; Instructions/Practices/Enable-the-Active-Directory-Recycle-Bin.md; Instructions/Labs/Explore-Windows-Admin-Center.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary VMnet8 NAT on the configured WAC gateway guest and CL1 browser during extension installation only; retain isolated AD NICs/DNS and disconnect afterward.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary VMnet8 NAT on the configured WAC gateway guest and CL1 browser during extension installation only; retain isolated AD NICs/DNS and disconnect afterward.
 
 **Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup. WAC gateway Administrator for installing the extension; Local Administrator on gateway/browser guests only for temporary NIC configuration.
 
@@ -876,7 +876,7 @@ Perform this task on CL1.
 1. In Active Directory Administrative Center, click **Global Search**.
 1. Under GLOBAL SEARCH, in **Search**, type **CL2** and click **Search**.
 1. In the context-menu of **CL2**, click **Reset account...**.
-1. In the message box **Are you sure you want to delete the Computer 'CL2'?**, click **Yes**.
+1. Confirm only the **reset account** operation for CL2. If the dialog asks to **delete** the computer, click **No/Cancel** and reselect Reset account; deleting the object is not this task.
 
 #### PowerShell
 

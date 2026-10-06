@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-the-DNS-server-role.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-the-DNS-server-role.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Build the documented unsigned isolated fixture first: PM-SRV1 lab.test primary, controlled secondary transfers to PM-SRV2/VN1-SRV1/VN2-SRV1, VN2-SRV1 china.ad.lab.test apex records, VN1-SRV1 remote.lab.test, MX/SMTP records and conditional forwarding. Verify routes and baseline responses before NRPT/signing.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); PM-SRV2 (VMware display: PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
 
@@ -15,7 +15,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Risk, cost and optional status:** high; local-only; optional=false. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware.
 
-**Success verification:** The intended zone validates with DNSSEC and the configured policy rejects the documented unauthorized queries.
+**Success verification:** Compare unsigned-before and signed-after fixture queries, the transferred DNSKEY/template prerequisites and effective NRPT policy. DNSSEC validation enforces the intended namespace policy; ordinary DNS success alone is not proof of validation.
 
 **Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
 
@@ -42,6 +42,17 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 ## Setup
 
 On CL1 and CL2 sign in as **ad\Administrator**.
+
+### Prepare the unsigned DNS fixture
+
+Use the recorded enterprise custom VMnets and an explicitly configured lab route between their segments. Do not attach these zones to a public DNS service. CL2 must be domain joined and use **VN1-SRV1 (`10.1.1.8`)** as its lab DNS server. Record the actual addresses of PM-SRV1, PM-SRV2 and VN2-SRV1; verify TCP/UDP 53 reachability from the participating servers before creating zones.
+
+1. Complete [Install the DNS server role](../Practices/Install-the-DNS-server-role.md) on **PM-SRV1, PM-SRV2 and VN2-SRV1** as well as the active AD DNS server. In DNS Manager on CL1, connect to each named server. Preserve the existing AD-integrated `ad.lab.test` and `_msdcs.ad.lab.test` zones on VN1-SRV1; do not recreate them.
+1. On **PM-SRV1 > Forward Lookup Zones > New Zone**, create a **Primary zone**, not AD-integrated, named **lab.test**, with its default zone file and **Do not allow dynamic updates**. In the zone, add an apex **MX** record with preference **10** and mail server **smtp.ad.lab.test**. This is a DNS fixture only; no working mail service is claimed.
+1. On **VN2-SRV1**, create a file-backed primary **china.ad.lab.test** with dynamic updates disabled. Add two **Host (A)** records with the name left blank (zone apex), one for **10.1.2.8**, the other for **10.1.2.16**. On VN1-SRV1, create **remote.lab.test** as an AD-integrated primary zone if it is absent, and record its replication scope.
+1. On **VN1-SRV1**, add the test **smtp** A record in `ad.lab.test`, pointing to the recorded PM-SRV2 lab address. Add a conditional forwarder for **china.ad.lab.test** to VN2-SRV1's recorded address. On **VN2-SRV1**, add a conditional forwarder for **ad.lab.test** to **10.1.1.8** unless an existing authoritative zone/forwarder already serves it. Do not replace an existing AD-integrated `ad.lab.test` zone with a forwarder.
+1. On PM-SRV1, open **lab.test Properties > Zone Transfers**. Enable transfers **only to the following servers**, adding the recorded addresses of **PM-SRV2, VN1-SRV1 and VN2-SRV1**. Create **lab.test** as a **Secondary zone** on those three servers with PM-SRV1 as master. Use **Transfer from Master**, and verify the apex MX record appears. These local secondary copies also supply the signed template needed by the later **Sign with parameters of an existing zone** wizard; that wizard requires the connected server to be authoritative for the template zone. [Microsoft's DNSSEC signing-options guidance](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/dn593642%28v%3Dws.11%29) documents this prerequisite.
+1. Before applying NRPT, use CL1 to verify the unsigned fixture: `Resolve-DnsName china.ad.lab.test -Type A -Server 10.1.1.8` returns the two recorded VNet2 addresses, and `Resolve-DnsName lab.test -Type MX -Server 10.1.1.8` returns `smtp.ad.lab.test`. Resolve the same MX record against VN2-SRV1's recorded address. Resolve missing-zone, transfer or routing failures before signing. Keep a record of any preexisting objects so cleanup removes only this lab's additions.
 
 ## Introduction
 
@@ -123,15 +134,15 @@ Perform this task on CL2.
     Resolve-DnsName -Name china.ad.lab.test -Type A
     ````
 
-    > This returns the error message Unsecured DNS packet, because the zone is not signed yet.
+    > This recursive query should fail with an unsecured-DNS response while the zone is unsigned and the effective NRPT rule requires validation. Verify `Get-DnsClientNrptPolicy -Effective` and the configured DNS server if it succeeds; record the actual response rather than treating ordinary name resolution as proof of DNSSEC validation.
 
-1. Resolve the host name ad.lab.test using vn2-srv1.ad.lab.test as DNS server.
+1. Resolve the MX record in lab.test using vn2-srv1.ad.lab.test as DNS server.
 
     ````powershell
-    Resolve-DnsName -Name lab.test -Type MX
+    Resolve-DnsName -Name lab.test -Type MX -Server vn2-srv1.ad.lab.test
     ````
 
-    > This returns the error message Unsecured DNS packet, because the zone is not signed yet.
+    > VN2-SRV1 now holds an authoritative secondary copy of lab.test for the signing-template task. Compare this response with the recursive china.ad.lab.test query above: an authoritative response can be returned even before signing and is not evidence that recursive DNSSEC validation succeeded.
 
 ## Exercise 2: Signing zones
 
@@ -216,6 +227,8 @@ Perform this task on CL1.
 
     If the dialog **Connect to DNS Server** appears, click **The following computer**, type **vn2-srv1.ad.lab.test** below and click **OK**.
 
+1. On VN2-SRV1, refresh/transfer the secondary **lab.test** zone from PM-SRV1 after Task 1. Verify `Get-DnsServerResourceRecord -ComputerName VN2-SRV1 -ZoneName lab.test -RRType DNSKEY` returns the transferred signing keys before using it as the signing template.
+
 1. In DNS Manager, click **vn2-srv1.ad.lab.test**
 
     If vn2-srv1.ad.lab.test is not available:
@@ -237,6 +250,8 @@ Perform this task on CL1.
 1. Open **DNS**.
 
     If the dialog **Connect to DNS Server** appears, click **The following computer**, type **vn1-srv1.ad.lab.test** below and click **OK**.
+
+1. On VN1-SRV1, refresh/transfer the secondary **lab.test** zone from PM-SRV1. Verify its DNSKEY records are present before using it as the signing template for the AD-integrated zones.
 
 1. In DNS Manager, click **vn1-srv1.ad.lab.test**
 
@@ -264,7 +279,7 @@ Perform this task on CL1.
 
     ````powershell
     $path = "$env:USERPROFILE\Documents\DNSSEC"
-    New-Item -Path $path -ItemType Directory
+    New-Item -Path $path -ItemType Directory -Force
     Export-DnsServerDnsSecPublicKey `
         -ComputerName VN2-SRV1 `
         -ZoneName china.ad.lab.test `
@@ -276,7 +291,7 @@ Perform this task on CL1.
 
     ````powershell
     $path = "$env:USERPROFILE\Documents\DNSSEC"
-    New-Item -Path $path -ItemType Directory
+    New-Item -Path $path -ItemType Directory -Force
     Export-DnsServerDnsSecPublicKey `
         -ComputerName PM-SRV1 `
         -ZoneName lab.test `
@@ -311,7 +326,7 @@ Perform this task on CL2.
 1. Resolve the host name ad.lab.test.
 
     ````powershell
-    Resolve-DnsName -Name ad.lab.test -Type A
+    Resolve-DnsName -Name ad.lab.test -Type A -DnssecOk
     ````
 
     > This returns the IP address 10.1.1.8 and information about the DNSSEC signature.
@@ -319,15 +334,15 @@ Perform this task on CL2.
 1. Resolve the host name china.ad.lab.test.
 
     ````powershell
-    Resolve-DnsName -Name china.ad.lab.test -Type A
+    Resolve-DnsName -Name china.ad.lab.test -Type A -DnssecOk
     ````
 
     > This returns the IP addresses 10.1.2.8 and 10.1.2.16 as well as information about the DNSSEC signature.
 
-1. Resolve the host name ad.lab.test using vn2-srv1.ad.lab.test as DNS server.
+1. Resolve the MX record in lab.test using vn2-srv1.ad.lab.test as DNS server.
 
     ````powershell
-    Resolve-DnsName -Name lab.test -Type MX -Server vn2-srv1.ad.lab.test
+    Resolve-DnsName -Name lab.test -Type MX -Server vn2-srv1.ad.lab.test -DnssecOk
     ````
 
-    > This returns smtp.ad.lab.test or adatum-com.mail.protection.outlook.com and information about the DNSSEC signature.
+    > This returns the fixture MX target `smtp.ad.lab.test` with DNSSEC records when requested. No Microsoft 365 mail tenant is required. Record the unsigned-before/signed-after responses and verify NRPT with `Get-DnsClientNrptPolicy -Effective`; a successful ordinary query alone does not prove validation.

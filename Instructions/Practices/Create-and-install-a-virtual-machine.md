@@ -7,7 +7,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Configure-basic-Hyper-V-settings.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); PM-SRV20 (Hyper-V name: PM-SRV20; accepted display aliases: WIN-PM-SRV20; created in the designated task; not a preflight prerequisite); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); PM-SRV20 (Hyper-V name: PM-SRV20; accepted display aliases: WIN-PM-SRV20; created in the designated task; not a preflight prerequisite); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.
 
 **Permissions:** Local Administrator on the explicitly declared nested Hyper-V hosts and inner guests; cluster administrator for cluster changes. VMware settings permission on the outer host.
 
@@ -51,7 +51,7 @@ Perform these steps on CL1.
 1. On page Configure Networking, in **Connection**, click **External** and click **Next >**.
 1. On page Connect virtual hard disk, ensure **Create a virtual hard disk** is selected. In **Name**, ensure **PM-SRV20.vhdx**, and, in location **C:\\hyper-v\\Virtual Hard Disks\\** is filled in. Click **Next >**.
 1. On page Installation Options, click **Install an operating system from a bootable image file** and click **Browse...**
-1. In Open, expand **pm-srv1.ad.lab.test**, **Local Disk (C:)**, **WindowsServerLab**, and click **Resources**.
+1. In Open, expand **pm-srv1.ad.lab.test**, **Local Disk (C:)**, **WindowsServerLab**, and click **ISOs**. Before this task, stage the verified official ISO on that Hyper-V host at `C:\WindowsServerLab\ISOs\2025_x64_EN_Eval.iso`, following [Resources media staging](../../Resources/README.md).
 1. Click **2025_x64_EN_Eval.iso** and click **Open**.
 1. In **New Virtual Machine Wizard**, on page **Installation Options**, click **Next >**.
 1. On page Summary, click **Finish**.
@@ -77,4 +77,4 @@ Perform these steps on CL1.
 1. On page Select location to install Windows Server, explore the options and click **Next**.
 1. On page Ready to install, click **Install**.
 
-Do not wait for the installation to finish.
+You may perform unrelated preparation while setup runs, but completion requires waiting for installation to finish, opening the guest console and verifying it boots **Windows Server 2025 Server Core**. In an elevated PowerShell session connected to PM-SRV1, inspect `Get-VM -ComputerName PM-SRV1 -Name PM-SRV20`, its processor and integration-service settings. Configure/join this **inner** guest through its Hyper-V console in the recorded nested topology; do not apply the separately scoped outer-VMware PM-SRV20 practice to it or run both copies on the same network.

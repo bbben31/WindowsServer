@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Installing-and-configuring-a-fail-over-cluster.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer. The cluster nodes are outer VMware VMs with nested Hyper-V enabled; control their outer failure/recovery in VMware and their inner workload in Hyper-V. Before starting, provision the independent file-share witness \\vn1-clst1-fs\Witness and the Witness Modify group/permissions; validate witness DNS and SMB reachability from both sites. Use cluster VN2-VN3-CLST1 at 10.1.2.9 and 10.1.3.9, with VN2-SRV1 in Primary (10.1.2.0/24) and VN3-SRV1 in Secondary (10.1.3.0/24).
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Installing-and-configuring-a-fail-over-cluster.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer. The cluster nodes are outer VMware VMs with nested Hyper-V enabled; control their outer failure/recovery in VMware and their inner workload in Hyper-V. Before starting, provision the independent file-share witness \\vn1-clst1-fs\Witness and the Witness Modify group/permissions; validate witness DNS and SMB reachability from both sites. Use cluster VN2-VN3-CLST1 at 10.1.2.9 and 10.1.3.9, with VN2-SRV1 in Primary (10.1.2.0/24) and VN3-SRV1 in Secondary (10.1.3.0/24). Use VN2-SRV1/VN3-SRV1 as member nodes in a separate cluster lineage, not promoted DC/RODCs. Each site accesses only its recorded 20 GB data and 10 GB log disks; validate the actual source DiskGuid/CSV path and witness permissions for ad\VN2-VN3-CLST1$.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV20 (Hyper-V name: VN2-SRV20; accepted display aliases: WIN-VN2-SRV20; created in the designated task; not a preflight prerequisite); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
 
@@ -38,6 +38,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 * Created during exercise: VN2-SRV20
 
 ## Setup
+
+Use separate **member-server** snapshots for VN2-SRV1 and VN3-SRV1, not their promoted DC/RODC roles from directory labs. Record per-site disk IDs: each node sees only its own 20 GB data and 10 GB log LUN; the replicated pair consists of separate disks, not one shared data disk. The prerequisite cluster must already provide `\\VN1-CLST1-FS\Witness`; after creating **VN2-VN3-CLST1**, grant only its CNO **ad\VN2-VN3-CLST1$** the witness permissions described in the prerequisite. Validate both nodes with **Test-Cluster** and review storage/network failures before creating VN2-VN3-CLST1; do not continue on unexplained blocking validation errors.
 
 1. On CL1, sign in as **ad\Administrator**.
 1. On VN2-SRV1, sign in as **ad\Administrator**.
@@ -78,10 +80,7 @@ Perform this task on CL1.
 1. On page Specify target name, in **Name**, type **VN2-CLST1** and click **Next >**.
 1. On page Specify access servers, click **Add...**.
 1. In Add initiator ID, ensure **Query initiator computer for ID** is selected, type **VN2-SRV1** and click **OK**.
-1. In **New iSCSI Virtual Disk Wizard**, on page **Specify access servers**, click **Add...**.
-1. In Add initiator ID, ensure **Query initiator computer for ID** is selected and click **Browse...**.
-1. In Select Computer, under **Enter the object name to select**, type **VN3-SRV1** and click **OK**.
-1. In **Add initiator ID**, click **OK**.
+1. Retain **VN2-SRV1 only** in this target's access list. Do not add VN3-SRV1 to the VN2 site-local data/log target.
 1. In **New iSCSI Virtual Disk Wizard**, on page **Specify access servers**, click **Next >**.
 1. On page Enable Authentication, click **Next >**.
 1. On page Confirmation, click **Create**.
@@ -101,10 +100,7 @@ Perform this task on CL1.
 1. On page Specify target name, in **Name**, type **VN3-CLST1** and click **Next >**.
 1. On page Specify access servers, click **Add...**.
 1. In Add initiator ID, ensure **Query initiator computer for ID** is selected, type **VN3-SRV1** and click **OK**.
-1. In **New iSCSI Virtual Disk Wizard**, on page **Specify access servers**, click **Add...**.
-1. In Add initiator ID, ensure **Query initiator computer for ID** is selected and click **Browse...**.
-1. In Select Computer, under **Enter the object name to select**, type **VN2-SRV1** and click **OK**.
-1. In **Add initiator ID**, click **OK**.
+1. Retain **VN3-SRV1 only** in this target's access list. Do not add VN2-SRV1 to the VN3 site-local data/log target.
 1. In **New iSCSI Virtual Disk Wizard**, on page **Specify access servers**, click **Next >**.
 1. On page Enable Authentication, click **Next >**.
 1. On page Confirmation, click **Create**.
@@ -458,7 +454,7 @@ Perform this task on CL1.
 1. In Failover Cluster Manager, in the context-menu of **Failover Cluster Manager**, click **Connect to Cluster...**
 1. Select Cluster, type **VN2-VN3-CLST1.ad.lab.test** and click **OK**.
 1. In Failover Cluster Manager, expand **VN2-VN3-CLST1.ad.lab.test**, **Storage**, and click **Disks**.
-1. Under Disks (4), in the context menu of the disk with **Capacity** of **20 GB** with a **Status** of **Online**, click **Add to Cluster Shared Volumes**.
+1. Under Disks, identify the **VN2-SRV1 source site's 20 GB Data disk** by the recorded DiskGuid/volume mapping and owner, not capacity alone (both sites have 20 GB disks). Add only this source Data disk to Cluster Shared Volumes. Record its resulting FriendlyVolumeName and use it in later VM paths instead of assuming Volume1.
 
 ### Task 5: Configure storage replica
 

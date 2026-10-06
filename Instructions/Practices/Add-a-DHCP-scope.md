@@ -21,7 +21,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-> **Environment profile:** This practice is part of the enterprise expansion and uses source `VNet1` (`10.1.1.0/24`) on its dedicated VMware custom VMnet. Do not apply this scope to core client `VMnet30`.
+> **Environment profile:** This practice is part of the enterprise expansion and uses source `VNet1` (`10.1.1.0/24`) on its dedicated VMware custom VMnet. Do not apply this scope to core client `VMnet12`.
 
 ## Required VMs
 
@@ -35,7 +35,7 @@ On VN1-SRV6, add a scope with the range 10.1.1.2 to 10.1.1.254 with a lease dura
 
 > Why would you prefer a short lease duration?
 
-> Why do you not configure DNS options?
+> Why do clients need the lab AD DNS server rather than a public or VMware NAT DNS server?
 
 ## Instructions
 

@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Use two recorded isolated SAN VMnets: target VN1-SRV10 at 10.1.128.80/24 and 10.1.144.80/24, initiator VN1-SRV5 at 10.1.128.40/24 and 10.1.144.40/24. SAN NICs have no DNS/gateway and do not register in AD. Verify actual initiator IQN allow-lists and the existing D: backing volume; preserve management connectivity.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
 
@@ -38,6 +38,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 1. On **CL1**, sign in as **ad\Administrator**.
 1. On **VN1-SRV5**, sign in as **.\Administrator**.
+1. Before creating targets, prepare two distinct isolated VMware custom VMnets for **SAN1 (10.1.128.0/24)** and **SAN2 (10.1.144.0/24)** with VMware DHCP disabled. Power off VN1-SRV10 and VN1-SRV5, add one VMware NIC for each SAN to each guest, and record the MAC/VMnet mapping. Start the guests; identify and rename only those guest NICs SAN1 and SAN2. Assign VN1-SRV10 **10.1.128.80/24** and **10.1.144.80/24**, and VN1-SRV5 **10.1.128.40/24** and **10.1.144.40/24**. Set no gateway or DNS server on SAN NICs and disable their DNS registration; preserve the existing management NIC, gateway and AD DNS. Verify TCP 3260 on both corresponding target paths after the target role is installed. Do not route these storage segments to NAT or bridge them to the physical LAN.
+1. Verify VN1-SRV10 has the non-OS **D:** backing volume from [Install prerequisites for file serving](../Practices/Install-prerequisites-for-file-serving.md), enough space for actual VHDX growth, and no existing target/disks with this exercise's names. On VN1-SRV4 and VN1-SRV5 verify the domain join and start **Microsoft iSCSI Initiator Service** before querying initiator IDs. Record each actual initiator IQN; substitute it in the PowerShell target allow-list if it differs from the shown domain-based default. Never allow an unverified initiator or simultaneously mount these non-cluster-managed LUNs read/write on both guests.
 
 ## Introduction
 
@@ -52,7 +54,7 @@ Adatum wants to use iSCSI for a fault-tolerance cluster. For this reason, you wi
 ## Exercise 1: Configure an iSCSI target server
 
 1. [Install the iSCSI Target Server role](#task-1-install-the-iscsi-target-server-role) on VN1-SRV10
-1. [Configure an iSCSI target](#task-2-configure-an-iscsi-target) named VN1-CLST1 with two virtual disks of 10 GB each, named VN1-CLST1-Quorum and VN1-CLST1-CSV for the initiators on VN1-SRV4 and VN1-SRV5
+1. [Configure an iSCSI target](#task-2-configure-an-iscsi-target) named VN1-CLST1 with four virtual disks: VN1-CLST1-Quorum **1 GB**, VN1-CLST1-CSV1 **10 GB**, VN1-CLST1-CSV2 **80 GB**, and VN1-CLST1-Shares **100 MB**, for the initiators on VN1-SRV4 and VN1-SRV5
 
 ### Task 1: Install the iSCSI Target Server role
 
@@ -153,7 +155,7 @@ Perform these steps on CL1.
       -ItemType Directory
    ````
 
-1. In the new directory, create two new iSCSI virtual disks.
+1. In the new directory, create four new iSCSI virtual disks.
 
    | File name              | Size   |
    |------------------------|--------|
@@ -239,7 +241,7 @@ Perform this task on CL1.
 Peform this task on CL1.
 
 1. In the context menu of **Start**, click **Terminal**.
-1. In Terminal, install the windows feature **iSCSI Target Server** on **VN1-SRV10**.
+1. In Terminal, install **Multipath I/O** on **VN1-SRV5**.
 
     ````powershell
     Install-WindowsFeature `
@@ -359,7 +361,7 @@ Perform this task on CL1.
       -IsPersistent $true
       ````
 
-1. Connect to the target using multi-path. Use the IP address **10.1.128.40** on the initiator side, and **10.1.144.80** on the target side.
+1. Connect to the target using multi-path. Use the IP address **10.1.144.40** on the initiator side, and **10.1.144.80** on the target side.
 
    ````powershell
    $iscsiTarget | Connect-IscsiTarget `
@@ -514,7 +516,7 @@ Peform this task on CL1.
 Perform this task on the host.
 
 1. In the context-menu of *Start*, click **Windows PowerShell (Admin)** or **Terminal (Administrator)**.
-1. In Windows PowerShell (Admin) or Terminal, create a drive with the name **V** using the **FileSystem** provider with the root **\\\\vn1-srv5\\d$** using the credentials of **Administrator**.
+1. In Windows PowerShell (Admin) or Terminal, create a drive with the name **V** using the **FileSystem** provider with the root **\\\\vn1-srv5\\f$** using the authorized lab credentials. F: is the 80 GB workload LUN; D: is the 1 GB quorum LUN and must not receive the ISO workload.
 
    ````powershell
    New-PSDrive `
@@ -525,12 +527,13 @@ Perform this task on the host.
    ````
 
 1. Enter the credentials of **Administrator** on VN1-SRV5.
-1. Copy **C:\\WindowsServerLab\\ISOs\\2022_x64_EN_Eval.iso** from the host to **D:\\** on WIN-VN1-SRV5 in an infinite loop. Pause for 10 seconds after each iteration.
+1. Copy **C:\\WindowsServerLab\\ISOs\\2022_x64_EN_Eval.iso** from the host to **F:\\** on VN1-SRV5 in an infinite loop. Pause for 10 seconds after each iteration.
 
    ````powershell
    while ($true) { 
       Copy-Item `
          -Path 'C:\WindowsServerLab\ISOs\2022_x64_EN_Eval.iso' -Destination 'V:\' -Force
+      Start-Sleep -Seconds 10
    }
    ````
 
@@ -550,7 +553,7 @@ Perform this task on VN1-SRV5.
 1. In Task Manager, click **More details**.
 1. Click the tab **Performance**.
 
-   > The distribution of traffic between the ethernet adapters SAN1 and SAN2 should be close to 50:50. The used bandwidth on each of the SAN adapters should be around half of the bandwidth on the adapter VNet1.
+   > Record traffic on SAN1, SAN2 and VNet1 along with the configured MPIO load-balancing policy. Both paths must be present and healthy, but equal 50:50 traffic and a fixed bandwidth ratio are not guaranteed on simulated disks. If studying load balancing, explicitly choose a supported policy such as Round Robin in the MPIO device properties and compare the measured result; retain the failover checks below.
 
 Leave Task Manager and the connection to the virtual computer open, so that you can monitor the the network performance while continuing with the next tasks.
 
@@ -563,10 +566,10 @@ Perform the adapter controls on the VMware Workstation host while observing VN1-
 1. Restore **Connected** for SAN1 and verify both iSCSI/MPIO paths are healthy.
 1. Repeat for **SAN2**, keeping SAN1 connected; then reconnect SAN2 and verify both paths recover.
 1. In the other instance of **Windows PowerShell (Admin)** or the upper pane of Terminal, stop the copy process by pressing CTRL + C.
-1. Delete all files from **V:**
+1. Delete only the ISO copied by this exercise from **V:** after confirming the recorded mapping still points to the disposable F: workload LUN.
 
    ````powershell
-   Remove-Item v:\* -Force
+   Remove-Item -LiteralPath 'V:\2022_x64_EN_Eval.iso' -Force
    ````
 
 1. Remove the PowerShell drive **V**.

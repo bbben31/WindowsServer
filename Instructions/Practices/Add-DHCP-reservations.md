@@ -21,7 +21,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
-> **Environment profile:** This practice is part of the enterprise expansion and uses source `VNet1` (`10.1.1.0/24`) on its dedicated VMware custom VMnet. These reservations are not for core client `VMnet30`.
+> **Environment profile:** This practice is part of the enterprise expansion and uses source `VNet1` (`10.1.1.0/24`) on its dedicated VMware custom VMnet. These reservations are not for core client `VMnet12`.
 
 ## Required VMs
 
@@ -120,7 +120,7 @@ For the rest of the practice, choose your favorite tool.
 Perform these steps for each line of the table in Terminal.
 
 1. In the context-menu of Reservations, click **New Reservation...**
-1. In New Reservation, in **Reservation name**, type the value of **PSComputerName**. In **IP address**, type the value of **IPAddress**. In **MAC address**, type the value of **MacAddress**. Click **Add**.
+1. In New Reservation, in **Reservation name**, type the value of **Name**. In **IP address**, type the value of **IPAddress**. In **MAC address**, type the value of **ClientId**. Click **Add**.
 
 ### Windows Admin Center
 
@@ -133,7 +133,7 @@ Perform these steps for each line of the table in Terminal.
 Perform these steps for each line of the table in Terminal.
 
 1. In VNet1 [10.1.1.0], under **Address reservations**, click **New reservation**.
-1. In the panel Create a new reservation, under **Reservation name**, type the value of **PSComputerName**. Under **IP address**, type the value of **IPAddress**. In **MAC address**, type the value of **MacAddress**. Click **Create**.
+1. In the panel Create a new reservation, under **Reservation name**, type the value of **Name**. Under **IP address**, type the value of **IPAddress**. In **MAC address**, type the value of **ClientId**. Click **Create**.
 
 ### PowerShell
 
@@ -146,7 +146,7 @@ Perform these steps for each line of the table in Terminal.
     Add-DhcpServerv4Reservation -ComputerName $computerName -ScopeId $scopeId
     ````
 
-    Note: If you have created reservations previously, you may receive error messages. You can safely ignore them.
+    If a reservation already exists, compare its IP address and ClientId with the recorded inventory. Retain a matching reservation; investigate mismatches rather than ignoring errors.
 
 1. Verify the reservations.
 

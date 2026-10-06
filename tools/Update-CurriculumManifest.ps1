@@ -4,7 +4,8 @@ param([string]$RepositoryRoot, [switch]$Check)
 $ErrorActionPreference = 'Stop'
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) { $RepositoryRoot = Split-Path $scriptRoot -Parent }
-$RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+$RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).ProviderPath
+if ($RepositoryRoot.Length -gt [IO.Path]::GetPathRoot($RepositoryRoot).Length) { $RepositoryRoot = $RepositoryRoot.TrimEnd([char[]]'\/') }
 $manifestPath = Join-Path $RepositoryRoot 'metadata\curriculum-manifest.json'
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false, $true)
 

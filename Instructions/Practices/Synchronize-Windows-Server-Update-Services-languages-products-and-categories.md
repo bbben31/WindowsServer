@@ -7,7 +7,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-Windows-Server-Update-Services-role.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
 **Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
 
@@ -15,7 +15,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Risk, cost and optional status:** low; local-only; optional=true. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution.
 
-**Success verification:** WSUS shows the selected languages/products/categories and a completed synchronization.
+**Success verification:** The initial WSUS catalog metadata synchronization completes successfully and exposes the product/classification catalog; record its last result. Continue to Configure Windows Server Update Services synchronization to select the actual language/product/classification scope and complete its full update synchronization.
 
 **Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
 
@@ -92,9 +92,9 @@ Perform these steps on CL1.
 1. On page Specify Proxy Server, ensure, **Use a proxy server when synchronizing** is deactivated and click **Next >**.
 1. Click **Start Connecting**.
 
-    Do not wait for products and languages to finish synchronizing. This will take about 10 minutes.
+    Wait for the initial products/languages metadata connection to complete successfully. Record any error and resolve connectivity before proceeding; its duration varies.
 
-Stay signed in and keep everything open for the next practice.
+Stay signed in and keep the wizard open for [Configure Windows Server Update Services synchronization](Configure-Windows-Server-Update-Services-synchronization.md). This practice retrieves initial metadata; product/language/classification selection and the first selected-update synchronization are completed there.
 
 ### PowerShell
 
@@ -102,7 +102,7 @@ Perform these steps on CL1.
 
 1. On **CL1**, sign in as **ad\Administrator**.
 1. Open **Terminal**.
-1. Increase the private memory limit of the WsusPool application pool to 3 GB.
+1. Apply the same WsusPool settings as the Desktop Experience path, including an unlimited private memory limit (**0**).
 
     ````powershell
     Invoke-Command -ComputerName VN1-SRV5 -ScriptBlock {
@@ -157,4 +157,4 @@ Perform these steps on CL1.
     $subscription.GetSynchronizationStatus()
     ````
 
-Do not wait for products and languages to finish synchronizing. This will take about 10 minutes. You might repeat the commands of the last step until the status changes to **NotProcessing**.
+Repeat the last checks until the status is **NotProcessing**, then inspect `$subscription.GetLastSynchronizationInfo()` and require a successful result with no unresolved synchronization error. Record that initial metadata retrieval completed; continue to [Configure Windows Server Update Services synchronization](Configure-Windows-Server-Update-Services-synchronization.md) to select products, languages and classifications. Do not mark synchronization complete merely because it was started.

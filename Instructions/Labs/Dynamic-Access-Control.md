@@ -5,9 +5,9 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md; Instructions/Practices/Install-File-Server-Resource-Manager.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.
 
 **Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup.
 
@@ -449,14 +449,14 @@ Perform this task on CL1.
 1. In Active Directory Administrative Center, click **Dynamic Access Control**.
 1. In Dynamic Access Control, double-click **Claim Types**.
 1. In Claim Types, in the context-menu of the empty area, click **New**, **Claim Type**.
-1. In Create Claim Type, under **Source Attribute**, click **department** and click **OK**.
+1. In Create Claim Type, under **Source Attribute**, click **title** and click **OK**.
 1. In **Active Directory Administrative Center**, click **ad (local)**.
 1. In ad (local), double-click **Managers**.
 1. In Managers, double-click **Harry Lawrence**.
 1. In Harry Lawrence, under **Organization**, in **Job title**, type **Data Protection Manager** and click **OK**.
 1. In **Active Directory Administrative Center**, click **ad (local)**.
 1. In ad (local), double-click **Marketing**.
-1. In Managers, double-click **Elise Hughes**.
+1. In Marketing, double-click **Elise Hughes**.
 1. In Elise Hughes, under **Organization**, in **Job title**, type **Data Protection Manager** and click **OK**.
 
 #### PowerShell
@@ -464,7 +464,7 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **Terminal**.
-1. Create a new claim type from the source attribute **Department** with the suggested values Finance, IT, Marketing, and **Research**.
+1. Create a new user claim type from the source attribute **title**.
 
     ````powershell
     New-ADClaimType `
@@ -501,13 +501,14 @@ Perform this task on CL1.
 1. Enable the resource property **Confidentiality_MS**.
 
     ````powershell
-    Set-ADResourceProperty -Identity 'Confidentiality_MS'-Enabled $true
+    Set-ADResourceProperty -Identity 'Confidentiality_MS' -Enabled $true
     ````
 
 ### Task 3: Modify resource property
 
 Perform this task on VN1-SRV10.
 
+1. Complete [Install File Server Resource Manager](../Practices/Install-File-Server-Resource-Manager.md) on VN1-SRV10. In an elevated Windows PowerShell session on that server, run `Update-FsrmClassificationPropertyDefinition` after enabling the AD resource property. Verify `Get-FsrmClassificationPropertyDefinition` includes `Confidentiality_MS` before opening file properties.
 1. In **File Explorer**, navigate to **D:\\Shares\\Finance**.
 1. In Finance, in the context-menu of **Payroll.xlsx**, click **Properties**.
 1. In Payroll.xlsx Properties, click the tab **Classification**.
@@ -564,7 +565,7 @@ Perform this task on CL1.
 
 1. Click **OK**.
 
-    You may repeat from step 7 for the entry **Finance Modify (AD\\Finance Modify)**, but it is not necessary for this lab.
+    Repeat the condition for **Finance Read (AD\\Finance Read)** and any other non-administrator ACE that grants access to the protected files. An unconditional Read permission would bypass the intended restriction. Keep SYSTEM/administrator recovery permissions and verify both a Data Protection Manager and a non-manager account.
 
 1. In **Advanced Security Settings for Finance**, click **OK**.
 1. In **Finance Properties**, click **OK**.
@@ -687,7 +688,7 @@ Perform this task on CL1.
 1. In Server Manager, in the left pane, click **File and Storage Services**.
 1. In File and Storage Services > Servers, on the left, click **Shares**.
 1. In Server Manager > File and Storage Services > Shares, in the context-menu of **Marketing**, click **Properties**.
-1. In Research Properties, click the page **Permissions**.
+1. In Marketing Properties, click the page **Permissions** and click **Customize permissions...**.
 1. In Advanced Security Settings for Marketing, click the tab **Central Policy**.
 
     If you do not see the tab **Central Policy**, wait for a few minutes, or follow these steps:

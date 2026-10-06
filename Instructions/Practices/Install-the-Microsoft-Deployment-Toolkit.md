@@ -7,7 +7,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
 **Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
 
@@ -51,13 +51,14 @@ Perform this task on CL1.
 1. Switch to **Microsoft Edge**.
 1. Navigate to <https://learn.microsoft.com/en-us/windows-hardware/get-started/adk-install>.
 1. On page Download and install the Windows ADK | Microsoft Learn, use **Other ADK Downloads** to select the ADK version required by the historical MDT procedure, then obtain its matching Windows PE add-on. Do not substitute the newest ADK without first verifying the retired MDT combination in the disposable snapshot.
-1. Download the matching Windows PE add-on.
+1. Open the downloaded **adksetup.exe** first. Install the ADK **Deployment Tools** on CL1 and wait for successful completion; installing the Windows PE add-on alone does not install DISM/Windows System Image Manager. Record the exact ADK version and the Deployment Tools installation path.
+1. Download the matching Windows PE add-on for that exact ADK version. The historical WDS/MDT procedures in this repository use the **Windows 11 version 22H2 ADK and matching PE add-on** as an experimental Server 2022 snapshot; MDT's documented supported platforms do not establish support for this combination. If its boot image cannot be generated and tested without security downgrades, retain a conceptual walkthrough and stop execution.
 1. Under Downloads, under **adkwinpesetup.exe**, click **Open file**.
 1. In the Windows Assessment and Deployment Kit Windows Preinstallation Environment Add-on, on page Specify Location, click **Next**.
 1. On page Windows Kits Privacy, make a selection of your choice and click **Next**.
 1. On page License Agreement, click **Accept**.
 1. On page Select the features you want to install, ensure the checkbox beside **Windows Preinstallation Environment (Windows PE)** is activated, and click **Install**.
 
-    You do not have to wait for the download and installation to complete. The time is dependent on your internet connection.
+    Wait for successful download and installation. Do not launch Deployment Workbench or generate boot images while ADK/PE installation is still running.
 
 1. On the final Windows PE add-on page, click **Close**.

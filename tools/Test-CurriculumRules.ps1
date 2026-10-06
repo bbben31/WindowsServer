@@ -1,3 +1,12 @@
+function Test-WindowsVmnetNames([string]$Text) {
+    foreach ($match in [regex]::Matches($Text, '(?i)\bVMnet(\d+)\b')) {
+        $number = $match.Groups[1].Value
+        if ($number.Length -gt 2 -or [int]$number -gt 19) {
+            "VMnet identifier outside Windows Workstation range 0-19: $($match.Value)"
+        }
+    }
+}
+
 function Test-CurriculumDependencyCycles {
     param($CurriculumEntries)
     $graph = @{}; $states = @{}; $stack = [System.Collections.Generic.List[string]]::new()
@@ -159,6 +168,9 @@ function Test-CurriculumRules {
         $content = [IO.File]::ReadAllText($path).Replace("`r`n", "`n")
         $procedure = [regex]::Replace($content, '(?s)<!-- BEGIN GENERATED COMPLETION CONTRACT -->.*?<!-- END GENERATED COMPLETION CONTRACT -->', '')
         $label = $entry.path
+        foreach ($error in Test-WindowsVmnetNames ($procedure + ' ' + (@($entry.networks) -join ' '))) {
+            $failures.Add("${label}: $error")
+        }
         $title = [regex]::Match($content.TrimStart([char]0xFEFF), '(?m)^# [^\n]+')
         if (!$title.Success) { $failures.Add("${label}: curriculum document has no H1 title") }
         elseif ($content.IndexOf('<!-- BEGIN GENERATED COMPLETION CONTRACT -->') -lt $title.Index) { $failures.Add("${label}: completion contract precedes H1 title") }

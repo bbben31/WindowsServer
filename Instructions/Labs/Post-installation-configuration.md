@@ -268,16 +268,18 @@ Perform this task on CL1.
 1. Using Microsoft Edge, navigate to <https://admincenter>.
 1. In Windows Admin Center, click **Add**.
 1. In Add or create resources, under **Servers**, click **Add**.
-1. On the tab **Add one**, type 10.1.1.160.
+1. On the tab **Add one**, type 10.1.1.168.
 1. Click **Use another account for this connection**.
 1. Enter the credentials for the default Administrator account and click **Add**.
-1. Click **10.1.1.160**.
-1. Connected to 10.1.1.160, in Overview, click **Edit Computer ID**.
+1. Click **10.1.1.168**.
+1. Connected to 10.1.1.168, in Overview, click **Edit Computer ID**.
 1. In the pane Edit computer ID, in **Computer name**, enter **VN1-SRV21**.
 1. Click **Domain** and enter **ad.lab.test.**.
 1. Click **Next**.
-1. Under **Current domain**, enter the credentials of **ad\Administrator** and click **Save**.1. In **Overview**, click **Restart**.
-1. In Windows Admin Center, activate the checkbox beside **10.1.1.160**.
+1. Under **Current domain**, enter the credentials of **ad\Administrator** and click **Save**.
+1. In **Overview**, click **Restart**.
+1. In **Restart the computer**, click **Yes**.
+1. In Windows Admin Center, activate the checkbox beside **10.1.1.168**.
 1. Click **Remove**.
 
 #### PowerShell
@@ -316,7 +318,7 @@ Perform this task von VN1-SRV21.
 Perform this task on CL1.
 
 1. Open **Terminal**.
-1. Set the time zone of VN1-SRV20 to the same time zone as CL1.
+1. Set the time zone of VN1-SRV21 to the same time zone as CL1.
 
     ````powershell
     $timezone = Get-TimeZone
@@ -337,7 +339,7 @@ Perform this task on VN1-SRV5.
 
     ````powershell
     $imagePath = 'C:\WindowsServerLab\Resources\26100.1.240331-1435.ge_release_amd64fre_SERVER_LOF_PACKAGES_OEM.iso'
-    $diskImage = Mount-DiskImage -ImagePath $imagePath
+    $diskImage = Mount-DiskImage -ImagePath $imagePath -PassThru
     $driveLetter = ($diskImage | Get-Volume).DriveLetter
     ````
 

@@ -11,15 +11,15 @@ Use this profile for the staged foundation and introductory administration work.
 | Source label | VMware network | Address space | Purpose |
 | --- | --- | --- | --- |
 | Management / AD | `VMnet10` | `10.10.10.0/24` | AD DS, DNS, management |
-| Server workload | `VMnet20` | `10.10.20.0/24` | Member servers and application traffic |
-| Client | `VMnet30` | `10.10.30.0/24` | Windows clients |
+| Server workload | `VMnet11` | `10.10.20.0/24` | Member servers and application traffic |
+| Client | `VMnet12` | `10.10.30.0/24` | Windows clients |
 | Outbound | `VMnet8` | VMware-assigned | Temporary NAT access |
 
 The forest is `ad.lab.test`. `VN1-SRV1` is the first DC/DNS server at `10.10.10.10`; `VN1-SRV5` is the optional second DC/DNS server at `10.10.10.11`.
 
 ## Profile 2: Enterprise expansion
 
-Use this profile for multi-site DNS, DHCP relay/failover, routing, clustering, RDS, PKI, federation, migration, and other procedures that intentionally use the original `VNet1`, `VNet2`, `VNet3`, `10.1.x.x`, `PM-*`, `WIN-*`, or additional-forest names.
+Use this profile when the selected manifest entry declares `networkProfile=enterprise`, including multi-site DNS, DHCP relay/failover, routing, clustering, PKI, federation, and migration procedures that use the original `VNet1`, `VNet2`, `VNet3`, or `10.1.x.x` segments. A `PM-*` guest name or `WIN-*` display alias alone does not select a subnet or hypervisor layer: some introductory core exercises retain those names on `10.10.x.x`. Follow the entry's explicit network profile and `vmTopology`, not a name-prefix guess.
 
 Those values represent a complete enterprise exercise topology, not the three-network foundation. Preserve them within an isolated set of VMware custom networks. Create only the segments required by the current exercise, and power on only the required machines.
 
@@ -36,7 +36,7 @@ The enterprise expansion still uses `ad.lab.test` unless an exercise explicitly 
 
 ## Profile 3: Isolated alternate forest
 
-Multi-forest, migration, trust, and federation exercises may require an additional forest. Create the forest only for that exercise on dedicated enterprise-expansion segments. Use a documentation-only test namespace such as `corp2.lab.test`; never reuse a real organization or public domain. Take a checkpoint before creating trusts or modifying forest-wide configuration.
+Multi-forest, migration, trust, and federation exercises may require an additional forest. Create the forest only for that exercise on dedicated enterprise-expansion segments. Preserve a source exercise's explicitly documented example namespace (including Microsoft's `ad.contoso.com`/`contoso.com` examples) only inside isolated lab DNS; never publish it or use a domain belonging to a real organization. For a new independent exercise, use a test namespace such as `corp2.lab.test`. Take a checkpoint before creating trusts or modifying forest-wide configuration.
 
 ## Translating platform actions
 

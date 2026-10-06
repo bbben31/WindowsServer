@@ -3,11 +3,13 @@ param([string]$RepositoryRoot)
 $ErrorActionPreference = 'Stop'
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 if (!$RepositoryRoot) { $RepositoryRoot = Split-Path $scriptRoot -Parent }
-$RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+$RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).ProviderPath
+if ($RepositoryRoot.Length -gt [IO.Path]::GetPathRoot($RepositoryRoot).Length) { $RepositoryRoot = $RepositoryRoot.TrimEnd([char[]]'\/') }
 . (Join-Path $scriptRoot 'Test-CurriculumRules.ps1')
 $manifest = [IO.File]::ReadAllText((Join-Path $RepositoryRoot 'metadata\curriculum-manifest.json')) | ConvertFrom-Json
 $baselineErrors = @(Test-CurriculumRules $manifest.entries $RepositoryRoot)
 if ($baselineErrors.Count) { throw "Baseline rules failed: $($baselineErrors -join '; ')" }
+& (Join-Path $scriptRoot 'Test-MarkdownValidationRegression.ps1') -RepositoryRoot $RepositoryRoot
 $tempRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath())
 $fixtureRoot = Join-Path $tempRoot ('WindowsServer-curriculum-test-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixtureRoot | Out-Null
@@ -22,6 +24,8 @@ try {
     $documentPath = Join-Path $fixtureRoot $entry.path
     $original = [IO.File]::ReadAllText($documentPath).Replace("`r`n","`n")
     $cases = @(
+        @{ Name='invalid Windows VMnet metadata'; Expect='VMnet identifier outside Windows Workstation range'; Edit={param($e) $e.networks+= 'VMnet20 for server workloads'} },
+        @{ Name='invalid Windows VMnet procedure'; Expect='VMnet identifier outside Windows Workstation range'; Append="`nAttach the workload NIC to VMnet30.`n" },
         @{ Name='local Azure cleanup'; Expect='non-Azure entry has Azure-only cleanup'; Edit={param($e) $e.cleanup='Deallocate/delete disposable Azure resources and verify the lab resource group is empty.'} },
         @{ Name='Azure guidance'; Expect='Azure entry lacks cost and cleanup guidance'; Edit={param($e) $e.azure.required=$true; $e.riskCost.cost='free'; $e.cleanup=''} },
         @{ Name='duplicate Required VMs'; Expect='duplicate Required VMs'; Text={param($t) $t.Replace("* CL3`n","* CL3`n* CL3`n")} },
@@ -299,6 +303,7 @@ try {
     [IO.File]::WriteAllText($pathRunner, @'
 param($Preflight, $WorkingDirectory, $ManifestPath, $CurriculumPath)
 Set-Location -LiteralPath $WorkingDirectory
+if ($CurriculumPath -eq '__INVALID_NUL_PATH__') { $CurriculumPath = 'D:\invalid' + [char]0 + '\BranchCache.md' }
 & $Preflight -SkipHostChecks -AsJson -ManifestPath $ManifestPath -CurriculumPath $CurriculumPath
 exit $LASTEXITCODE
 '@, $utf8)
@@ -319,6 +324,131 @@ exit $LASTEXITCODE
                 $passed++
             }
         }
+    }
+    foreach ($pathCase in @(
+        @{Path='Instructions/Practices/../Labs/BranchCache.md';Exit=0},
+        @{Path='../Instructions/Labs/BranchCache.md';Exit=1},
+        @{Path='__INVALID_NUL_PATH__';Exit=1},
+        @{Path=(Split-Path -Qualifier $fixtureRoot) + 'Instructions/Labs/BranchCache.md';Exit=0}
+    )) {
+        $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $pathRunner $preflight $fixtureRoot (Join-Path $fixtureRoot 'metadata/path-matrix.json') $pathCase.Path 2>&1
+        if ($LASTEXITCODE -ne $pathCase.Exit) { throw "Curriculum normalization exit failed: $($pathCase.Path). $output" }
+        $checks = $output -join "`n" | ConvertFrom-Json
+        $status = if ($pathCase.Exit) { 'Error' } else { 'Pass' }
+        if (!@($checks | Where-Object { $_.Name -eq 'Curriculum selection' -and $_.Status -eq $status }).Count) { throw 'Curriculum normalization did not preserve structured selection results.' }
+        $passed++
+    }
+    foreach ($schemaCase in @('missing-azure','missing-outbound','scalar-dependencies','scalar-topology','invalid-phase','invalid-aliases','old-schema','scalar-entries','numeric-vm-name','blank-alias','numeric-alias','null-vm','duplicate-alternative','alias-collision','invalid-endpoint','invalid-azure-service','numeric-cleanup','array-azure','empty-transition','duplicate-transition','transition-alias-collision')) {
+        $candidate = $entryJson | ConvertFrom-Json
+        $fixture = [pscustomobject]@{schemaVersion=3;entries=@($candidate)}
+        switch ($schemaCase) {
+            'missing-azure' { $candidate.PSObject.Properties.Remove('azure') }
+            'missing-outbound' { $candidate.PSObject.Properties.Remove('outbound') }
+            'scalar-dependencies' { $candidate.dependencies=$candidate.dependencies[0] }
+            'scalar-topology' { $candidate.vmTopology=$candidate.vmTopology[0] }
+            'invalid-phase' { $candidate.vmTopology[0].phase='unknown' }
+            'invalid-aliases' { $candidate.vmTopology[0].displayNameAliases='WIN-CL1' }
+            'old-schema' { $fixture.schemaVersion=2 }
+            'scalar-entries' { $fixture.entries=$candidate }
+            'numeric-vm-name' { $candidate.requiredVmsOrTopology[0]=42; $candidate.vmTopology[0].guestHostname=42 }
+            'blank-alias' { $candidate.vmTopology[0].displayNameAliases=@('') }
+            'numeric-alias' { $candidate.vmTopology[0].displayNameAliases=@(42) }
+            'null-vm' { $candidate.vmTopology[0]=$null }
+            'duplicate-alternative' { $candidate.alternativeVmGroups=@([pscustomobject]@{names=@('CL1','CL1');minimum=2;reason='Duplicated requirement'}) }
+            'alias-collision' { $candidate.vmTopology[0].displayNameAliases=@($candidate.vmTopology[1].guestHostname) }
+            'invalid-endpoint' { $candidate.outbound.endpoints=@([pscustomobject]@{url='example.test'}) }
+            'invalid-azure-service' { $candidate.azure.services=@(42) }
+            'numeric-cleanup' { $candidate.cleanup=42 }
+            'array-azure' { $candidate.azure=@($candidate.azure) }
+            'empty-transition' { $candidate | Add-Member -NotePropertyName identityTransitions -NotePropertyValue '' -Force }
+            { $_ -in @('duplicate-transition','transition-alias-collision') } {
+                $reuse = [pscustomobject]@{initialGuestHostname='CL1';laterGuestHostname='REUSED-CL1';vmwareDisplayName=$candidate.vmTopology[0].vmwareDisplayName;simultaneous=$false;trigger='snapshot-reversion-and-pxe-redeployment';snapshot='Before-installation'}
+                if ($schemaCase -eq 'transition-alias-collision') { $reuse.laterGuestHostname=$candidate.vmTopology[1].displayNameAliases[0] }
+                $transitions = if ($schemaCase -eq 'duplicate-transition') { @($reuse,$reuse) } else { @($reuse) }
+                $candidate | Add-Member -NotePropertyName identityTransitions -NotePropertyValue $transitions -Force
+            }
+        }
+        $badManifest = Join-Path $fixtureRoot ('metadata/invalid-contract-' + $schemaCase + '.json')
+        [IO.File]::WriteAllText($badManifest, ($fixture | ConvertTo-Json -Depth 24), $utf8)
+        $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $preflight -SkipHostChecks -AsJson -ManifestPath $badManifest -CurriculumPath $entry.path 2>&1
+        if ($LASTEXITCODE -ne 1) { throw "Invalid selected contract accepted: $schemaCase" }
+        $checks = $output -join "`n" | ConvertFrom-Json
+        if (!@($checks | Where-Object Status -eq 'Error').Count -or @($checks | Where-Object Name -eq 'Required VMs').Count) { throw "Invalid selected contract was interpreted: $schemaCase" }
+        $passed++
+    }
+    $probeRunner = Join-Path $fixtureRoot 'probe-preflight.ps1'
+    [IO.File]::WriteAllText($probeRunner, @'
+param($Preflight, $ManifestPath, $Mode, $ReportPath)
+function Get-CimInstance { [CmdletBinding()] param([string]$ClassName) }
+function Resolve-DnsName { [CmdletBinding()] param([string]$Name, [string]$Server) }
+function Test-NetConnection { [CmdletBinding()] param([string]$ComputerName, [int]$Port, [string]$InformationLevel); throw 'TCP probe unavailable' }
+function Test-Connection { [CmdletBinding()] param([string]$ComputerName, [int]$Count, [switch]$Quiet); return $true }
+function Get-NetIPAddress { [CmdletBinding()] param([string]$AddressFamily); [pscustomobject]@{IPAddress='10.10.10.1'} }
+$path = if ($Mode -in @('reuse','missing-probes')) { 'Instructions/Labs/Microsoft-Deployment-Toolkit.md' } else { 'Instructions/Practices/Create-an-Azure-Subscription.md' }
+$entry = ([IO.File]::ReadAllText($ManifestPath) | ConvertFrom-Json).entries | Where-Object path -eq $path
+$parameters = @{CurriculumPath=$path;ManifestPath=$ManifestPath;AsJson=$true;OutboundAvailable=$true;CompletedPrerequisite=@($entry.dependencies)}
+if ($ReportPath) { $parameters.ReportPath=$ReportPath }
+switch ($Mode) {
+    'dns-failure' { $parameters.ExpectedDnsServer='10.10.10.10' }
+    'bad-octet' { $parameters.ExpectedSubnet='999.10.10.0/24' }
+    'bad-prefix' { $parameters.ExpectedSubnet='10.10.10.0/99' }
+    'reuse' { $parameters.VmName=@('VN1-SRV21') }
+    'missing-probes' {
+        function Get-Command { [CmdletBinding()] param([string]$Name); if ($Name -notin @('Test-Connection','Test-NetConnection')) { Microsoft.PowerShell.Core\Get-Command @PSBoundParameters } }
+        $parameters.VmName=@('VN1-SRV21'); $parameters.ExpectedDnsServer='10.10.10.10'
+    }
+    'absolute-evidence' { $parameters.SkipHostChecks=$true; $parameters.FailOnWarning=$true; $parameters.CompletedPrerequisite=@($entry.dependencies | ForEach-Object { Join-Path (Split-Path (Split-Path $ManifestPath -Parent) -Parent) $_ }) }
+    'escaped-evidence' { $parameters.SkipHostChecks=$true; $parameters.CompletedPrerequisite=@('../Instructions/General/Learner-Setup.md') }
+}
+& $Preflight @parameters
+exit $LASTEXITCODE
+'@, $utf8)
+    foreach ($probeCase in @(
+        @{Mode='dns-failure';Exit=0;Name='DNS port 53';Status='Warning'},
+        @{Mode='bad-octet';Exit=1;Name='Expected subnet';Status='Error'},
+        @{Mode='bad-prefix';Exit=1;Name='Expected subnet';Status='Error'},
+        @{Mode='reuse';Exit=0;Name='VM reachability: VN1-SRV21';Status='Pass'},
+        @{Mode='missing-probes';Exit=0;Name='DNS port 53';Status='Warning'},
+        @{Mode='absolute-evidence';Exit=0;Name='Prerequisite evidence';Status='Pass'},
+        @{Mode='escaped-evidence';Exit=1;Name='Prerequisite evidence';Status='Error'}
+    )) {
+        $probeReport = Join-Path $fixtureRoot ('probe-' + $probeCase.Mode + '.json')
+        $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $probeRunner $preflight (Join-Path $RepositoryRoot 'metadata/curriculum-manifest.json') $probeCase.Mode $probeReport 2>&1
+        if ($LASTEXITCODE -ne $probeCase.Exit) { throw "Probe/evidence exit failed: $($probeCase.Mode). $output" }
+        $checks = $output -join "`n" | ConvertFrom-Json
+        if (!@($checks | Where-Object { $_.Name -eq $probeCase.Name -and $_.Status -eq $probeCase.Status }).Count) { throw "Probe/evidence result failed: $($probeCase.Mode)" }
+        if ($probeCase.Mode -eq 'reuse' -and @($checks | Where-Object Name -eq 'VM reachability: VN1-SRV20').Count) { throw 'Reused guest was probed using its retired hostname.' }
+        if ($probeCase.Mode -eq 'missing-probes' -and !@($checks | Where-Object { $_.Name -eq 'VM reachability: VN1-SRV21' -and $_.Status -eq 'Warning' -and $_.Detail -match 'unavailable' }).Count) { throw 'Unavailable ICMP probe was silently omitted.' }
+        $reportChecks = [IO.File]::ReadAllText($probeReport) | ConvertFrom-Json
+        if (($checks | ConvertTo-Json -Depth 6 -Compress) -cne ($reportChecks | ConvertTo-Json -Depth 6 -Compress)) { throw 'Probe/evidence JSON report differs from stdout.' }
+        $passed++
+    }
+    $inputManifest = Join-Path $fixtureRoot 'metadata/path-matrix.json'
+    $malformedManifest = Join-Path $fixtureRoot 'metadata/malformed-protected.json'
+    [IO.File]::WriteAllText($malformedManifest, '{ invalid JSON', $utf8)
+    $preflightCopy = Join-Path $fixtureRoot 'protected-preflight.ps1'
+    Copy-Item -LiteralPath $preflight -Destination $preflightCopy
+    foreach ($protectedInput in @(
+        @{Script=$preflight;Manifest=$malformedManifest;Target=$malformedManifest},
+        @{Script=$preflight;Manifest=$inputManifest;Target=(Join-Path $fixtureRoot $entry.path)},
+        @{Script=$preflightCopy;Manifest=$inputManifest;Target=$preflightCopy}
+    )) {
+        $protectedBefore = [IO.File]::ReadAllText($protectedInput.Target)
+        $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $protectedInput.Script -SkipHostChecks -AsJson -ManifestPath $protectedInput.Manifest -CurriculumPath $entry.path -ReportPath $protectedInput.Target 2>&1
+        if ($LASTEXITCODE -ne 1) { throw 'Protected report destination did not produce exit 1.' }
+        $checks = $output -join "`n" | ConvertFrom-Json
+        if (!@($checks | Where-Object { $_.Name -eq 'Report output' -and $_.Status -eq 'Error' }).Count) { throw 'Protected report failure did not remain structured JSON.' }
+        if ([IO.File]::ReadAllText($protectedInput.Target) -cne $protectedBefore) { throw 'Report output overwrote an input or its preflight source.' }
+        $passed++
+    }
+    $inputBefore = [IO.File]::ReadAllText($inputManifest)
+    foreach ($reportDestination in @((Join-Path $fixtureRoot 'missing-directory/report.json'), $inputManifest)) {
+        $output = & $engine -NoProfile -ExecutionPolicy Bypass -File $preflight -SkipHostChecks -AsJson -ManifestPath $inputManifest -CurriculumPath $entry.path -ReportPath $reportDestination 2>&1
+        if ($LASTEXITCODE -ne 1) { throw 'Report failure did not produce exit 1.' }
+        $checks = $output -join "`n" | ConvertFrom-Json
+        if (!@($checks | Where-Object { $_.Name -eq 'Report output' -and $_.Status -eq 'Error' }).Count) { throw 'Report failure did not remain structured JSON.' }
+        if ([IO.File]::ReadAllText($inputManifest) -cne $inputBefore) { throw 'Report output overwrote its input manifest.' }
+        $passed++
     }
     $mdt = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Microsoft-Deployment-Toolkit.md'
     $s2d = $manifest.entries | Where-Object path -eq 'Instructions/Labs/Configuring-and-managing-Storage-Spaces-Direct-and-hyper-converged-virtualization.md'

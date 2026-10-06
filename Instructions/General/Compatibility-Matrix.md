@@ -17,7 +17,7 @@ Use the supported baseline unless an exercise explicitly tests an older operatin
 
 | Profile | Suggested use | VMs powered on | Notes |
 | --- | --- | --- | --- |
-| Low | Stages A-E and single-server practices | 3-4 | `VN1-SRV1`, `VN1-SRV4`, `CL1`, optional second DC; advanced labs are not suitable for this profile. |
+| Low | Stages A-E and single-server practices | 3-4 | `VN1-SRV1`, `VN1-SRV20`, `CL1`, optional second DC; add a separate `VN1-SRV4` only for its WAC role. Advanced labs are not suitable for this profile. |
 | Standard | Selected storage, management, and multi-server labs | 5-8 | Add machines named by the lab; do not assume cluster support. |
 | Expanded | Clusters, RDS HA, S2D, nested Hyper-V, and multi-service labs | 9+ | Extra disks, RAM, and storage are required; verify each lab manifest entry. |
 

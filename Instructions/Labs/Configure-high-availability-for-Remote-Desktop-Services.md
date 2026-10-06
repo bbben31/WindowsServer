@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploy-Remote-Desktop-Services.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploy-Remote-Desktop-Services.md; Instructions/Labs/Configure-external-access-to-Remote-Desktop-Services.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Prepare the shared default SQL instance using the reusable SQL-backend setup; scope SQL access for the recorded broker nodes, with installer database rights and the prescribed client driver ready. The reusable local SQL Setup wizard requires the explicitly selected VN1-SRV3 Desktop Experience SQL-host lineage; do not assume the default Server Core image has that GUI or convert an installed Core server in place.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); PM-SRV3 (VMware display: PM-SRV3; accepted display aliases: WIN-PM-SRV3; existing); PM-SRV4 (VMware display: PM-SRV4; accepted display aliases: WIN-PM-SRV4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing); VN1-SRV9 (VMware display: VN1-SRV9; accepted display aliases: WIN-VN1-SRV9; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
@@ -15,7 +15,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
 
-**Success verification:** Broker HA uses the intended SQL database, both broker nodes are registered, and an authorized test session survives the documented failover.
+**Success verification:** Broker HA uses the intended SQL database and both broker nodes are registered. Record a baseline RDS connection and controlled single broker/gateway VMware-NIC outage/recovery, preserving its partner. Report DNS round-robin retry limitations; loss of a session host is not transparent session preservation.
 
 **Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
 
@@ -51,6 +51,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 1. On **VN2-SRV2**, sing in as **.\Administrator**.
 
 You must have completed the lab [Configure external access to Remote Desktop Services](Configure-external-access-to-Remote-Desktop-Services.md).
+
+Prepare VN1-SRV3 by following only [Prepare the shared SQL backend](Active-Directory-Rights-Management-Service.md#prepare-the-shared-sql-backend); deploying RMS is not required. Extend the scoped TCP 1433 SQL firewall rule to the recorded lab addresses of the two connection brokers **VN2-SRV1 and VN2-SRV2**. From each broker verify `Test-NetConnection VN1-SRV3.ad.lab.test -Port 1433`, and from CL1 verify the installer can connect with Windows authentication in SSMS. Keep the shared default SQL instance available during the HA test; the broker SQL login/database is configured in Exercise 4.
 
 ## Introduction
 
@@ -330,7 +332,7 @@ Perform these steps on VN2-SRV1.
     Wait for the download to complete. This will take a few seconds.
 
 1. Under Downloads, under VC-redist.x64.exe, click **Open file**.
-1. In Microsoft Visual C++ Redistributable (x64) - 14.16.27052 (32 bit), click to activate **I agree to the license terms and conditions** and click **Install** ([figure 5]).
+1. In the verified **Microsoft Visual C++ Redistributable (x64)** installer, click to activate **I agree to the license terms and conditions** and click **Install** ([figure 5]). The installed version may differ from the screenshot; do not substitute the x86 package.
 
     Wait for the setup to be successful. This will take a few seconds.
 
@@ -429,7 +431,7 @@ Perform these steps on CL1.
 
 Connect to Remote Desktop Services using RD Web from CL1.
 
-If time allows, you might want to try to pause various VMs in Hyper-V to verify the business continuity. However, because of the lack of a real load balancer, the DNS round-robin configuration might require several connection attempts after a server becomes unavailable.
+After the baseline connection succeeds, perform the controlled outage test below using **VMware Workstation** for the outer guests. DNS round-robin is not a health-aware load balancer, so record failed attempts and recovery rather than promising transparent failover.
 
 ### Task: Connect to Remote Desktop Services using RD Web
 
@@ -450,6 +452,9 @@ Perform these steps on CL1.
     Wait for the connection to complete.
 
 1. Close the Remote Desktop Connection.
+1. Record the broker, RD Web, gateway and session-host used by the baseline test. In VMware, temporarily disconnect the lab NIC of **one** redundant broker or gateway, retaining the other partner and the session host. Record the exact guest/NIC/MAC and start time. Do not interrupt a domain controller, SQL backend or both partners together.
+1. Reopen RD Web and attempt a new connection or reconnect to the same disconnected session. Record the selected endpoint, attempts, elapsed time and whether the existing session is recovered. If DNS selects the unavailable partner, record that limitation and retry after the recorded DNS cache/TTL interval; do not describe DNS round-robin as health-aware failover.
+1. Reconnect the affected VMware NIC, verify the role is healthy, and repeat with the other partner if resources permit. Keep an existing session open when testing broker/gateway availability; loss of a session host is a different test and can lose that host's in-memory session state. Restore every recorded adapter before cleanup.
 
 
 [figure 1]: /images/Add-RD-Licensing-Servers-Confirm-selections.png

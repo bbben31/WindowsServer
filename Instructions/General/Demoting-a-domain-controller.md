@@ -24,9 +24,9 @@
 
 ### Troubleshooting
 
-If you receive any error message, in step 9 or 11, activate the check box **Force the removal of the domain controller**.
+Do not force removal for every error. Capture the failure and repair DNS, connectivity, credentials, replication, or role-transfer problems first. Confirm another healthy DC/DNS/GC remains and transfer FSMO roles before normal demotion. Do not demote the last DC unless intentionally destroying the entire disposable forest.
 
-If this still fails, shut down the server and do not start it again.
+Forced removal is a separate, irreversible recovery decision for a permanently failed DC after checking the remaining controllers and backups. If it is deliberately required, keep that DC offline permanently and clean its orphaned metadata, DNS records, and any remaining FSMO ownership from a healthy controller. Never restart the removed DC into the live forest.
 
 Additionally, you must remove the orphaned domain controller objects from Active Directory.
 
@@ -112,7 +112,7 @@ These are the steps to demote a Domain Controller remotely.
 
 ### Troubleshooting
 
-If you receive any error message, append the parameter ```-DemoteOperationMasterRole -ForceRemoval``` to the cmdlet ```Uninstall-ADDSDomainController```. The command should read:
+First diagnose the failed normal demotion as described above. Only for an explicitly planned forced-removal recovery, run the following locally on the failed disposable DC (or inside its existing remote session where the secure-string variable was collected), not in a different local shell:
 
 ```powershell
 Uninstall-ADDSDomainController `

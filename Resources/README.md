@@ -6,7 +6,7 @@ Only reviewed, self-contained learner helpers belong here. Each helper must be i
 
 If a curriculum document names a helper that is not present here, treat the document as invalid and complete its linked prerequisite instead. Do not download a similarly named script from an unverified source.
 
-Run `Solutions\Initialize-SampleDocuments.ps1` inside VN1-SRV10 to create the disposable Finance, IT, Marketing, and quota-test data used by the storage and file-server labs. Its default `Travel Packages` data is 120 MB so a 100 MB quota exercise fails as intended. Delete and regenerate these files whenever a clean test set is required.
+Run `Solutions\Initialize-SampleDocuments.ps1` inside VN1-SRV10 to create disposable classification text, old/recent expiration files, an offline-guide folder, a 64 MB IT quota fixture and 120 MB `Travel Packages`. The IT dataset exceeds 50 MB but fits within 75 MB; Travel Packages intentionally exceeds 100 MB. The helper preserves existing text/IT files; use a clean disposable test tree when resetting. Prepare the actual XLSX/PPTX files manually in licensed desktop Office on CL2 using [Prepare valid Office fixtures](../Instructions/Practices/Install-prerequisites-for-file-serving.md#prepare-valid-office-fixtures); the helper does not install Office or manufacture fake Office documents.
 
 Large or third-party assets are intentionally not committed:
 

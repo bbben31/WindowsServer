@@ -6,7 +6,7 @@ The source repository includes prerequisite guidance mixed with automation for c
 | --- | --- | --- |
 | Prerequisite sequence and dependency checks | **Retained and adapted** | Follow [Learner setup](Learner-Setup.md), then use the curriculum index and each lab's prerequisites. |
 | Resource-group planning, budgets, cost controls, region/SKU checks | **Retained and adapted** | Use an existing subscription, a dedicated lab resource group, budget alerts, quota/provider checks, and explicit cleanup. |
-| Per-lab Azure permissions and operational checklists | **Retained and adapted** | Start with Owner or User Access Administrator only for setup; use least-privilege roles per lab, validate dependencies before deployment, and remove assignments afterward. |
+| Per-lab Azure permissions and operational checklists | **Retained and adapted** | Use the scoped resource-deployment role per lab and a separate authorized RBAC-management role only for assignments; User Access Administrator alone does not deploy resources. Validate dependencies and remove temporary assignments afterward. |
 | Conceptual Azure setup and hybrid-service prerequisites | **Retained and adapted** | Azure Arc, File Sync, hybrid identity, VM, monitoring, and related labs remain available with placeholders and current Microsoft documentation. |
 | VMware/Windows host and snapshot guidance | **Retained and adapted** | Target Windows 11, VMware Workstation Pro 17, i7-14700KF, 32 GB RAM, 2 TB free storage, and staged multi-VM operation. |
 | Bulk student user creation | **Intentionally excluded** | Create only a small number of disposable personal test identities manually when a lab requires them. |

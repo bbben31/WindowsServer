@@ -155,7 +155,7 @@ Perform this task on VN1-SRV4.
         Get-Certificate `
             -Template 'WebServer' `
             -SubjectName "CN=$fQDN" `
-            -DnsName $fQDN `
+            -DnsName $hostName, $fQDN `
             -CertStoreLocation 'Cert:\LocalMachine\My'
         ).Certificate
     ````
@@ -287,7 +287,7 @@ Perform this task on CL1.
 1. Open **DNS**.
 1. In Connect to DNS Server, click **The following computer**, type **vn1-srv1.ad.lab.test** below and click **OK**.
 1. Expand **vn1-srv1.ad.lab.test**, **Forward Lookup Zones**, and click **ad.lab.test**.
-1. In the context-menu of **lab.test**, click **New Host (A or AAAA)...**
+1. In the context-menu of **ad.lab.test**, click **New Host (A or AAAA)...**
 1. In New Host, under **Name (uses parent domain name if blank)**, type **admincenter**. Under IP address, type **10.1.1.32**. Click **Add Host**.
 1. In the message box The host record admincenter.ad.lab.test was successfully created, click **OK**.
 1. In **New Host**, click **Done**.
@@ -453,13 +453,15 @@ Perform this task on CL1.
 1. Click *Settings*.
 1. In Settings, click **Extensions**.
 1. In Extensions, ensure the switch **Automatically update extension** is enabled.
-1. On tab Available Extensions, **GPUs** and click **Install**.
+1. On tab Available Extensions, select **Active Directory** and click **Install**. If it is unavailable for the recorded WAC version, record the extension compatibility limitation; do not install an unrelated extension as evidence of this task.
 
     Wait for Windows Admin Center to reload.
 
 You may repeat the last step for other extensions at your choice.
 
 ### Task 3: Register Windows Admin Center with Azure
+
+This cloud registration is optional and separate from the local WAC completion checks. First follow [Register Windows Admin Center with Azure](../Practices/Register-Windows-Admin-Center-with-Azure.md) and its existing-tenant, permission and consent gates. If you cannot authorize the application registration/consent in your own tenant, skip this task and its cloud-only verification; continue local management. Never create a different tenant or accept consent for an unverified identity to satisfy these screenshots.
 
 Perform this task on CL1.
 
@@ -614,7 +616,7 @@ Perform this task on CL1.
 1. Under Gateway Access, under **Allowed Groups**, click **Add**.
 1. In the pane Add an allowed group, under **Name**, type **ad\Windows Admin Center users**. Under **Role**, ensure **Gateway users** is selected. Under **Type**, ensure **Gateway users security group** is selected. Click **Save**.
 
-    Note: You can ignore the error message regarding the invalid group name format.
+    Do not ignore a group-name validation error. Resolve the group name in the format required by the recorded WAC version, verify it was saved, and test an allowed administrator in a separate session before removing an existing gateway access group. Retain a working authorized recovery session.
 
 1. Under Gateway Access, under **Allowed Groups**, click **Add**.
 1. In the pane Add an allowed group, under **Name**, type **ad\Windows Admin Center administrators**. Under **Role**, click **Gateway administrators**. Under **Type**, ensure **Gateway users security group** is selected. Click **Save**.

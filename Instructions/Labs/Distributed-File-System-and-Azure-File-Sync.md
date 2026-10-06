@@ -66,9 +66,9 @@ Adatum wants unify the namespace of file servers using Distributed File System. 
 
     > What is the actual location of \\\\ad.lab.test\\Company Data\\Departments?
 
-    > What is the actual location of \\\\ad.lab.test\\Company Data\\IT?
+    > What is the actual location of \\\\ad.lab.test\\Company Data\\Departments\\IT?
 
-    > What is the content of \\\\ad.lab.test\\Company Data\\IT?
+    > What is the content of \\\\ad.lab.test\\Company Data\\Departments\\IT?
 
 ### Task 1: Install the DFS Namespaces role service
 
@@ -189,7 +189,7 @@ Perform this task on CL1.
 
     > What is the active path of \\\\ad.lab.test\\Company Data\\Departments\\IT?
 
-    > What is the content of \\\\ad.lab.test\\Departments\\IT?
+    > What is the content of \\\\ad.lab.test\\Company Data\\Departments\\IT?
 
 1. [Delete replication group](#task-8-delete-replication-group)
 
@@ -442,6 +442,7 @@ Repeat from step 3 for **IT** and **Marketing**.
 
 Perform this task on CL2.
 
+1. Record CL2's original VMware NIC mapping and IP/DNS configuration. Place its test NIC on the recorded **VNet2** custom VMnet, with a valid VNet2 address and AD DNS, and verify `nltest /dsgetsite` reports **VNet2**. Disconnect other test/NAT NICs. Run `dfsutil /pktflush` from an elevated terminal to clear stale DFS referrals before the test. Restore the recorded configuration afterward.
 1. Sign in as **ad\\Administrator**
 1. In **File Explorer**, navigate to **\\\\ad.lab.test\\Company Data**. You will have to type the full path in the address bar.
 1. In \\\\ad.lab.test\\Company Data, in the context-menu of **Departments**, click **Properties**.
@@ -454,7 +455,7 @@ Perform this task on CL2.
 1. In \\\\ad.lab.test\\Company Data\\Departments, in the context-menu of **IT**, click **Properties**.
 1. In IT Properties, click the tab **DFS**.
 
-    > The active path should be \\\\VN2-SRV1.ad.lab.test\\Company Data\\Departments\\IT.
+    > With the documented site/referral state, the active folder target should be **\\\\VN2-SRV1\\IT**, the share added in Task 6. Record the actual target; a cached or different-site referral is not proof of a replication failure.
 
 1. Click **Cancel**.
 1. In **File Explorer**, in \\\\ad.lab.test\\Company Data\\Departments, double-click **IT**.
@@ -491,6 +492,8 @@ Perform this task on CL1.
 
 ## Exercise 3: Replicating files with Azure File Sync
 
+Keep the recorded temporary NAT connection available on the participating server/management guests through endpoint-health and test-file synchronization checks and safe endpoint/agent cleanup. Preserve AD DNS on lab NICs and disable NAT NIC DNS registration. Use the recorded **<AZURE_REGION>**, default **UK South** only when currently supported for the selected subscription/services; the Storage Sync Service and storage account must use the same region. Check current [Azure File Sync planning requirements](https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-planning) before provisioning.
+
 1. [Remove existing content in shares](#task-1-remove-existing-content-in-shares) on VN2-SRV1
 1. [Create a Storage Sync Service and register server using Windows Admin Center](#task-2-create-a-storage-sync-service-and-register-server-using-windows-admin-center) VN1-SRV10
 1. [Download Azure File Sync agent](#task-3-download-azure-file-sync-agent)
@@ -522,7 +525,7 @@ Perform this task on CL1.
 1. In Windows Admin Center, on the connections page, click **vn1-srv10.ad.lab.test**.
 1. Connected to vn1-srv10.ad.lab.test, under **Tools**, click **Azure File Sync**.
 1. In Azure File Sync, click **Set up**.
-1. In the pane Set up Azure File Sync, under **Sync with this Azure region**, select a region close to you, e.g., **West Europe**.
+1. In the pane Set up Azure File Sync, under **Sync with this Azure region**, select the recorded **<AZURE_REGION>** (default **UK South** when supported).
 1. Under **Azure settings**, click **Edit**.
 1. Under **Subscription**, select the correct subscription.
 1. Under **Resource group**, click **Create new** and type **WinFSM**.
@@ -532,7 +535,7 @@ Perform this task on CL1.
 
 1. Click **Set up**.
 
-    The setup take less than 5 minutes.
+    Wait for setup to complete; record any deployment error instead of assuming a fixed duration.
 
 1. After the message You're all set! appears, click **Close**.
 
@@ -602,15 +605,15 @@ Perform this task on CL1.
 
 1. In Create a resource, click **Storage** and click **Storage account**.
 1. In Create a storage account, in **Subscription**, ensure the correct subscription is selected.
-1. Under **Resource group**, click **Create new**, type **WinFSM** and click **OK**.
+1. Under **Resource group**, select the existing disposable **WinFSM** group recorded in Task 2. If recovering from a partly completed WAC attempt, inspect its existing storage account/sync group/cloud endpoint first and reuse the intended resources; do not create a duplicate account or replace a working endpoint implicitly.
 1. Beside **Storage account name**, type a unique name, e.g., the first letters of your first and last name and **dfs**. You must not use upper case or any special characters. If you see an error message below the field, fix that error.
-1. Beside **Region**, click a region close to you, e.g., **(Europe) West Europe**.1
+1. Beside **Region**, select the same recorded **<AZURE_REGION>** as the Storage Sync Service (default **UK South** when supported).
 1. Beside **Performance**, ensure **Standard** is selected.
 1. Beside **Redundancy**, ensure **Geo-redundant storage (GRS)** is selected. Deactivate **Make read access to data available in the event of regional unavailability**.
 1. Click **Review**.
 1. Click **Create**.
 
-    Wait until the deployment is complete. This should take less than 30 seconds.
+    Wait until deployment succeeds; deployment time varies.
 
 1. Click **Go to resource** or, in the search box at the top, type the name of the storage account, you just created.
 1. In the storage account, under **Data storage**, click **File shares**.
@@ -639,14 +642,14 @@ Perform this task on CL1.
     1. Under **Azure File Share**, click **finance**.
     1. Click **Create**.
 
-    Wait for the cloud endpoint to provision. This takes a few seconds.
+    Wait for the cloud endpoint to provision successfully; inspect errors before continuing.
 
 1. Click **Add server endpoint**.
 1. In the pane Add server endpoint, under **Registered Server**, click **VN1-SRV10.ad.lab.test**. Under **Path**, type **D:\\Shares\\Finance**.
 1. Expand **Initial Sync** and clcik **Authoritatively overwrite files and folders in the Azure file share with content in this server's path. This option avoids file conflicts**.
 1. Click **Create**.
 
-    Wait for the server endpoint to provision. This takes less than a minute.
+    Wait for the server endpoint to provision successfully; inspect errors before continuing.
 
 If time permits, repeat this task from step 12 for the IT and Marketing shares.
 
@@ -678,7 +681,7 @@ Perform this task on CL2.
 1. In \\\\ad.lab.test\\Company Data\\Departments, in the context-menu of **Finance**, click **Properties**.
 1. In Finance Properties, click the tab **DFS**.
 
-    > The active path should be \\\\VN2-SRV1.ad.lab.test\\Company Data\\Departments\\Finance.
+    > For the documented VNet2 client/site state, the active folder target should be **\\\\VN2-SRV1\\Finance**, not a namespace path under that server. Record the actual active share and verify it contains the synced data.
 
 1. Click **Cancel**.
 1. In **File Explorer**, in \\\\ad.lab.test\\Company Data\\Departments, double-click **Finance**.
@@ -688,6 +691,8 @@ Perform this task on CL2.
 If time permits, repeat from step 4 for the Marketing and IT shares.
 
 ### Task 8: Remove server endpoints
+
+Stop writes to the exercise shares and verify final sync health first. If retaining the local data, disable cloud tiering on each exercise endpoint and recall all tiered files with sufficient local free space; verify the files open locally before removing endpoints. Follow [Microsoft's safe endpoint deprovisioning procedure](https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-server-endpoint-delete). Do not delete an Azure share containing the only complete copy of a file.
 
 1. Open **Microsoft Edge**, navigate to <https://portal.azure.com> and sign in if necessary.
 1. In the search box at the top, type **Storage Sync Services** and click **Storage Sync Services**.
@@ -700,3 +705,5 @@ If time permits, repeat from step 4 for the Marketing and IT shares.
 1. On tab Confirmation, review the steps, activate **I'm ready to delete the server endpoint** and click **Delete**.
 
 Repeat from step 6 for **VN2-SRV1.ad.lab.test**.
+
+Repeat cleanup for every additional IT/Marketing endpoint created by this exercise. When a server has no remaining endpoints needed by another exercise, unregister it from this Storage Sync Service and uninstall only the exercise's Azure File Sync agent, following [Microsoft's registration/unregistration procedure](https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-server-registration). Remove only the recorded disposable sync groups, cloud endpoints, sync service, storage account and resource group after verifying no retained/shared resources are inside. Then disconnect temporary NAT, restore CL2's recorded original NIC/IP/DNS settings and site, and verify AD resolution. Retain local copies needed by later exercises.

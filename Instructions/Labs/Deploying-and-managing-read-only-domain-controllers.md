@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Prepare the VNet3 AD site and its 10.1.3.0/24 subnet mapping using Managing sites and replication Exercise 1 only; this prerequisite does not require the later GC/site-link experiments. Manually verify the named disposable users/groups from the linked learner-account fixture table before password-replication/cached-credential tests; preserve their recorded lifecycle and private credentials.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional until retired; supply the guest or explicitly confirm retirement with -RetiredVmName); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup.
 
@@ -43,6 +43,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 > **Conditional controller lifecycle:** Supply VN1-SRV1 while it remains the active original controller. After its documented retirement, confirm that VN1-SRV5 serves the original DNS address and the required directory roles, then pass `-RetiredVmName VN1-SRV1` to preflight; never restart a retired controller. Retirement requires the completed address/role handover, not merely completing controller promotion or switching off a guest. Steps concerning the retired server apply only to recorded historical state or removal of its stale directory objects.
 
 ## Setup
+
+Before pre-creating the RODC, complete only the site/subnet preparation in [Managing sites and replication, Exercise 1](Managing-sites-and-replication.md#exercise-1-create-sites). Verify **VNet3** exists and **10.1.3.0/24** maps to it, and that the chosen writable replication source is in the appropriate existing site. Confirm the recorded lab routes, DNS resolution and directory replication are healthy; this does not require completing the later global-catalog/site-link experiments. Prepare Beth Burke, Logan Boyle, Ida Alksne and the existing Entitling Groups OU using the concrete [manual learner account fixtures](../General/Learner-Account-Fixtures.md); do not precreate the RODC delegation/password-cache groups made by the tasks below.
 
 1. On VN3-SRV1, sign in as **ad\Administrator**.
 1. On CL1, sign in as **ad\Administrator**.
@@ -148,6 +150,7 @@ Perform this task on CL1.
 1. In the the new OU, create a domain-local security group named **VNet3 RODC Administrators**.
 
     ````powershell
+    $server = 'ad.lab.test'
     $aDGroup = New-ADGroup `
         -Path 'OU=Entitling Groups,DC=ad,DC=lab,DC=test' `
         -Name 'VNet3 RODC Administrators' `
@@ -400,7 +403,7 @@ Perform this task on CL2.
     $env:LOGONSERVER
     ````
 
-    > This will return \\\\VN1-SRV5, because the password of Ida is not present on VN3-SRV1.
+    > Record the actual writable controller used while Ida's password is not cached on VN3-SRV1. VN1-SRV5 is one possible result, not a guaranteed locator choice; verify the cached-account list rather than using one hard-coded LOGONSERVER as the pass condition.
 
 1. Sign out.
 
@@ -511,7 +514,7 @@ Perform this task on CL2.
 1. [Take the read-only domain controller offline](#task-1-take-the-read-only-domain-controller-offline)
 1. [Delete the read-only domain controller and reset passwords of cached user accounts](#task-2-delete-the-read-only-domain-controller-and-reset-passwords-of-cached-user-accounts)
 1. [Verify the sign in after compromise](#task-3-verify-the-sign-in-after-compromise)
-1. [Assign a new password](#task-4-assign-a-new-password) to Ada Russell
+1. [Assign a new password](#task-4-assign-a-new-password) to Ida Alksne
 1. [Verify sign in after password reset](#task-5-verify-sign-in-after-password-reset)
 
 ### Task 1: Take the read-only domain controller offline

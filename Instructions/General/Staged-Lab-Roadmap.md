@@ -1,8 +1,8 @@
 # Staged self-learner lab roadmap
 
-Build only the stage you need. Keep the previous stage powered off but snapshotted when resources are constrained. Every stage uses VMware Workstation Pro 17, the `VMnet10` management/AD network (`10.10.10.0/24`), `VMnet20` server network (`10.10.20.0/24`), and `VMnet30` client network (`10.10.30.0/24`) as described in [segmented networking](VMware-Segmented-Networking.md). Azure stages use the existing Microsoft Azure for Students subscription in UK South, with a hard £10 monthly safety limit.
+Build only the stage you need. VMware Workstation Pro 17 is the outer platform. The core A-E foundation uses `VMnet10` (`10.10.10.0/24`), `VMnet11` (`10.10.20.0/24`), and `VMnet12` (`10.10.30.0/24`) as described in [segmented networking](VMware-Segmented-Networking.md). Selected source procedures instead use the [enterprise expansion profile](Environment-Profiles.md#profile-2-enterprise-expansion), including their original `10.1.x.x` addresses and additional roles. Build that profile in a separate lineage; never apply its addresses directly to the core forest. Azure stages use the existing Microsoft Azure for Students subscription in UK South, with a learner-imposed £10 monthly safety limit.
 
-Before each stage, run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1), resolve blockers, create the named checkpoint, perform the work, verify the expected state, and clean up. Labs marked **extra capacity** need additional VMs, disks, or Azure resources; do not infer that the low profile can run them.
+For foundation stages A-D, use each runbook's host, media, network, and role checks. The [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) requires `-CurriculumPath` selecting one Practice or Lab from the manifest; General runbooks are not selectable entries. Before a selected procedure, supply its path and declared existing VMs, resolve blockers, review warnings, create the named checkpoint, perform the work, verify the expected state, and clean up. Preflight checks declared prerequisites, not live guest roles. Labs marked **extra capacity** need additional VMs, disks, or Azure resources; do not infer that the low profile can run them. Azure budget alerts do not stop consumption: estimate costs with headroom and remove resources before the policy limit is threatened.
 
 ## Stage A — Host and VMware network foundation
 
@@ -10,11 +10,11 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **Prerequisites:** Windows 11 host, VMware Workstation Pro 17, Intel Core i7-14700KF, 32 GB RAM, 2 TB free storage, and official Windows media.
 
-**VMs/networks:** No guest is required initially. Create VMnet10, VMnet20, VMnet30, and optional VMnet8 NAT. Confirm host VMware adapters and avoid bridged networking.
+**VMs/networks:** No guest is required initially. Create VMnet10, VMnet11, VMnet12, and optional VMnet8 NAT. Confirm host VMware adapters and avoid bridged networking.
 
 **Practices/labs:** Read [Learner setup](Learner-Setup.md) and complete [VMware segmented networking](VMware-Segmented-Networking.md).
 
-**Verification:** `Get-NetAdapter`; `Get-NetIPConfiguration`; `Get-NetRoute -AddressFamily IPv4`; run preflight without Azure parameters.
+**Verification:** `Get-NetAdapter`; `Get-NetIPConfiguration`; `Get-NetRoute -AddressFamily IPv4`; compare the Virtual Network Editor settings with the runbook. No curriculum preflight selection is needed yet.
 
 **Expected state:** The three isolated VMnets exist, DHCP is enabled only where chosen, and no isolated segment has an unintended default gateway.
 
@@ -30,9 +30,9 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **VMs/networks:** One temporary Server VM and one temporary Windows 11 VM, disconnected from the domain. Use VMnet10 for management and VMnet8 only for controlled updates.
 
-**Practices/labs:** [Install Windows Server manually](../Practices/Install-Windows-Server-manually.md), [Install Windows Server with Desktop Experience manually](../Practices/Install-Windows-Server-with-Desktop-Experience-manually.md), and [Create and install a virtual machine](../Practices/Create-and-install-a-virtual-machine.md). Follow the full [Milestone B base-image runbook](Base-Images-and-Templates.md).
+**Practices/labs:** [Install Windows Server manually](../Practices/Install-Windows-Server-manually.md) and [Install Windows Server with Desktop Experience manually](../Practices/Install-Windows-Server-with-Desktop-Experience-manually.md) describe installation inside a selected outer VMware target. Follow the full [Milestone B base-image runbook](Base-Images-and-Templates.md) for template creation. The nested Hyper-V [Create and install a virtual machine](../Practices/Create-and-install-a-virtual-machine.md) practice belongs to Stage F, after its Hyper-V prerequisites; it is not the foundation VM builder.
 
-**Verification:** `winver`; `Get-ComputerInfo`; `Get-WindowsFeature`; `Get-NetIPConfiguration`; run preflight with ISO paths.
+**Verification:** `winver`; `Get-ComputerInfo`; `Get-WindowsFeature`; `Get-NetIPConfiguration`; verify the downloaded ISO hashes and the runbook's template checks.
 
 **Expected state:** Clean, updated, VMware Tools-equipped, non-domain-joined templates exist with documented snapshots and no personal data or secrets.
 
@@ -48,7 +48,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **VMs/networks:** `VN1-SRV1` at `10.10.10.10/24` on VMnet10; optional `VN1-SRV5` at `10.10.10.11/24` after the first controller is healthy. No public DNS on the domain NIC.
 
-**Practices/labs:** Follow the [Milestone C AD DS/DNS foundation runbook](AD-DNS-Foundation.md), then use [Configure AD DS as a new forest](Configuring-Active-Directory-Domain-Services-as-a-new-forest.md), [Configure AD DS as an additional domain controller](Configuring-Active-Directory-Domain-Services-as-an-additional-domain-controller.md), and [Deploying domain controllers](../Labs/Deploying-domain-controllers.md) for the source-aligned detail.
+**Practices/labs:** Follow the [Milestone C AD DS/DNS foundation runbook](AD-DNS-Foundation.md), using [Configure AD DS as a new forest](Configuring-Active-Directory-Domain-Services-as-a-new-forest.md) and [Configure AD DS as an additional domain controller](Configuring-Active-Directory-Domain-Services-as-an-additional-domain-controller.md) for the generic operations. [Deploying domain controllers](../Labs/Deploying-domain-controllers.md) is a separate enterprise-profile exercise with its own addresses, roles, and compatibility lineage, not a continuation to run unchanged against the core DCs.
 
 **Verification:** `Resolve-DnsName ad.lab.test -Server 10.10.10.10`; `dcdiag /test:dns /v`; `repadmin /replsummary` when a second controller exists.
 
@@ -64,7 +64,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **Prerequisites:** Stage C and healthy DNS.
 
-**VMs/networks:** `VN1-SRV4` on VMnet10 with optional VMnet20; `CL1` on VMnet30; add `VN1-SRV5`, `VN1-SRV20`, `VN1-SRV21`, or `CL3` only when a lab requires them.
+**VMs/networks:** `VN1-SRV1` on VMnet10 only; `VN1-SRV20` with VMnet10 AD/management plus VMnet11 workload NICs; and `CL1` with VMnet10 AD/management plus VMnet12 client NICs. Add `VN1-SRV21`, `CL3`, the optional second DC `VN1-SRV5`, or a dedicated WAC server `VN1-SRV4` only when selected work requires them. Use the D runbook's address table.
 
 **Practices/labs:** Follow the [Milestone D member-server and client runbook](Member-Servers-and-Clients.md), then use [Join Windows 11 to a local AD domain](Joining-Windows-11-to-a-local-Active-Directory-domain.md), [Adding servers to Server Manager](Adding-servers-to-Server-Manager.md), and [Manage domain users, groups, and computers](../Labs/Manage-domain-users-groups-and-computers.md).
 
@@ -82,7 +82,7 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **Prerequisites:** Stage D.
 
-**VMs/networks:** `VN1-SRV4`, `CL1`, and the minimum member servers named by each practice. Use VMnet10 for management and VMnet30 for clients.
+**VMs/networks:** The core minimum is `VN1-SRV1`, `VN1-SRV20`, and `CL1`, retaining D's single-NIC DC and dual-NIC member/client configuration. A selected practice may require different named servers and the separate enterprise profile; its manifest and setup determine the actual topology.
 
 **Practices/labs:** Follow the [Milestone E core Windows administration runbook](Core-Windows-Administration.md), then complete the mapped practices and core labs under administration, DNS, DHCP, Group Policy, file sharing, Windows Admin Center, monitoring, and update services in the [curriculum index](Curriculum-Index.md).
 
@@ -100,9 +100,9 @@ Before each stage, run the [read-only preflight checker](../../tools/Preflight-L
 
 **Prerequisites:** Stage E and the selected lab's manifest entry.
 
-**VMs/networks:** **Extra capacity:** clusters, Storage Spaces Direct, Storage Replica, iSCSI, RDS high availability, AD FS, RMS, deployment services, and nested Hyper-V may require several additional VMs, disks, certificates, or VMnet20/30 paths.
+**VMs/networks:** **Extra capacity:** clusters, Storage Spaces Direct, Storage Replica, iSCSI, RDS high availability, AD FS, RMS, deployment services, and nested Hyper-V may require several additional VMs, disks, certificates, or VMnet11/12 paths.
 
-**Practices/labs:** Follow the [Milestone F advanced infrastructure guide](Advanced-Infrastructure.md), then select the relevant practices/Labs entries in the manifest; do not combine unrelated advanced stacks without sufficient RAM and storage.
+**Practices/labs:** Follow the [Milestone F advanced infrastructure guide](Advanced-Infrastructure.md), then select the relevant Practices/Labs entries in the manifest, including the nested Hyper-V [Create and install a virtual machine](../Practices/Create-and-install-a-virtual-machine.md) practice where appropriate; do not combine unrelated advanced stacks without sufficient RAM and storage.
 
 **Verification:** Use the lab's documented checks plus `Get-Cluster`, `Get-Volume`, `Get-IscsiSession`, `Get-WindowsFeature`, or preflight where applicable.
 

@@ -5,9 +5,9 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploy-Remote-Desktop-Services.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploy-Remote-Desktop-Services.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. An internal RDS connection suffices for profile-container tests. The remote.lab.test gateway path is conditional on the separate external-access lab and a freshly downloaded RDP file. Use the recorded file-server member lineage of VN1-SRV5 and a fresh recorded 1 TB non-OS VMDK with D: unused before this lab's volume creation; do not format an existing DC/workload data disk.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); PM-SRV3 (VMware display: PM-SRV3; accepted display aliases: WIN-PM-SRV3; existing); PM-SRV4 (VMware display: PM-SRV4; accepted display aliases: WIN-PM-SRV4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing); VN1-SRV9 (VMware display: VN1-SRV9; accepted display aliases: WIN-VN1-SRV9; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); PM-SRV3 (VMware display: PM-SRV3; accepted display aliases: WIN-PM-SRV3; existing); PM-SRV4 (VMware display: PM-SRV4; accepted display aliases: WIN-PM-SRV4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing); VN1-SRV9 (VMware display: VN1-SRV9; accepted display aliases: WIN-VN1-SRV9; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
 **Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
 
@@ -15,7 +15,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Risk, cost and optional status:** high; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
 
-**Success verification:** An authorized RDS user receives the intended profile container; reconnecting preserves the test profile.
+**Success verification:** An authorized RDS user receives the intended profile container; reconnecting preserves the test profile. Verify exact profile-root ACLs: authorized users create their own containers but cannot read/modify another user's profile. Correlate actual mounted volumes rather than fixed volume numbers.
 
 **Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
 
@@ -49,6 +49,8 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 On **CL1**, sign in as **ad\\Administrator**.
 
 You must have completed the lab [Deploy Remote Desktop Services](Deploy-Remote-Desktop-Services.md).
+
+Before Task 4, power off VN1-SRV5 and add a fresh, uniquely named, growable **1 TB SCSI VMDK** in VMware; do not reuse an OS disk, a cluster LUN or a disk containing another lab's data. Record its SCSI node, guest disk unique ID and actual disk number, then start the guest and confirm it is uninitialized. **D:** must be unused for this baseline; if another exercise owns it, use a separate coordinated baseline rather than overwriting that volume. Substitute the recorded disk number for the illustrative Disk 1 throughout Task 4, and retain enough host space for actual profile-container growth.
 
 ## Introduction
 
@@ -101,9 +103,9 @@ Perform this task on CL1.
 1. Open **Active Directory Administrative Center**.
 1. In Active Directory Administrative Center, in the context-menu of **ad (local)**, click **New**, **Organizational Unit**.
 1. In Create Organizational Unit, in **Name**, enter **Servers** and click **OK**.
-1. In Active Directory Administrative Center, in the middle pane, in the context-menu of **ad (local)**, click **New**, **Organizational Unit**.
+1. In Active Directory Administrative Center, double-click **Servers**, then in its context-menu click **New**, **Organizational Unit**.
 1. In Create Organizational Unit, in **Name**, enter **Remote Desktop Services** and click **OK**.
-1. In Active Directory Administrative Center, in the middle pane, double-click **Servers**.
+1. In Active Directory Administrative Center, double-click **Remote Desktop Services** under **Servers**.
 1. In the context-menu of **Remote Desktop Services**, click **New**, **Organizational Unit**.
 1. In Create Organizational Unit, in **Name**, enter **Session hosts** and click **OK**.
 
@@ -194,7 +196,7 @@ Perform these steps on CL1.
 1. On page Share Location, under Server, click **VN1-SRV5**. Under Share location, click **D:**. Click **Next >**.
 1. On page Share Name, beside **Share name**, type **Profiles** and click **Next>**.
 1. On page Other Settings, click to activate **Enable access-based enumeration**, click to deactivate **Allow caching of share** and click to activate **Encrypt data access**. Click **Next >**.
-1. In New Share Wizard, on page Permissions, click **Next >**.
+1. In New Share Wizard, on page Permissions, click **Customize permissions...**. Create/use a domain security group **FSLogix Profile Users** containing only the disposable session users **Ada**, **Boyd** and **Claire**. Grant that group **Change** on the share and administrators **Full Control**; remove broad share access. On the NTFS root, retain **SYSTEM** and **Administrators: Full control (this folder, subfolders and files)**, set **CREATOR OWNER: Modify (subfolders and files only)**, and **FSLogix Profile Users: Modify (this folder only)**. Remove inherited broad user ACEs that would let users read/modify other users' containers. Do not change permissions on an unrelated volume. Check the resulting effective access before clicking **Next >**.
 1. On page Confirmation, verify your selections ([figure 3]) and click **Create**.
 1. On page Results, click **Close**.
 
@@ -341,7 +343,7 @@ Perform this task on CL1.
 1. Open **File Explorer**.
 1. In File Explorer navigate to **Downloads**.
 1. Double-click **cpub-Standard_desktop-Standard_desktop-CmsRdsh.rdp**
-1. In Remote Desktop connection security warning, ensure, beside **Gateway server**, **remote.lab.test** is shown. Click **Connect**.
+1. In Remote Desktop connection security warning, verify the expected deployment endpoint and click **Connect**. A **remote.lab.test** gateway is expected only if you also completed [Configure external access to Remote Desktop Services](Configure-external-access-to-Remote-Desktop-Services.md) and downloaded a fresh RDP file; the prerequisite deployment alone permits a direct internal connection.
 1. In Windows Security, click **More choices** and **Use a different account**. Sign in as **AD\Ada**.
 
     Wait for the connection to complete. During the sign in, you should see messages regarding FSLogix.
@@ -353,7 +355,7 @@ Perform this task on CL1.
     & 'C:\Program Files\FSLogix\Apps\frx.exe' list-redirects
     ````
 
-    You should see a list of redirections. Redirections to HarddiskVolume6 are redirections to the attached VHD. Redirections to HardDiskVolume4 are to the local disk.
+    You should see a list of redirections. Correlate the displayed volume identifiers with the attached profile VHD and local disk on this session host; numbers such as HarddiskVolume6/4 are examples, not stable identifiers. Verify Ada's container is created and mounted, and that Boyd/Claire cannot read or modify Ada's profile files through the share.
 
 1. Sign out.
 

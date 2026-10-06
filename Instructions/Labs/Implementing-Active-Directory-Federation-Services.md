@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Create-an-exportable-web-server-certificate-template.md; Instructions/Labs/Deploy-Remote-Desktop-Services.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Create-an-exportable-web-server-certificate-template.md; Instructions/Labs/Deploy-Remote-Desktop-Services.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); PM-SRV2 (VMware display: PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing); PM-SRV3 (VMware display: PM-SRV3; accepted display aliases: WIN-PM-SRV3; existing); PM-SRV4 (VMware display: PM-SRV4; accepted display aliases: WIN-PM-SRV4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional until retired; supply the guest or explicitly confirm retirement with -RetiredVmName); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV2 (VMware display: VN1-SRV2; accepted display aliases: WIN-VN1-SRV2; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing); VN1-SRV9 (VMware display: VN1-SRV9; accepted display aliases: WIN-VN1-SRV9; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
@@ -51,14 +51,11 @@ If you skipped the practice [Install Remote Server Administration Tools](../Prac
 1. On **VN1-SRV2**, sign in as **ad\Administrator**.
 1. Open **Windows PowerShell** as Administrator.
 1. Complete [Create an exportable web server certificate template](../Practices/Create-an-exportable-web-server-certificate-template.md). Grant CL1 Enroll permission on `WebServerExportable` through the Certificate Templates console and issue the template on the enterprise CA.
-1. Create the KDS root key:
-
-    ````powershell
-    Add-KdsRootKey -EffectiveTime (Get-Date).AddHours(-10)
-    ````
+1. On an **active domain controller**, not the VN1-SRV2 member/CA, follow [Generating the KDS root key](../General/Generating-the-KDS-root-key.md). Reuse an existing effective key; in the multi-controller enterprise forest allow safe replication time instead of backdating a new key. Return to CL1 after verifying the key is ready.
 
 1. On CL1, sign in as **ad\Administrator**.
 1. Complete [Install prerequisites for file server](../Practices/Install-prerequisites-for-file-serving.md), [Manage local storage](Manage-local-storage.md), and [Install Windows Admin Center using a script](../Practices/Install-Windows-Admin-Center-using-a-script.md). Verify the required shares, volumes, and Windows Admin Center endpoint before continuing.
+1. On VN1-SRV10 create **D:\Shares\IT\PKI-Admin**. In **Properties > Security > Advanced**, disable inheritance and remove inherited entries on this new folder; retain only **SYSTEM** and **BUILTIN\Administrators**, both Full control for this folder/subfolders/files. Remove any explicit IT/user/CREATOR OWNER ACEs. Verify an administrator can write **\\VN1-SRV10\IT\PKI-Admin** and an ordinary IT user cannot read it. On VN1-SRV8, VN1-SRV9 and PM-SRV3 create **C:\WindowsServerLab\PKI-Admin** with the same administrator/SYSTEM-only NTFS protection for local PFX copies. Delete the copies after successful import when no dependent task needs them; keep PFX passwords out of shared files.
 
 1. On CL3, sign in as **.\Administrator**.
 1. On VN1-SRV8, sign in as **ad\Administrator**.
@@ -161,7 +158,7 @@ Perform this task on CL1.
 1. On page Ready to install Internet Information Service (IIS) 7+ Manager, click **Install**.
 1. On page Completed the Internet Information Service (IIS) 7+ Manager Setup Wizard, click **Finish**.
 1. Open **Terminal**.
-1. In Terminal, create a remote PowerShell session to **PM1-SRV2**.
+1. In Terminal, create a remote PowerShell session to **PM-SRV2**.
 
     ````powershell
     Enter-PSSession PM-SRV2
@@ -203,7 +200,7 @@ Perform this task on CL1.
 
     ````powershell
     Start-BitsTransfer `
-        -Destination Downloads `
+        -Destination (Join-Path $env:USERPROFILE 'Downloads\inetmgr_amd64_en-US.msi') `
         -Source `
             https://download.microsoft.com/download/2/4/3/24374C5F-95A3-41D5-B1DF-34D98FF610A3/inetmgr_amd64_en-US.msi
     ````
@@ -211,10 +208,11 @@ Perform this task on CL1.
 1. Install IIS Manager for Remote Administration 1.2.
 
     ````powershell
-    msiexec.exe /i c:\Users\Administrator.AD\Downloads\inetmgr_amd64_en-US.msi /passive
+    $installerPath = Join-Path $env:USERPROFILE 'Downloads\inetmgr_amd64_en-US.msi'
+    Start-Process msiexec.exe -ArgumentList @('/i', ('"{0}"' -f $installerPath), '/passive') -Wait
     ````
 
-1. Create a remote PowerShell session to **PM1-SRV2**.
+1. Create a remote PowerShell session to **PM-SRV2**.
 
     ````powershell
     Enter-PSSession PM-SRV2
@@ -252,7 +250,7 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **Terminal**.
-1. In Terminal, create a remote PowerShell session to **PM1-SRV2**.
+1. In Terminal, create a remote PowerShell session to **PM-SRV2**.
 
     ````powershell
     Enter-PSSession PM-SRV2
@@ -309,7 +307,7 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **Terminal**.
-1. In Terminal, create a remote PowerShell session to **PM1-SRV2**.
+1. In Terminal, create a remote PowerShell session to **PM-SRV2**.
 
     ````powershell
     Enter-PSSession PM-SRV2
@@ -402,7 +400,7 @@ Perform this task on CL1.
 1. On page Export Private Key, click **Yes, export the private key** and click **Next**.
 1. On page Export File Format, ensure **Personal Information Exchange -PKCS #12 (.PFX)** is selected, the checkboxex **Include all certificates in the certification path if possible** and **Enable certificate privacy** are activated, and click **Next**.
 1. On page Security, activate the checkbox **Password** and, below, type a secure password. Repeat the password under **Confirm password**, take a note and click **Next**.
-1. On page File to Export, type or browse to **\\\\vn1-srv10\\IT\\Wildcard lab.test.pfx** and click **Next**.
+1. On page File to Export, type or browse to **\\\\vn1-srv10\\IT\\PKI-Admin\\Wildcard lab.test.pfx** and click **Next**.
 1. On page Completing the Certificate Export Wizard, click **Finish**.
 1. In The export was successful, click **OK**.
 1. In **Console1 - [Console Root]**, in the context-menu of the certificate **\*.lab.test**, click **Delete**.
@@ -447,11 +445,11 @@ Perform this task on CL1.
     ````
 
 1. At the prompt Password for PFX file, enter a secure password and take a note.
-1. Export the certificate including the private key to **\\\\vn1-srv10\\IT\\Wildcard lab.test.pfx**.
+1. Export the certificate including the private key to **\\\\vn1-srv10\\IT\\PKI-Admin\\Wildcard lab.test.pfx**.
 
     ````powershell
     $certificate | Export-PfxCertificate `
-        -FilePath '\\vn1-srv10\IT\Wildcard lab.test.pfx' -Password $password
+        -FilePath '\\vn1-srv10\IT\PKI-Admin\Wildcard lab.test.pfx' -Password $password
     ````
 
 1. Delete the certificate from CL1.
@@ -487,7 +485,7 @@ Perform this task on CL1.
 
     ````powershell
     Invoke-Command -ComputerName VN1-SRV8, VN1-SRV9 {
-        Install-WindowsFeature
+        Install-WindowsFeature `
             -Name ADFS-Federation `
             -IncludeManagementTools `
             -Restart 
@@ -507,7 +505,7 @@ Perform this task on CL1.
 1. In Credentials for deployment operation, enter the credentials for **AD\Administrator**.
 1. In **Active Directory Federation Services Configuration Wizard**, on page **Connect to AD DS**, click **Next >**.
 1. On page Specify Service Properties, beside **SSL Certificate**, click **Import...**
-1. In Open, navigate to **\\\\VN1-SRV10\\IT**, click **Wildcard lab.test** and click **Open**.
+1. In Open, navigate to **\\\\VN1-SRV10\\IT\\PKI-Admin**, click **Wildcard lab.test** and click **Open**.
 1. In Enter certificate password, enter the password, you noted before.
 1. In **Active Directory Federation Services Configuration Wizard**, on page **Specify Service Properties**, in **Federation Service name**, type **sts.lab.test**. In **Federation Service Display Name**, type **Adatum Corporation** and click **Next >**.
 1. On page Specify Service Account, ensure **Create a Group Managed Service Account** is selected and in **Account Name**, type **AdatumADFS**. Click **Next >**.
@@ -531,13 +529,13 @@ Perform this task on CL1.
     $pSSession = New-PSSession -ComputerName $computerName
     ````
 
-1. Copy the file **\\\\VN1-SRV10\\IT\\Wildcard lab.test.pfx** to **c:\\** in the remote session.
+1. Copy the file **\\\\VN1-SRV10\\IT\\PKI-Admin\\Wildcard lab.test.pfx** to the protected **C:\\WindowsServerLab\\PKI-Admin** folder in the remote session.
 
     ````powershell
     Copy-Item `
-        -Path '\\VN1-SRV10\IT\Wildcard lab.test.pfx' `
+        -Path '\\VN1-SRV10\IT\PKI-Admin\Wildcard lab.test.pfx' `
         -ToSession $pSSession `
-        -Destination c:\
+        -Destination C:\WindowsServerLab\PKI-Admin\
     ````
 
 1. Enter the remote session.
@@ -557,7 +555,7 @@ Perform this task on CL1.
 
     ````powershell
     $certificate = Import-PfxCertificate `
-        -FilePath 'C:\Wildcard lab.test.pfx'`
+        -FilePath 'C:\WindowsServerLab\PKI-Admin\Wildcard lab.test.pfx'`
         -Password $password `
         -CertStoreLocation Cert:\LocalMachine\My\
     ````
@@ -617,7 +615,7 @@ Perform this task on CL1.
     **Important**: Use the FQDN of the primary federation server.
 
 1. On page Specify Certificate, beside **SSL Certificate**, click **Import...**
-1. In Open, navigate to **\\\\VN1-SRV10\\IT**, click **Wildcard lab.test** and click **Open**.
+1. In Open, navigate to **\\\\VN1-SRV10\\IT\\PKI-Admin**, click **Wildcard lab.test** and click **Open**.
 1. In Enter certificate password, enter the password, you noted before.
 1. In **Active Directory Federation Services Configuration Wizard**, on page **Specify Certificate**, click **Next >**.
 1. On page Specify Service Account, click **Select...**
@@ -642,13 +640,13 @@ Perform this task on CL1.
     $pSSession = New-PSSession -ComputerName $computerName
     ````
 
-1. Copy the file **\\\\VN1-SRV10\\IT\\Wildcard lab.test.pfx** to **c:\\** in the remote session.
+1. Copy the file **\\\\VN1-SRV10\\IT\\PKI-Admin\\Wildcard lab.test.pfx** to the protected **C:\\WindowsServerLab\\PKI-Admin** folder in the remote session.
 
     ````powershell
     Copy-Item `
-        -Path '\\VN1-SRV10\IT\Wildcard lab.test.pfx' `
+        -Path '\\VN1-SRV10\IT\PKI-Admin\Wildcard lab.test.pfx' `
         -ToSession $pSSession `
-        -Destination c:\
+        -Destination C:\WindowsServerLab\PKI-Admin\
     ````
 
 1. Enter the remote session.
@@ -668,7 +666,7 @@ Perform this task on CL1.
 
     ````powershell
     $certificate = Import-PfxCertificate `
-        -FilePath 'C:\Wildcard lab.test.pfx'`
+        -FilePath 'C:\WindowsServerLab\PKI-Admin\Wildcard lab.test.pfx'`
         -Password $password `
         -CertStoreLocation Cert:\LocalMachine\My\
     ````
@@ -849,12 +847,12 @@ Perform this task on CL1.
     $session = New-PSSession PM-SRV3
     ````
 
-1. In the remote session, copy **\\\\VN1-SRV6\\IT\\Wildcard lab.test.pfx** to C:\.
+1. Copy **\\\\VN1-SRV10\\IT\\PKI-Admin\\Wildcard lab.test.pfx** from CL1 into the protected PM-SRV3 **C:\WindowsServerLab\PKI-Admin** folder, using the command below. Remove the local PFX after successful import when no dependent task needs it.
 
     ````powershell
     Copy-Item `
-        -Path '\\VN1-SRV10\IT\Wildcard lab.test.pfx' `
-        -Destination C:\ `
+        -Path '\\VN1-SRV10\IT\PKI-Admin\Wildcard lab.test.pfx' `
+        -Destination C:\WindowsServerLab\PKI-Admin\ `
         -ToSession $session
     ````
 
@@ -872,10 +870,10 @@ Perform this task on CL1.
     ````
 
 1. At the prompt Enter the password for the pfx file, enter the password of the exported certificate in the pfx file.
-1. Import the pfx file **\\\\VN1-SRV6\\IT\\Wildcard lab.test.pfx**.
+1. Import the copied pfx file **C:\\WindowsServerLab\\PKI-Admin\\Wildcard lab.test.pfx** on PM-SRV3.
 
     ````powershell
-    $filePath = 'C:\Wildcard lab.test.pfx'
+    $filePath = 'C:\WindowsServerLab\PKI-Admin\Wildcard lab.test.pfx'
     $certificate = Import-PfxCertificate `
         -Password $password `
         -CertStoreLocation Cert:\LocalMachine\My\ `
@@ -1023,11 +1021,11 @@ Perform this task on CL1.
 1. Click **Computers**.
 1. Double-click **PM-SRV3**.
 1. In PM-SRV3 Properties, click the tab **Delegation**.
-1. On tab Delegation, click **Trust this computer for delegation to specified services only**.
+1. On tab Delegation, click **Trust this computer for delegation to specified services only** and **Use any authentication protocol**. WAP must transition the AD FS-authenticated identity to Kerberos for this non-claims-aware backend.
 1. Click **Add...**.
 1. In Add Services, click **Users or Computer...**
 1. In Select Users or Computers, under **Enter the object names to select**, type **PM-SRV2** and click **OK**.
-1. In **Add Services**, under **Available services**, click **http** **PM-SRV2** and click **OK**.
+1. In **Add Services**, select **http / PM-SRV2.ad.lab.test**, matching the FQDN SPN published in Task 3, and click **OK**. If it is absent, first use `setspn -Q HTTP/PM-SRV2.ad.lab.test` from an authorized CL1 terminal to check ownership, then `setspn -S HTTP/PM-SRV2.ad.lab.test AD\PM-SRV2` only if no duplicate owner exists and the IIS service uses that computer identity. Do not move an SPN belonging to another service account.
 1. In **PM-SRV3 Properties**, click the tab **Attribute Editor**.
 1. On the tab Attribute Editor, under **Attributes**, click **servicePrincipalName** and click **Edit**.
 1. In Multi-valued String Editor, under **Value to add**, type **HTTP/PM-SRV3** and click **Add**. Repeat this step for the value **HTTP/PM-SRV3.ad.lab.test**. Click **OK**.
@@ -1038,15 +1036,16 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **Terminal**.
-1. In Terminal, for **PM-SRV3** allow delegation of Kerberos tickets to **HTTP/PM-SRV2**. And add the service principal names **HTTP/PM-SRV3** and **HTTP/PM-SRV3.ad.lab.test**.
+1. In Terminal, verify/register the backend **HTTP/PM-SRV2.ad.lab.test** SPN on its actual IIS service identity as described above. For **PM-SRV3**, allow delegation to that exact backend FQDN SPN and enable protocol transition. Keep the published backend SPN and delegated SPN identical.
 
     ````powershell
     Set-ADComputer -Identity PM-SRV3 -Add @{
-        'msDS-AllowedToDelegateTo' = 'HTTP/PM-SRV2'
+        'msDS-AllowedToDelegateTo' = 'HTTP/PM-SRV2.ad.lab.test'
         'servicePrincipalName' = @(
             'HTTP/PM-SRV3', 'HTTP/PM-SRV3.ad.lab.test'
         )
     }
+    Set-ADAccountControl -Identity PM-SRV3 -TrustedToAuthForDelegation $true
     ````
 
 ### Task 3: Publish the web application
@@ -1112,6 +1111,15 @@ Perform this task on CL1.
         -EnableHTTPRedirect
     ````
 
+1. On PM-SRV3, add the same inbound HTTP redirect allowance as the desktop path. Scope it to the recorded isolated external test-client address/subnet; do not open the public Internet.
+
+    ````powershell
+    $externalClientScope = Read-Host 'Recorded isolated CL3 test IP or subnet'
+    New-NetFirewallRule -DisplayName 'Lab WAP HTTP redirect' `
+        -Direction Inbound -Action Allow -Protocol TCP -LocalPort 80 `
+        -RemoteAddress $externalClientScope
+    ````
+
 1. Exit from the remote PowerShell session.
 
     ````powershell
@@ -1122,10 +1130,8 @@ Perform this task on CL1.
 
 Perform this task on CL3.
 
-1. Open **File Explorer**.
-1. In File Explorer, navigate to **C:\\Windows\\System32\\drivers\\etc**
-1. In etc, double-click **hosts**.
-1. In Select an app to open 'hosts', click **Editor** and click **Just once**.
+1. Record CL3's original adapter/IP/DNS state. Use the declared isolated external test segment and its configured route to PM-SRV3; verify TCP 80/443 reachability to `10.1.200.24`. Import the verified public lab CA root on this workgroup client if needed, checking its recorded thumbprint; do not bypass certificate errors.
+1. Open **Notepad as Administrator**, choose **File > Open**, select **All files**, and open **C:\\Windows\\System32\\drivers\\etc\\hosts**. Record any preexisting entries before changing them.
 1. In hosts, at the end of the file, add the following lines.
 
     ````text
@@ -1146,6 +1152,8 @@ Perform this task on CL3.
 ## Exercise 5: Publish Windows Admin Center on the Internet using WAP
 
 Use the instructions from the previous exercise to publish Windows Admin Center. Use the parameters from the table below.
+
+Add the exact **HTTP/VN1-SRV4.ad.lab.test** backend SPN to PM-SRV3's permitted delegation list (preserving the App1 entry), verify its service-account ownership, and add `10.1.200.24 admincenter.lab.test` to CL3's recorded test hosts entries. Verify WAP trusts the WAC backend's certificate and the external client trusts the public lab CA. After testing, remove only the exercise hosts entries, restore CL3's adapters, and remove the scoped HTTP redirect firewall rule when no dependent publication needs it.
 
 | Label                          |                                   |
 |--------------------------------|-----------------------------------|

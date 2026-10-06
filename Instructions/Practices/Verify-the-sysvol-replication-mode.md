@@ -15,7 +15,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Risk, cost and optional status:** high; local-only; optional=false. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware.
 
-**Success verification:** dfsrmig/repadmin show the actual SYSVOL replication state and consistent results on the declared DCs.
+**Success verification:** On the required live VN1-SRV5, record dfsrmig /getglobalstate and verify the intended SYSVOL migration mode; this query alone does not prove multi-DC replication health.
 
 **Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
 
@@ -31,7 +31,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 ## Setup
 
-You must have completed the lab [Deploying domain controllers](../Labs/Deploying-domain-controllers.md). If you skipped the lab, VM **VN1-SRV1** is required. In step 3 replace **VN1-SRV5** with **VN1-SRV1**.
+Complete [Deploying domain controllers](../Labs/Deploying-domain-controllers.md) first and verify that **VN1-SRV5** is a healthy writable controller. Use that live controller below; do not restart the original **VN1-SRV1** after its documented retirement.
 
 ## Task
 

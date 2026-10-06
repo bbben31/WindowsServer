@@ -443,7 +443,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -612,10 +612,11 @@
       "requiredVmsOrTopology": [
         "CL1",
         "VN1-SRV1",
-        "VN1-SRV10"
+        "VN1-SRV10",
+        "CL2"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -627,13 +628,15 @@
         "scope": "Not applicable"
       },
       "permissions": [
-        "Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access."
+        "Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.",
+        "Authorized GPO administration for only the recorded CL2 computer OU/client-assistance policy; verify effective policy before SMB access tests."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-File-Server-Resource-Manager.md"
+        "Instructions/Practices/Install-File-Server-Resource-Manager.md",
+        "Instructions/Practices/Install-group-policy-management.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -675,6 +678,16 @@
           "layer": "outer-vmware",
           "phase": "existing",
           "hyperVName": null
+        },
+        {
+          "guestHostname": "CL2",
+          "vmwareDisplayName": "CL2",
+          "displayNameAliases": [
+            "WIN-CL2"
+          ],
+          "layer": "outer-vmware",
+          "phase": "existing",
+          "hyperVName": null
         }
       ],
       "alternativeVmGroups": [],
@@ -706,7 +719,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -797,7 +810,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -894,7 +907,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -975,7 +988,7 @@
         "PM-SRV20"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -1041,7 +1054,7 @@
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
-        "PM-SRV20 is a preexisting VMware Server Core guest with a VMnet10 AD-management NIC at 10.10.10.160/24 and a VMnet20 workload NIC at 10.10.20.160/24. AD DNS 10.10.10.10 must be reachable on the management NIC before joining."
+        "PM-SRV20 is a preexisting VMware Server Core guest with a VMnet10 AD-management NIC at 10.10.10.160/24 and a VMnet11 workload NIC at 10.10.20.160/24. AD DNS 10.10.10.10 must be reachable on the management NIC before joining."
       ],
       "verification": [
         "PM-SRV20 reports its intended hostname/address and Test-ComputerSecureChannel succeeds after domain join."
@@ -1067,7 +1080,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -1283,7 +1296,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -1376,7 +1389,7 @@
         "VN2-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -1724,7 +1737,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -1822,7 +1835,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -1913,7 +1926,7 @@
         "VN1-SRV4"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -2007,7 +2020,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -2077,7 +2090,8 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "WSUS records a completed initial synchronization and the configured daily schedule; limit selections to the disposable lab budget."
+        "Verify the recorded lab product scope, explicit disabling of Drivers, selected languages/classifications and daily schedule.",
+        "The first full selected-update synchronization completes successfully; record its last result and measured duration before disconnecting staging NAT."
       ],
       "outbound": {
         "required": true,
@@ -2100,7 +2114,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -2361,7 +2375,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -2519,7 +2533,7 @@
         "VN1-SRV2"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -2531,7 +2545,7 @@
         "scope": "Not applicable"
       },
       "permissions": [
-        "Enterprise CA/template administration and enrollment rights for the named certificate tasks; Local Administrator for server/guest setup. Protect private-key exports."
+        "Authorized disposable Enterprise Administrator and root-domain Domain Administrator for initial enterprise CA configuration; delegated CA/template administration and named computer Read/Enroll rights afterward. Local Administrator for guest setup; protect private-key exports."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
@@ -2584,7 +2598,9 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "VN1-SRV2 is a domain-joined member with its final hostname/static lab address. Create the disposable enterprise root CA only if absent; preserve any existing intended CA and verify public-root trust before enrollment.",
+        "The local Server Manager/certsrv GUI preparation uses an explicitly selected VN1-SRV2 Desktop Experience member/CA lineage; do not convert an installed Core server in place."
       ],
       "verification": [
         "The enterprise CA issues WebServerexportable and CL1 has the specified enrollment permission."
@@ -2610,7 +2626,7 @@
         "VN1-SRV6"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -2723,7 +2739,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -2793,7 +2809,8 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "WSUS displays the requested approval rules and a completed synchronization; inspect approvals in the intended groups."
+        "Verify exact non-overlapping group scopes, explicit 2/7/14-day installation deadlines and successful synchronization; inspect a sample update's approvals/deadlines per group.",
+        "Automatic rules approve immediately: delayed rollout requires disabled automatic rules and recorded manual approval gates, not a mislabeled installation deadline."
       ],
       "outbound": {
         "required": true,
@@ -2817,7 +2834,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -2909,7 +2926,7 @@
         "VN1-SRV7"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -2928,7 +2945,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-Remote-Server-Administration-Tools.md"
+        "Instructions/Practices/Install-Remote-Server-Administration-Tools.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect the temporary VMnet8 NIC after capability installation and restore recorded adapters/routes/DNS; retain installed RSAT until dependent exercises finish.",
       "riskCost": {
@@ -3017,7 +3035,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -3106,7 +3124,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -3302,7 +3320,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -3400,7 +3418,7 @@
         "VN3-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -3676,7 +3694,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -3759,7 +3777,7 @@
         "VN1-SRV9"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -3843,7 +3861,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -3927,7 +3945,7 @@
         "VN1-SRV6"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -4025,7 +4043,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -4125,7 +4143,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -4208,7 +4226,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -4226,7 +4244,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-prerequisites-for-file-serving.md"
+        "Instructions/Practices/Install-prerequisites-for-file-serving.md",
+        "Instructions/Practices/Install-Remote-Server-Administration-Tools.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -4274,7 +4293,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Verify CL1 has File Services RSAT and its local FSRM console can connect to the remote Core file server; a server role installation alone does not supply the client console."
       ],
       "verification": [
         "Get-WindowsFeature reports FS-Resource-Manager installed and the remote FSRM console connects."
@@ -4298,7 +4318,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -4381,10 +4401,11 @@
         "VN1-SRV10",
         "VN1-SRV2",
         "VN1-SRV4",
-        "VN1-SRV5"
+        "VN1-SRV5",
+        "CL2"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -4396,12 +4417,14 @@
         "scope": "Not applicable"
       },
       "permissions": [
-        "Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access."
+        "Authorized lab directory OU/user/global/domain-local group creation and membership rights for only the named disposable fixtures; Local Administrator on VN1-SRV10 for roles/volumes/shares/NTFS ACLs.",
+        "Ordinary named nonadministrator users for positive/negative access tests; authorized staging administrator on CL2 for licensed Office fixture preparation."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
-        "Instructions/General/Member-Servers-and-Clients.md"
+        "Instructions/General/Member-Servers-and-Clients.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -4411,7 +4434,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Office-dependent tests require an authorized compatible desktop Office installation on CL2."
       },
       "vmTopology": [
         {
@@ -4473,16 +4496,28 @@
           "layer": "outer-vmware",
           "phase": "existing",
           "hyperVName": null
+        },
+        {
+          "guestHostname": "CL2",
+          "vmwareDisplayName": "CL2",
+          "displayNameAliases": [
+            "WIN-CL2"
+          ],
+          "layer": "outer-vmware",
+          "phase": "existing"
         }
       ],
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "VN1-SRV10 has FS-FileServer and a recorded disposable NTFS D: data volume; manually prepare the exact global/domain-local groups, named users, least-privilege departmental ACLs and private Users\\User1 test folder.",
+        "Stage the reviewed sample helper on VN1-SRV10. Use licensed compatible desktop Office on CL2 for genuine XLSX/PPTX fixtures; without it record Office-dependent checks as blocked, not complete."
       ],
       "verification": [
-        "The required file-server role, volumes, sample data, Users/IT/Finance/Marketing shares and test ACLs exist."
+        "Finance/IT/Marketing/Users shares and exact group ACLs match the named-user allowed/denied read/write matrix, not merely Administrator access.",
+        "IT data exceeds 50 MB but fits within 75 MB; Travel Packages exceeds 100 MB; recorded old/recent expiration samples and valid Sheet1/Argumentum XLSX and named PPTX fixtures are ready."
       ],
       "outbound": {
         "required": false,
@@ -4503,7 +4538,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -4586,7 +4621,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -4684,7 +4719,7 @@
         "VN1-SRV4"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -4805,7 +4840,8 @@
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
-        "Instructions/General/Member-Servers-and-Clients.md"
+        "Instructions/General/Member-Servers-and-Clients.md",
+        "Instructions/Practices/Install-Remote-Server-Administration-Tools.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -4883,7 +4919,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Verify CL1's Server Manager/RSAT and established remote server connection. Use the WAC branch only with a verified working gateway and target connection; otherwise follow the Server Manager/PowerShell path."
       ],
       "verification": [
         "Get-WindowsFeature DHCP reports Installed on VN1-SRV6, VN1-SRV7 and VN2-SRV2; confirm post-install groups/configuration."
@@ -4911,7 +4948,7 @@
         "VN2-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -4928,7 +4965,8 @@
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
-        "Instructions/General/Member-Servers-and-Clients.md"
+        "Instructions/General/Member-Servers-and-Clients.md",
+        "Instructions/Practices/Install-Remote-Server-Administration-Tools.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -5006,7 +5044,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Verify CL1's Server Manager/RSAT and established remote server connection. Use the WAC branch only with a verified working gateway and target connection; otherwise follow the Server Manager/PowerShell path."
       ],
       "verification": [
         "Get-WindowsFeature DNS reports Installed on VN2-SRV1, PM-SRV1 and PM-SRV2; inspect each DNS service."
@@ -5030,7 +5069,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -5114,7 +5153,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -5214,7 +5253,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -5297,7 +5336,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -5389,7 +5428,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -5471,7 +5510,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -5553,7 +5592,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -5637,7 +5676,7 @@
         "VN1-SRV4"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -5738,7 +5777,7 @@
         "VN1-SRV21"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -5810,7 +5849,7 @@
         "VN2-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -5827,7 +5866,8 @@
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
-        "Instructions/General/Member-Servers-and-Clients.md"
+        "Instructions/General/Member-Servers-and-Clients.md",
+        "Instructions/Practices/Install-Remote-Server-Administration-Tools.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -5895,7 +5935,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Verify CL1's Server Manager/RSAT and established remote server connection. Use the WAC branch only with a verified working gateway and target connection; otherwise follow the Server Manager/PowerShell path."
       ],
       "verification": [
         "WSUS role installation and post-install setup succeed on VN1-SRV5 and VN2-SRV1; storage paths are recorded."
@@ -5918,7 +5959,7 @@
         "VN1-SRV20"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -5966,7 +6007,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "The created VMware VN1-SRV20 boots Desktop Experience and its evaluation version is recorded."
+        "The created VMware target finishes installation/restarts and permits sign-in using its private password; record Desktop Experience edition/version/evaluation and actual guest identity."
       ],
       "outbound": {
         "required": false,
@@ -5987,7 +6028,7 @@
         "VN2-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -6046,7 +6087,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "Windows Terminal launches on the named guest and its installed package version is recorded."
+        "Windows Terminal installs with the same-release matching x64 dependency packages, launches a shell and reports its recorded installed version."
       ],
       "outbound": {
         "required": true,
@@ -6071,7 +6112,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -6176,7 +6217,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -6304,7 +6345,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -6322,7 +6363,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Manage-local-users.md"
+        "Instructions/Practices/Manage-local-users.md",
+        "Instructions/Labs/Explore-Windows-Admin-Center.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -6393,7 +6435,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "Get-LocalGroupMember shows only the intended test members after additions/removals."
+        "Verify the manually added local group and its intended membership using the demonstrated Add/Get workflow; existing unrelated membership is preserved."
       ],
       "outbound": {
         "required": false,
@@ -6417,7 +6459,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -6434,7 +6476,9 @@
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
-        "Instructions/General/Member-Servers-and-Clients.md"
+        "Instructions/General/Member-Servers-and-Clients.md",
+        "Instructions/Practices/Create-a-custom-Microsoft-Management-Console.md",
+        "Instructions/Labs/Explore-Windows-Admin-Center.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -6505,7 +6549,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "Get-LocalUser reflects the requested test-account properties and deletion result."
+        "Verify the newly created local user and its recorded properties through the demonstrated GUI/PowerShell workflow; this practice does not teach user deletion."
       ],
       "outbound": {
         "required": false,
@@ -6526,7 +6570,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -6538,7 +6582,7 @@
         "scope": "Not applicable"
       },
       "permissions": [
-        "Standard lab user for local read-only queries and user-owned files; no local elevation. If the explicitly documented system-help prerequisite is selected under Windows PowerShell 5.1, use a separate authorized elevated session."
+        "Standard lab user for formatting/read-only queries; use a separate authorized elevated session only for the deliberate start of stopped Automatic services on the disposable CL1 guest. Take its pre-exercise recovery point first."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
@@ -6584,7 +6628,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "The requested formatting, text export and CSV round-trip show the selected properties and expected objects."
+        "The formatted, sorted, filtered and grid-selected output contains the intended properties and objects. Inspect results of the deliberate automatic-service start step, record any expected non-starting services, and restore the disposable guest state during cleanup."
       ],
       "outbound": {
         "required": false,
@@ -6607,7 +6651,7 @@
         "VN1-SRV2"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -6634,7 +6678,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Select Windows PowerShell 5.1 for intentional Get-Service -ComputerName comparisons; remoting alternatives work in either engine."
       },
       "vmTopology": [
         {
@@ -6708,7 +6752,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -6810,7 +6854,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -6830,7 +6874,7 @@
         "Instructions/General/Member-Servers-and-Clients.md",
         "Instructions/Practices/Create-and-install-a-virtual-machine.md"
       ],
-      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
+      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Keep the private recovery password until the encrypted disposable VM is intentionally removed.",
       "riskCost": {
         "risk": "high",
         "cost": "local-only",
@@ -6887,10 +6931,13 @@
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
-        "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
+        "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.",
+        "Run PowerShell Direct locally in elevated Windows PowerShell on the outer PM-SRV1 console, not inside a nested interactive network-remoting session. Stage the verified Server 2025 ISO at C:\\WindowsServerLab\\ISOs\\2025_x64_EN_Eval.iso.",
+        "PM-SRV20 has completed installation, a working virtual TPM and usable guest credentials; retain a private OS-volume BitLocker recovery password before encryption."
       ],
       "verification": [
-        "PowerShell Direct and integration services work from the declared inner Hyper-V host to its guest."
+        "PowerShell Direct reaches the disconnected inner PM-SRV20; its C: BitLocker protection is verified and recovery password retained privately.",
+        "Copy-VMFile finishes while the guest remains disconnected; guest/source ISO SHA-256 values agree before the recorded switch is restored."
       ],
       "outbound": {
         "required": false,
@@ -6913,7 +6960,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -7015,7 +7062,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -7041,8 +7088,8 @@
         "costClass": "local-only"
       },
       "compatibility": {
-        "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "optional": true,
+        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. The guest NIC-team demonstration is support-gated and does not establish physical-link redundancy."
       },
       "vmTopology": [
         {
@@ -7080,10 +7127,11 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Preserve a verified management/AD NIC separately; use only two recorded dedicated same-VMnet11 team members. Verify guest build/driver support, disable team DNS registration and defer the demonstration if unsupported."
       ],
       "verification": [
-        "Get-NetLbfoTeam and adapter status show the intended dedicated lab team and member interfaces; management access survives."
+        "Verify team/member state and that management/AD access survives without adding the management NIC to the team. Record simulation/support limits, not physical redundancy."
       ],
       "outbound": {
         "required": false,
@@ -7106,7 +7154,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -7184,7 +7232,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "A remote session reaches the intended server, returns its hostname, and is removed when complete."
+        "Query and record IPEnableRouter through the VN1-SRV5 interactive session and VN1-SRV10 Invoke-Command, then leave the interactive session cleanly; this is a read-only registry comparison."
       ],
       "outbound": {
         "required": false,
@@ -7206,7 +7254,7 @@
         "VN2-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -7219,7 +7267,7 @@
         "scope": "Not applicable"
       },
       "permissions": [
-        "Standard lab user for local read-only queries and user-owned files; no local elevation. If the explicitly documented system-help prerequisite is selected under Windows PowerShell 5.1, use a separate authorized elevated session."
+        "Standard lab user for DNS queries; an authorized elevated DNS administration session on the named disposable server is required only for the server-cache clearing steps. Clear only the selected lab DNS cache."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
@@ -7276,7 +7324,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "Resolve-DnsName returns the expected authoritative lab records; classify public-query failures separately from internal DNS."
+        "Record actual DNS resolution and client/server-cache observations; DnsOnly chooses the DNS protocol, not cache bypass. Perform authorized cache clearing and observe the actual post-query state."
       ],
       "outbound": {
         "required": true,
@@ -7300,7 +7348,7 @@
         "VN1-SRV4"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -7397,7 +7445,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -7416,7 +7464,7 @@
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md"
       ],
-      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
+      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Restore the original routing-value type/value/presence, rather than unconditionally deleting a value that existed before the exercise.",
       "riskCost": {
         "risk": "low",
         "cost": "local-only",
@@ -7455,7 +7503,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "Get-ItemProperty shows the intended disposable registry value and removal/restoration matches the recorded baseline."
+        "Inspect registry subkeys and values, perform the intended disposable set/remove demonstration, then restore and verify the recorded prior routing-value type/value/presence."
       ],
       "outbound": {
         "required": false,
@@ -7479,7 +7527,7 @@
         "VN2-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -7592,7 +7640,7 @@
         "VN1-SRV7"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -7604,13 +7652,14 @@
         "scope": "Not applicable"
       },
       "permissions": [
-        "Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup."
+        "Authorized root-domain group-creation rights, child-domain OU/group/GPO administration and CL4 local elevation for the named restricted-group test."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-group-policy-management.md"
+        "Instructions/Practices/Install-group-policy-management.md",
+        "Instructions/Labs/Multi-domain-environments.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -7620,7 +7669,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Enterprise expansion profile; retain the child-domain CL4, its recorded AD DNS/VMnet and directory/GPO lineage."
       },
       "vmTopology": [
         {
@@ -7679,10 +7728,11 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "CL4 is joined to clients.ad.lab.test. Reuse/create only recorded root Helpdesk and child Entitling Groups/CLIENTS entitlement fixtures; preserve existing OUs."
       ],
       "verification": [
-        "Resultant policy on the test client sets only the intended Administrators membership and preserves recovery access."
+        "CL4's local Administrators includes its retained local built-in Administrator and the intended CLIENTS entitlement group; CLIENTS\\Administrator is not a substitute for the local account."
       ],
       "outbound": {
         "required": false,
@@ -7690,7 +7740,7 @@
         "endpoints": [],
         "mode": "none"
       },
-      "networkProfile": "core",
+      "networkProfile": "enterprise",
       "hyperVTeaching": false,
       "profileTransitions": []
     },
@@ -7704,7 +7754,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -7774,7 +7824,8 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "WSUS shows the selected languages/products/categories and a completed synchronization."
+        "The initial WSUS catalog metadata synchronization completes successfully and exposes the product/classification catalog; record its last result.",
+        "Continue to Configure Windows Server Update Services synchronization to select the actual language/product/classification scope and complete its full update synchronization."
       ],
       "outbound": {
         "required": true,
@@ -7798,7 +7849,7 @@
         "VN2-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -7891,7 +7942,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -7948,10 +7999,11 @@
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
-        "Use the active core forest schema/infra masters; the enterprise DC-retirement lab is not a prerequisite. Confirm current schema version before adprep; a Windows Server 2025-created forest may already be current. Never downgrade or replay an upgrade unnecessarily."
+        "Use the active core forest schema/infra masters; the enterprise DC-retirement lab is not a prerequisite. Confirm current schema version before adprep; a Windows Server 2025-created forest may already be current. Never downgrade or replay an upgrade unnecessarily.",
+        "Before preparation, verify the AD RSAT module, recorded official media/drive, required Schema Admins/Enterprise Admins/Domain Admins rights and live schema/infrastructure FSMO reachability. Distinguish schema/forest and separately required domain preparation."
       ],
       "verification": [
-        "Schema version and replication reflect the intended upgrade; preserve the coordinated forest backup for recovery."
+        "Record expected schema objectVersion, successful adprep native exits/logs and healthy replication, or a justified already-prepared skip."
       ],
       "outbound": {
         "required": false,
@@ -7974,7 +8026,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -7994,7 +8046,7 @@
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md"
       ],
-      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect the temporary VMnet8 NIC after capability installation and restore recorded adapters/routes/DNS; retain installed RSAT until dependent exercises finish.",
+      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect the temporary VMnet8 NIC after capability installation and restore recorded adapters/routes/DNS; retain installed RSAT until dependent exercises finish. Delete only the disposable NotepadService demonstration; retain the gMSA until dependent services finish.",
       "riskCost": {
         "risk": "low",
         "cost": "local-only",
@@ -8051,10 +8103,12 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "On an active DC, reuse an effective KDS key; allow at least 10 hours and verify replication for a new key in a multi-controller forest. Do not backdate to bypass enterprise replication."
       ],
       "verification": [
-        "The gMSA is installed only on authorized hosts, Test-ADServiceAccount succeeds, and the test service runs under it."
+        "The gMSA is installed on the authorized PM-SRV2 host and Test-ADServiceAccount returns True.",
+        "NotepadService shows the configured ad\\MyService$ identity; observe its deliberately transient process/start timeout without claiming a healthy service, then delete only that demonstration service."
       ],
       "outbound": {
         "required": true,
@@ -8382,7 +8436,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "dfsrmig/repadmin show the actual SYSVOL replication state and consistent results on the declared DCs."
+        "On the required live VN1-SRV5, record dfsrmig /getglobalstate and verify the intended SYSVOL migration mode; this query alone does not prove multi-DC replication health."
       ],
       "outbound": {
         "required": false,
@@ -8403,7 +8457,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -8458,10 +8512,11 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Use a disposable guest and an authorized elevated account with Manage auditing and security log rights for the explicit Security log export/clear task; do not clear host or production logs."
       ],
       "verification": [
-        "Get-WinEvent returns the requested log/filter results from the named target without modifying its logs."
+        "The requested event/log filters return results from the named target. Export the disposable Security log before the deliberate clearing task; verify the new cleared-log event and retain the private export until cleanup."
       ],
       "outbound": {
         "required": false,
@@ -8483,7 +8538,7 @@
         "VN1-SRV4"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -8575,7 +8630,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -8680,7 +8735,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -8692,7 +8747,7 @@
         "scope": "Not applicable"
       },
       "permissions": [
-        "Standard lab user for local read-only queries and user-owned files; no local elevation. If the explicitly documented system-help prerequisite is selected under Windows PowerShell 5.1, use a separate authorized elevated session."
+        "Authorized elevated lab terminal for the documented comparison and authorized remote service-management/WinRM access to the named guests; queries are read-only."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
@@ -8707,7 +8762,7 @@
       },
       "compatibility": {
         "optional": false,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate."
+        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Select Windows PowerShell 5.1 for intentional Get-Service -ComputerName comparisons; remoting alternatives work in either engine."
       },
       "vmTopology": [
         {
@@ -8778,7 +8833,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "The displayed array indexing, count and loop results match the expected values in the procedure."
+        "The running-service queries return the complete reachable five-server set with and without iteration; record measured durations and resolve remote errors before completion."
       ],
       "outbound": {
         "required": false,
@@ -8799,7 +8854,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -8857,7 +8912,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "The displayed variable values, types, scopes and arithmetic results match the procedure."
+        "The composed CL1 FQDN, displayed variable/date members, current-year December 25 time difference and 7 TB byte arithmetic match the demonstrated commands."
       ],
       "outbound": {
         "required": false,
@@ -8881,10 +8936,13 @@
         "VN1-SRV4",
         "VN1-SRV6",
         "VN2-SRV1",
-        "VN2-SRV2"
+        "VN2-SRV2",
+        "VN1-SRV2",
+        "VN1-SRV10"
       ],
       "networks": [
-        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments."
+        "Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.",
+        "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -8896,15 +8954,18 @@
         "scope": "Not applicable"
       },
       "permissions": [
-        "Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup."
+        "Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup.",
+        "Authorized SQL installer sysadmin rights only during RMS setup; enterprise CA template/enrollment administration for preparation and Local Administrator on the RMS nodes. Protect exported trusted-publishing material in administrator-only storage."
       ],
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-prerequisites-for-file-serving.md"
+        "Instructions/Practices/Install-prerequisites-for-file-serving.md",
+        "Instructions/Practices/Create-an-exportable-web-server-certificate-template.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
-      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
+      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Remove temporary VMnet8 media-staging access; retain shared SQL/CA/file-server prerequisites until their dependent exercises finish.",
       "riskCost": {
         "risk": "high",
         "cost": "local-only",
@@ -8994,22 +9055,47 @@
           "layer": "outer-vmware",
           "phase": "existing",
           "hyperVName": null
+        },
+        {
+          "guestHostname": "VN1-SRV2",
+          "vmwareDisplayName": "VN1-SRV2",
+          "displayNameAliases": [
+            "WIN-VN1-SRV2"
+          ],
+          "layer": "outer-vmware",
+          "phase": "existing",
+          "hyperVName": null
+        },
+        {
+          "guestHostname": "VN1-SRV10",
+          "vmwareDisplayName": "VN1-SRV10",
+          "displayNameAliases": [
+            "WIN-VN1-SRV10"
+          ],
+          "layer": "outer-vmware",
+          "phase": "existing",
+          "hyperVName": null
         }
       ],
       "alternativeVmGroups": [],
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Prepare the documented enterprise CA on VN1-SRV2, shared SQL default instance on VN1-SRV3 with Windows authentication and scoped SQL discovery/TCP access, and administrator-only export storage on the prerequisite VN1-SRV10 file server before RMS installation.",
+        "The reusable local SQL Setup wizard requires the explicitly selected VN1-SRV3 Desktop Experience SQL-host lineage; do not assume the default Server Core image has that GUI or convert an installed Core server in place.",
+        "VN1-SRV2 provides the prepared enterprise CA/template from its declared Desktop Experience member lineage."
       ],
       "verification": [
         "Authorized clients consume the protected test document and an unauthorized account is denied; record license/support limits."
       ],
       "outbound": {
-        "required": false,
-        "method": "Isolated lab; no online download is required by the selected procedure.",
-        "endpoints": [],
-        "mode": "none"
+        "required": true,
+        "method": "Temporary VMware NAT VMnet8 while staging verified SQL Server/SSMS media; preserve AD DNS and disconnect after staging and installation.",
+        "endpoints": [
+          "Official Microsoft SQL Server and SSMS download/install endpoints"
+        ],
+        "mode": "guest-vmnet8"
       },
       "networkProfile": "enterprise",
       "hyperVTeaching": false,
@@ -9035,7 +9121,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -9158,7 +9244,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-prerequisites-for-file-serving.md"
+        "Instructions/Practices/Install-prerequisites-for-file-serving.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore coordinated pre-lab guests; remove only the exercise BranchCache GPOs, exported/imported packages and copied client data. No outer bandwidth limit was applied.",
       "riskCost": {
@@ -9246,7 +9333,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Prepare the VNet3 AD site and its 10.1.3.0/24 subnet mapping using Managing sites and replication Exercise 1 only; this prerequisite does not require the later GC/site-link experiments."
       ],
       "verification": [
         "Get-BCStatus shows the intended hosted/distributed mode, SCP registration and imported cache data; timing improvement is optional."
@@ -9447,7 +9535,9 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Labs/Deploy-Remote-Desktop-Services.md"
+        "Instructions/Labs/Deploy-Remote-Desktop-Services.md",
+        "Instructions/Labs/Configure-external-access-to-Remote-Desktop-Services.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -9565,10 +9655,13 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Prepare the shared default SQL instance using the reusable SQL-backend setup; scope SQL access for the recorded broker nodes, with installer database rights and the prescribed client driver ready.",
+        "The reusable local SQL Setup wizard requires the explicitly selected VN1-SRV3 Desktop Experience SQL-host lineage; do not assume the default Server Core image has that GUI or convert an installed Core server in place."
       ],
       "verification": [
-        "Broker HA uses the intended SQL database, both broker nodes are registered, and an authorized test session survives the documented failover."
+        "Broker HA uses the intended SQL database and both broker nodes are registered.",
+        "Record a baseline RDS connection and controlled single broker/gateway VMware-NIC outage/recovery, preserving its partner. Report DNS round-robin retry limitations; loss of a session host is not transparent session preservation."
       ],
       "outbound": {
         "required": true,
@@ -9749,7 +9842,8 @@
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.",
-        "Use the existing inner Hyper-V VN1-SRV23 created by Installing-and-configuring-a-fail-over-cluster.md; this lab moves its storage and creates only VN1-SRV24 as a new inner VM."
+        "Use the existing inner Hyper-V VN1-SRV23 created by Installing-and-configuring-a-fail-over-cluster.md; this lab moves its storage and creates only VN1-SRV24 as a new inner VM.",
+        "Each of the four S2D nodes has three new growable 1 TB HDD-labelled capacity disks and two new growable 100 GB SSD-labelled performance disks, unformatted/eligible and separate from OS or prerequisite workloads. Verify actual CSV mount paths and stage a boot-tested Generation 1 TinyCorePure64 VHDX."
       ],
       "verification": [
         "Cluster storage pools/CSV and the intended inner VM are healthy; controlled node failover moves ownership without losing the test workload."
@@ -9775,7 +9869,7 @@
         "VN1-SRV4"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -9876,7 +9970,7 @@
         "VN1-SRV9"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -9904,7 +9998,7 @@
       },
       "compatibility": {
         "optional": true,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution."
+        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution. Execution requires the supported updated Windows Server 2025 dMSA platform."
       },
       "vmTopology": [
         {
@@ -9942,10 +10036,12 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Use an updated Windows Server 2025 service host and authenticating DC with compatible AD tools and a ready, replicated KDS key. Manually grant PSService logon/write/read rights and establish a working user-backed service before migration."
       ],
       "verification": [
-        "The delegated migration/service identity works on the authorized host; verify service startup and the intended AD account properties."
+        "Before and after dMSA migration, PSService remains configured with the recorded superseded account, runs successfully and writes a fresh successful SYSVOL policy list, not an ERROR entry.",
+        "Verify the dMSA properties and relevant Kerberos/service events; an account object alone does not establish service migration success."
       ],
       "outbound": {
         "required": true,
@@ -9992,7 +10088,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Labs/Deploying-domain-controllers.md"
+        "Instructions/Labs/Deploying-domain-controllers.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Delete only resources created for this exercise in the disposable resource group; remove exercise-specific assignments, agents/registrations and identities after checking dependencies. Verify the group is empty, no schedules remain and no recurring charges continue. Retain required prerequisite resources until dependent exercises finish. Disconnect temporary VMnet8 and restore recorded guest DNS/adapters.",
       "riskCost": {
@@ -10113,7 +10210,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Labs/Deploying-domain-controllers.md"
+        "Instructions/Labs/Deploying-domain-controllers.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect the temporary VMnet8 NIC after capability installation and restore recorded adapters/routes/DNS; retain installed RSAT until dependent exercises finish.",
       "riskCost": {
@@ -10202,7 +10300,9 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Prepare the VNet3 AD site and its 10.1.3.0/24 subnet mapping using Managing sites and replication Exercise 1 only; this prerequisite does not require the later GC/site-link experiments.",
+        "Manually verify the named disposable users/groups from the linked learner-account fixture table before password-replication/cached-credential tests; preserve their recorded lifecycle and private credentials."
       ],
       "verification": [
         "The VNet3 RODC receives only allowed cached accounts; deletion/password-reset results and client authentication are verified."
@@ -10394,7 +10494,7 @@
         "VN2-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -10412,7 +10512,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Request-and-export-certificates-for-the-connection-broker-and-RD-web.md"
+        "Instructions/Practices/Request-and-export-certificates-for-the-connection-broker-and-RD-web.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -10668,7 +10769,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -10686,7 +10787,9 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-prerequisites-for-file-serving.md"
+        "Instructions/Practices/Install-prerequisites-for-file-serving.md",
+        "Instructions/Practices/Install-File-Server-Resource-Manager.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -10788,7 +10891,7 @@
         "VN3-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on the configured WAC gateway guest and CL1 browser during extension installation only; retain isolated AD NICs/DNS and disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -11080,7 +11183,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -11100,7 +11203,11 @@
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
         "Instructions/Practices/Install-prerequisites-for-file-serving.md",
-        "Instructions/Practices/Install-File-Server-Resource-Manager.md"
+        "Instructions/Practices/Install-File-Server-Resource-Manager.md",
+        "Instructions/Practices/Configure-storage-report-options.md",
+        "Instructions/Practices/Configure-access-denied-assistance.md",
+        "Instructions/Practices/Configure-e-mail-notifications-in-FSRM.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -11306,7 +11413,7 @@
         "VN2-SRV2"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -11325,7 +11432,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Labs/Deploy-Remote-Desktop-Services.md"
+        "Instructions/Labs/Deploy-Remote-Desktop-Services.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -11453,10 +11561,13 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "An internal RDS connection suffices for profile-container tests. The remote.lab.test gateway path is conditional on the separate external-access lab and a freshly downloaded RDP file.",
+        "Use the recorded file-server member lineage of VN1-SRV5 and a fresh recorded 1 TB non-OS VMDK with D: unused before this lab's volume creation; do not format an existing DC/workload data disk."
       ],
       "verification": [
-        "An authorized RDS user receives the intended profile container; reconnecting preserves the test profile."
+        "An authorized RDS user receives the intended profile container; reconnecting preserves the test profile.",
+        "Verify exact profile-root ACLs: authorized users create their own containers but cannot read/modify another user's profile. Correlate actual mounted volumes rather than fixed volume numbers."
       ],
       "outbound": {
         "required": true,
@@ -11480,7 +11591,7 @@
         "VN1-SRV1"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -11499,7 +11610,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-group-policy-management.md"
+        "Instructions/Practices/Install-group-policy-management.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -11604,7 +11716,8 @@
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
         "Instructions/Practices/Create-an-exportable-web-server-certificate-template.md",
-        "Instructions/Labs/Deploy-Remote-Desktop-Services.md"
+        "Instructions/Labs/Deploy-Remote-Desktop-Services.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -11867,7 +11980,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Use two recorded isolated SAN VMnets: target VN1-SRV10 at 10.1.128.80/24 and 10.1.144.80/24, initiator VN1-SRV5 at 10.1.128.40/24 and 10.1.144.40/24. SAN NICs have no DNS/gateway and do not register in AD. Verify actual initiator IQN allow-lists and the existing D: backing volume; preserve management connectivity."
       ],
       "verification": [
         "Get-IscsiSession and MPIO/disk status show the intended target, multiple paths and usable disposable LUN."
@@ -11892,7 +12006,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -11958,7 +12072,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Use seven recorded new eligible disks (five 1 TB HDD-labelled and two 100 GB SSD-labelled) separate from the OS and D: file-serving baseline; use the verified unused R: letter for disposable pool volumes. Simulated media types do not prove physical SSD acceleration."
       ],
       "verification": [
         "Storage pools/virtual disks report the intended resiliency/tier layout and healthy disposable volumes."
@@ -12233,10 +12348,12 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Build the documented unsigned isolated fixture first: PM-SRV1 lab.test primary, controlled secondary transfers to PM-SRV2/VN1-SRV1/VN2-SRV1, VN2-SRV1 china.ad.lab.test apex records, VN1-SRV1 remote.lab.test, MX/SMTP records and conditional forwarding. Verify routes and baseline responses before NRPT/signing."
       ],
       "verification": [
-        "The intended zone validates with DNSSEC and the configured policy rejects the documented unauthorized queries."
+        "Compare unsigned-before and signed-after fixture queries, the transferred DNSKEY/template prerequisites and effective NRPT policy.",
+        "DNSSEC validation enforces the intended namespace policy; ordinary DNS success alone is not proof of validation."
       ],
       "outbound": {
         "required": false,
@@ -12287,7 +12404,11 @@
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
         "Instructions/Practices/Install-the-DHCP-server-role.md",
-        "Instructions/Practices/Install-the-DNS-server-role.md"
+        "Instructions/Practices/Install-the-DNS-server-role.md",
+        "Instructions/Practices/Add-a-DHCP-scope.md",
+        "Instructions/Practices/Authorize-DHCP-server-and-activate-scope.md",
+        "Instructions/Practices/Configure-DHCP-server-options.md",
+        "Instructions/Labs/Implementing-DHCP-fault-tolerance.md"
       ],
       "cleanup": "Remove only exercise IPAM allocations, DNS records and DHCP reservations after verification. Restore the coordinated IPAM/SQL/AD/server baseline; remove exercise IPAM database/login/GPOs only if no dependent lab uses them. Remove temporary VMnet8.",
       "riskCost": {
@@ -12426,7 +12547,9 @@
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
-        "VN1-SRV3 already hosts the compatible lab SQL instance. Install current Microsoft-signed SSMS on CL1 from C:\\WindowsServerLab\\Resources\\Downloads; the VN1-SRV8 computer login maps to its IPAM database. DNS/DHCP and IPAM GPO access must be ready."
+        "Prepare VN1-SRV3's shared default SQL instance and signed SSMS using the linked reusable SQL setup; scope network access for VN1-SRV8 and CL1. The IPAM provisioning task creates the dedicated computer login/database.",
+        "Prepare and record all seven managed servers' DNS/DHCP roles, scopes, exclusions/reservations, unsigned DNS zones, forwarding and managed-access state before discovery. Use actual VNet3 guest MACs and unused addresses, not fabricated inventory.",
+        "The reusable local SQL Setup wizard requires the explicitly selected VN1-SRV3 Desktop Experience SQL-host lineage; do not assume the default Server Core image has that GUI or convert an installed Core server in place."
       ],
       "verification": [
         "All seven managed inventory servers appear unblocked; IPAM SQL provisioning and DHCP/DNS allocation match actual server state."
@@ -12435,7 +12558,7 @@
         "required": true,
         "method": "Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward.",
         "endpoints": [
-          "Official Microsoft SSMS download/bootstrapper dependencies"
+          "Official Microsoft SQL Server and SSMS media/bootstrapper dependencies"
         ],
         "mode": "guest-vmnet8"
       },
@@ -12568,7 +12691,7 @@
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
       "verification": [
-        "Cluster validation completes with documented lab exceptions; roles/CSV/SOFS and the inner test VM move to the intended surviving node."
+        "Cluster validation completes with documented lab exceptions; the general-use File Server, CSVs and inner test VM move to the intended surviving node. Optional WAC results are recorded only where its current cluster support gate permits them."
       ],
       "outbound": {
         "required": true,
@@ -12593,7 +12716,7 @@
         "VN1-SRV4"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary VMnet8 NAT on the configured WAC gateway guest and CL1 browser during extension installation only; retain isolated AD NICs/DNS and disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -12615,7 +12738,8 @@
         "Instructions/General/Member-Servers-and-Clients.md",
         "Instructions/Practices/Manage-local-groups.md",
         "Instructions/Practices/Enable-the-Active-Directory-Recycle-Bin.md",
-        "Instructions/Labs/Explore-Windows-Admin-Center.md"
+        "Instructions/Labs/Explore-Windows-Admin-Center.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect temporary VMnet8 NICs on the gateway/browser and restore recorded adapters/routes/DNS. Retain the Active Directory extension until dependent labs finish; uninstall only an exercise-installed extension when no dependent lab needs it.",
       "riskCost": {
@@ -12728,7 +12852,8 @@
         "Instructions/General/Member-Servers-and-Clients.md",
         "Instructions/Labs/Manage-local-storage.md",
         "Instructions/Practices/Install-roles-using-Server-Manager.md",
-        "Instructions/Labs/Explore-Windows-Admin-Center.md"
+        "Instructions/Labs/Explore-Windows-Admin-Center.md",
+        "Instructions/Practices/Install-app-compatibility-feature-on-demand.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -12796,7 +12921,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "On Server Core VN1-SRV10, apply the App Compatibility procedure to that named target before local File Explorer steps, or follow the documented remote equivalent. Prepare the exact licensed Office test files and offline/VSS dataset named in Setup; generic text files are not substitutes."
       ],
       "verification": [
         "Authorized clients access the intended share and unauthorized access fails according to both share and NTFS permissions."
@@ -12823,7 +12949,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -12909,7 +13035,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Use a separate disposable storage lineage, with two recorded blank 1 TB data disks on VN1-SRV10 and one on VN1-SRV5. Identify each disk by unique ID; never format the OS, shared iSCSI or existing file-serving data."
       ],
       "verification": [
         "Disposable disk/volume layouts and sample-data paths match the procedure; read/write checks succeed on intended volumes."
@@ -12936,7 +13063,7 @@
         "VN1-SRV4"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -13383,7 +13510,7 @@
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer."
       ],
       "verification": [
-        "Inner VM configuration, checkpoints, export/import and live migration match the procedure and the test guest remains usable."
+        "Inner Hyper-V differencing disks, checkpoints, switches/NAT and VM replication match the selected tasks; the disposable guest remains usable. Record the measured replication state and recovery-point result."
       ],
       "outbound": {
         "required": true,
@@ -13409,7 +13536,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -13437,7 +13564,7 @@
       },
       "compatibility": {
         "optional": true,
-        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution."
+        "notes": "Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution. Automatic account management requires Windows 11 24H2, Windows Server 2025 or later."
       },
       "vmTopology": [
         {
@@ -13504,7 +13631,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "CL2 must run Windows 11 24H2 or later for automatic account-management policy; verify matching LAPS administrative templates. Older clients cannot complete this automatic-mode exercise."
       ],
       "verification": [
         "LAPS backs up/rotates the intended client password and only authorized delegated readers can retrieve it; never copy it to reports."
@@ -13554,7 +13682,8 @@
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
         "Instructions/Labs/Deploying-domain-controllers.md",
-        "Instructions/Labs/Deploying-and-managing-read-only-domain-controllers.md"
+        "Instructions/Labs/Deploying-and-managing-read-only-domain-controllers.md",
+        "Instructions/Labs/Multi-domain-environments.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect the temporary VMnet8 NIC after capability installation and restore recorded adapters/routes/DNS; retain installed RSAT until dependent exercises finish.",
       "riskCost": {
@@ -13830,7 +13959,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-the-Microsoft-Deployment-Toolkit.md"
+        "Instructions/Practices/Install-the-Microsoft-Deployment-Toolkit.md",
+        "Instructions/Labs/Windows-Deployment-Services.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -13888,7 +14018,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Complete WDS's isolated role, R: data-volume, DHCP/PXE and boot-image preparation. Install ADK Deployment Tools and the matching PE add-on on CL1 before generating MDT boot images; verify compatibility in the historical disposable snapshot."
       ],
       "verification": [
         "The isolated legacy task sequence deploys only the disposable Server 2022 target; otherwise record a conceptual skip."
@@ -14019,7 +14150,9 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Use a coordinated older Windows Server 2022 VN1-SRV1 DC and Windows Server 2025 VN1-SRV5 pre-promotion member lineage for upgrade/replacement. Skip duplicate verified promotion; never downgrade or independently rewind the current Server 2025 foundation.",
+        "Before dMSA migration, stage reviewed NSSM/service resources and manually configure a working ad\\PSService with scoped logon/file permissions on the supported updated 2025 service host, an active 2025 DC and ready KDS key."
       ],
       "verification": [
         "The intended migrated accounts/service retain their required identity/access and AD replication is healthy afterward."
@@ -14049,7 +14182,7 @@
         "VN1-SRV10"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure."
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
       "azure": {
@@ -14066,7 +14199,8 @@
       "dependencies": [
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
-        "Instructions/General/Member-Servers-and-Clients.md"
+        "Instructions/General/Member-Servers-and-Clients.md",
+        "Instructions/Practices/Install-app-compatibility-feature-on-demand.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -14114,7 +14248,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "On Server Core VN1-SRV10, apply the App Compatibility practice to VN1-SRV10 with matching optional-feature media before local Resource Monitor/Performance Monitor steps; restart and verify resmon.exe and perfmon.exe launch. Completing the practice only on its original VN1-SRV5 target does not prepare VN1-SRV10."
       ],
       "verification": [
         "Recorded counters identify the controlled workload/resource pressure; stop the workload and confirm recovery to baseline."
@@ -14168,7 +14303,8 @@
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
         "Instructions/Labs/Deploying-domain-controllers.md",
-        "Instructions/Practices/Install-prerequisites-for-file-serving.md"
+        "Instructions/Practices/Install-prerequisites-for-file-serving.md",
+        "Instructions/General/Learner-Account-Fixtures.md"
       ],
       "cleanup": "Unpause only VMware VMs paused by this lab; verify DNS/AD recovery. Remove exercise trusts/principals only after dependent tests finish, then restore the coordinated multi-forest pre-lab environment and disconnect temporary NAT.",
       "riskCost": {
@@ -14654,7 +14790,7 @@
         "VN1-SRV5"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -14674,7 +14810,7 @@
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md"
       ],
-      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.",
+      "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings. Retain the disposable SSH test key only while the dependent guest-management practice still requires it; remove both public/private test keys after that dependent work, not before.",
       "riskCost": {
         "risk": "high",
         "cost": "local-only",
@@ -14771,7 +14907,8 @@
         "Instructions/General/Learner-Setup.md",
         "Instructions/General/Environment-Profiles.md",
         "Instructions/General/Member-Servers-and-Clients.md",
-        "Instructions/Practices/Install-prerequisites-for-file-serving.md"
+        "Instructions/Practices/Install-prerequisites-for-file-serving.md",
+        "Instructions/Labs/Explore-Windows-Admin-Center.md"
       ],
       "cleanup": "Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.",
       "riskCost": {
@@ -14878,7 +15015,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Verify a usable WAC gateway and both actual migration-source/destination connections before inventory/transfer/cutover."
       ],
       "verification": [
         "The destination contains the intended shares/data/ACLs and the cutover client reaches the intended server identity."
@@ -15051,10 +15189,12 @@
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.",
-        "Retain VN1-CLST1 and VN1-CLST2 SOFS/CSV from the two cluster prerequisites; record owner nodes and actual CSV volume paths before moving VN1-SRV24."
+        "Retain VN1-CLST1 and VN1-CLST2 SOFS/CSV from the two cluster prerequisites; record owner nodes and actual CSV volume paths before moving VN1-SRV24.",
+        "Before cross-cluster moves, record/remove only VN1-SRV24's prior HA registration; retain its VM/disks. Verify authenticated host migration and compute-account SMB/NTFS access to both SOFS shares."
       ],
       "verification": [
-        "Get-StorageQosFlow/Policy show the intended policy on the moved inner VM and its workload remains usable."
+        "On VN1-CLST2 create the dedicated Lab-SRV24 policy; on the compute owner apply its recorded ID to the intended VM disks and verify prior IDs are retained for cleanup.",
+        "Get-StorageQosFlow/Policy show that ID and 10/100 normalized-IOPS settings while the guest remains usable. Record missing/error flows and quiet workload limits instead of claiming measured throttling."
       ],
       "outbound": {
         "required": false,
@@ -15200,7 +15340,8 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
         "Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.",
         "The cluster nodes are outer VMware VMs with nested Hyper-V enabled; control their outer failure/recovery in VMware and their inner workload in Hyper-V.",
-        "Before starting, provision the independent file-share witness \\\\vn1-clst1-fs\\Witness and the Witness Modify group/permissions; validate witness DNS and SMB reachability from both sites. Use cluster VN2-VN3-CLST1 at 10.1.2.9 and 10.1.3.9, with VN2-SRV1 in Primary (10.1.2.0/24) and VN3-SRV1 in Secondary (10.1.3.0/24)."
+        "Before starting, provision the independent file-share witness \\\\vn1-clst1-fs\\Witness and the Witness Modify group/permissions; validate witness DNS and SMB reachability from both sites. Use cluster VN2-VN3-CLST1 at 10.1.2.9 and 10.1.3.9, with VN2-SRV1 in Primary (10.1.2.0/24) and VN3-SRV1 in Secondary (10.1.3.0/24).",
+        "Use VN2-SRV1/VN3-SRV1 as member nodes in a separate cluster lineage, not promoted DC/RODCs. Each site accesses only its recorded 20 GB data and 10 GB log disks; validate the actual source DiskGuid/CSV path and witness permissions for ad\\VN2-VN3-CLST1$."
       ],
       "verification": [
         "Replication/cluster roles and the intended test workload recover on the documented surviving site; record data/log disks and recovery results."
@@ -15376,7 +15517,7 @@
         "VN1-SRV13"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",
@@ -15445,7 +15586,7 @@
         "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
       ],
       "verification": [
-        "The pinned installer hash matches, Nano Server image runs, and the built sample image produces the intended output."
+        "The pinned installer hash matches and the compatible Nano Server image runs. The optional historical sample image is built only when its SDK/runtime/host compatibility gate passes; otherwise record the explicit skip and retain the basic container result."
       ],
       "outbound": {
         "required": true,
@@ -15637,7 +15778,8 @@
       "referencedVms": [],
       "prerequisiteState": [
         "Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping.",
-        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller."
+        "Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.",
+        "Use the isolated Server 2022 deployment lineage with authorized DHCP/PXE leases and no competing VMware DHCP. Record a blank 1 TB R: data disk; create the disposable target with UEFI x64 firmware matching EFI/MSR answer-file partitions."
       ],
       "verification": [
         "The isolated Server 2022 PXE/image workflow deploys only the disposable target; record a conceptual skip where hardening blocks unattended steps."
@@ -15664,7 +15806,7 @@
         "VN1-SRV9"
       ],
       "networks": [
-        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
+        "Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.",
         "Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward."
       ],
       "windowsVersionAssumptions": "Windows Server 2025 and Windows 11 learner baseline; verify optional product-specific support before provisioning.",

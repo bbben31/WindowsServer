@@ -1,14 +1,14 @@
 # Milestone G: Azure and hybrid services
 
-Milestone G follows the validated local stages and is deliberately cost-gated. It uses the existing Microsoft Azure for Students subscription and Microsoft Entra tenant in **UK South**; it never creates a tenant or subscription. The hard monthly safety limit is **£10**. Use placeholders only: `<AZURE_SUBSCRIPTION_ID>`, `<AZURE_TENANT_ID>`, `<AZURE_RESOURCE_GROUP>`, `<AZURE_REGION>`, and `<AZURE_STORAGE_ACCOUNT>`.
+Milestone G follows the validated local stages and is deliberately cost-gated. It uses the existing Microsoft Azure for Students subscription and Microsoft Entra tenant in **UK South**; it never creates a tenant or subscription. The learner-imposed monthly safety limit is **£10**. Budget alerts do not enforce that limit or stop consumption; follow the [cost gate in Learner setup](Learner-Setup.md#azure-and-microsoft-entra-prerequisites) with headroom and timely cleanup. Use placeholders only: `<AZURE_SUBSCRIPTION_ID>`, `<AZURE_TENANT_ID>`, `<AZURE_RESOURCE_GROUP>`, `<AZURE_REGION>`, and `<AZURE_STORAGE_ACCOUNT>`.
 
 ## Safety gate and ordering
 
 1. Complete [Milestone F](Advanced-Infrastructure.md) only for the local topic needed by the hybrid exercise.
-2. Confirm Owner or User Access Administrator access and the minimum per-lab role. Do not request Global Administrator or broad directory permissions.
+2. Confirm the selected lab's deployment role at the narrowest resource scope, plus an authorized RBAC-management role only if an assignment is needed. User Access Administrator manages access but does not itself permit resource deployment. Do not request Global Administrator or broad directory permissions.
 3. Create or select one dedicated resource group and budget alert through the portal or the source procedure. Verify the existing subscription, UK South region, quota, and current cost before provisioning.
-4. Run the read-only [preflight checker](../../tools/Preflight-LearnerLab.ps1). Azure checks run only when explicit parameters are supplied and an already-authenticated CLI context exists; the checker does not log in.
-5. Snapshot the local VM as `G-before-azure-connection`, connect VMnet8 only for the approved outbound operation, perform one service exercise, verify it, then disconnect VMnet8 and clean up.
+4. Run the read-only [preflight checker](../../tools/Preflight-LearnerLab.ps1) with the selected item's `-CurriculumPath`. It checks explicit Azure parameter declarations only; it does not log in, inspect a CLI context, verify live permissions, or read billing. Verify those separately in the authorized portal/CLI session.
+5. Snapshot the local VM as `G-before-azure-connection`, connect VMnet8 only for the approved outbound operation, perform one service exercise and verify it while the required cloud path remains available. Complete agent/endpoint cleanup in the supported order, then disconnect VMnet8.
 
 Do not paste tenant IDs, subscription IDs, client secrets, certificates, tokens, invitation URLs, or personal identifiers into this repository. If the £10 limit is at risk, stop, deallocate VMs, remove disposable resources, and verify the resource group.
 
@@ -24,7 +24,7 @@ Do not paste tenant IDs, subscription IDs, client secrets, certificates, tokens,
 
 **Objective:** establish a bounded cloud scope without creating a tenant or subscription.
 
-**Prerequisites:** existing Azure for Students subscription, existing Entra tenant, UK South availability, and Owner/User Access Administrator access. Use the source Azure setup/prerequisite material, but replace instructor-selected identifiers with placeholders.
+**Prerequisites:** existing Azure for Students subscription, existing Entra tenant, UK South availability, and resource-group creation/deployment rights appropriate to the selected scope. Use an authorized RBAC-management role separately if role assignments are needed. Use the source Azure setup/prerequisite material, but replace instructor-selected identifiers with placeholders.
 
 **Safe sequence:** in the portal, select the existing subscription; create or select `<AZURE_RESOURCE_GROUP>`; set a budget alert below the £10 hard limit; record no identifiers in Git; verify role assignments and resource locks/policies relevant to the selected lab. Do not use source procedures that create a subscription or tenant.
 
@@ -42,9 +42,9 @@ Do not run these commands with real values in a committed document or report. Th
 
 **Objective:** project `VN1-SRV20` as an Azure resource and learn hybrid inventory/management.
 
-**Prerequisites/topology:** validated `VN1-SRV20`, VMnet10 AD/DNS, temporary VMnet8 outbound access, an Arc-supported Windows Server build, resource-group scope, and the [Add server to Azure Arc](../Practices/Add-server-to-Azure-Arc.md) practice. The source’s `VN1-SRV8` can be substituted with the learner’s disposable member.
+**Prerequisites/topology:** the [Add server to Azure Arc](../Practices/Add-server-to-Azure-Arc.md) practice declares `VN1-SRV8`; build its exact profile/topology for that procedure. A standalone core demonstration may instead use validated `VN1-SRV20` on VMnet10 plus VMnet8, but is not a replacement for the source lab. Use an Arc-supported Windows Server build and resource-group scope.
 
-**Safe sequence:** snapshot `G-before-arc`; connect VMnet8; use the portal’s Arc onboarding flow or reviewed generated onboarding command; authenticate interactively through the approved tenant; select `<AZURE_RESOURCE_GROUP>` and UK South; use the narrowest available role; wait for the connected state; disconnect VMnet8. Never place the onboarding script, token, service-principal secret, or certificate in Git.
+**Safe sequence:** snapshot `G-before-arc`; connect VMnet8; use the portal’s Arc onboarding flow or reviewed generated onboarding command; authenticate interactively through the approved tenant; select `<AZURE_RESOURCE_GROUP>` and UK South; use the narrowest available role; wait for the connected state. Keep the approved outbound path while checking Arc/Monitor/WAC: disconnecting it makes the agent lose cloud connectivity. Remove/disconnect the Arc resource through the supported product flow before removing VMnet8 at cleanup. Never place the onboarding script, token, service-principal secret, or certificate in Git.
 
 ```powershell
 Get-Service -Name himds,ExtensionService -ErrorAction SilentlyContinue
@@ -113,9 +113,9 @@ Automation identities and policy assignments can grant access or incur charges. 
 
 **Objective:** extend the F4 disposable file server into Azure File Sync while preserving local AD/DNS boundaries.
 
-**Prerequisites/topology:** validated `VN1-SRV20`/`VN1-SRV21`, disposable file data, storage account and sync service in UK South, outbound HTTPS, and the [DFS/Azure File Sync lab](../Labs/Distributed-File-System-and-Azure-File-Sync.md).
+**Prerequisites/topology:** the [DFS/Azure File Sync lab](../Labs/Distributed-File-System-and-Azure-File-Sync.md)'s exact enterprise servers, shares, accounts, and completed local tasks, plus a storage account and sync service in UK South and approved outbound HTTPS. The `VN1-SRV20` commands below illustrate independent core inventory only; they do not replace that lab's `VN1-SRV10`/`VN1-SRV6` baseline.
 
-**Safe sequence:** use a dedicated storage account and sync group; sync only test data; record the authoritative copy; monitor conflicts and cloud tiering; disconnect the VMnet8 NIC after the exercise; remove the server endpoint, cloud endpoint, sync group, storage data, and resource group in supported order.
+**Safe sequence:** use a dedicated storage account and sync group; sync only test data; record the authoritative copy; monitor conflicts and cloud tiering; remove the server endpoint, cloud endpoint, sync group, storage data, and resource group in supported order; then disconnect the VMnet8 NIC.
 
 ```powershell
 Get-SmbShare -CimSession VN1-SRV20
@@ -123,7 +123,7 @@ Get-Volume -CimSession VN1-SRV20
 Test-NetConnection '<AZURE_STORAGE_ENDPOINT>' -Port 443
 ```
 
-Cloud storage, transactions, bandwidth, and retained snapshots are cost-gated. Do not use sync as a backup or revert a local snapshot while synchronization is active.
+Cloud storage, transactions, bandwidth, and retained snapshots are cost-gated. Keep outbound connectivity while validating synchronization; disconnect VMnet8 after the endpoint cleanup, or explicitly record an offline/pending-sync experiment rather than claiming a connected result. Do not use sync as a backup or revert a local snapshot while synchronization is active.
 
 ## G verification and cleanup
 

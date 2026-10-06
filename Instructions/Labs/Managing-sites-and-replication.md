@@ -5,7 +5,7 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md; Instructions/Labs/Deploying-and-managing-read-only-domain-controllers.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md; Instructions/Labs/Deploying-and-managing-read-only-domain-controllers.md; Instructions/Labs/Multi-domain-environments.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
 **Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional until retired; supply the guest or explicitly confirm retirement with -RetiredVmName); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup.
 
@@ -201,13 +201,12 @@ Perform this task on CL1.
 
 1. Open **Active Directory Sites and Services**.
 1. In Active Directory Sites and Services, expand **VNet1** and **Servers**.
-1. In the context-menu of **VN1-SRV1**, click **Delete**.
-1. In the message box **Are you sure you want to delete the server named 'VN1-SRV1'?**, click **Yes**.
-1. In the message box **Obbject VN1-SRV1 contains other objects. Are you sure you want to delete object VN1-SRV1 and all of the objects it contains?**, click **Yes**.
+1. Check the recorded controller lifecycle and `Get-ADDomainController -Filter *`. If **VN1-SRV1 is still a live controller**, retain its server and NTDS Settings objects and skip deletion. Only after documented demotion/retirement and healthy replication may you delete its verified stale server object; review the exact object and any child objects before confirming. Do not recursively delete a live controller to satisfy this exercise.
 1. In the context-menu of **VN2-SRV1**, click **Move...**.
 1. In Move Server, click **VNet2** and click **OK**.
 1. In the context-menu of **PM-SRV1**, click **Move...**.
 1. In Move Server, click **Perimeter** and click **OK**.
+1. If the prerequisite topology includes live **VN3-SRV1** as a DC/RODC, move its server object to **VNet3**. Confirm its subnet mapping and actual domain before moving; do not invent a controller object for an unpromoted member.
 
 #### PowerShell
 
@@ -223,16 +222,23 @@ Perform this task on CL1.
         -Filter 'ObjectClass -eq "server"'
     ````
 
-1. Delete VN1-SRV1.
+1. Remove only a verified stale VN1-SRV1 server object after documented retirement. If VN1-SRV1 remains live, skip this step and retain its replication objects.
 
     ````powershell
-    Get-ADObject `
-        -SearchBase "CN=Servers, $($adReplicationSite.DistinguishedName)" `
-        -Filter 'ObjectClass -eq "server" -and Name -eq "VN1-SRV1"' |
-    Remove-ADObject -Recursive
+    if (Get-ADDomainController -Filter * | Where-Object Name -eq 'VN1-SRV1') {
+        Write-Host 'VN1-SRV1 is live; retain its server object.'
+    } else {
+        $retirementConfirmed = Read-Host 'Enter RETIRED only after verifying completed demotion, handover and healthy replication'
+        if ($retirementConfirmed -eq 'RETIRED') {
+            Get-ADObject `
+                -SearchBase "CN=Servers,$($adReplicationSite.DistinguishedName)" `
+                -Filter 'ObjectClass -eq "server" -and Name -eq "VN1-SRV1"' |
+                Remove-ADObject -Recursive -Confirm
+        }
+    }
     ````
 
-1. At the prompt
+1. Only if the verified stale object is being removed, review the prompt
 
     ````text
     Are you sure you want to perform this action?
@@ -253,6 +259,8 @@ Perform this task on CL1.
     ````powershell
     Move-ADDirectoryServer -Identity PM-SRV1 -Site Perimeter
     ````
+
+1. For the live VN3-SRV1 DC/RODC in the prerequisite topology, run `Move-ADDirectoryServer -Identity VN3-SRV1 -Site VNet3` and verify its resulting site. If it is not promoted in the selected lineage, record that instead of creating a fictitious server object.
 
 ### Task 5: Verify the site of client
 
@@ -352,9 +360,9 @@ Perform this task on CL1.
 1. Disable the Global Catalog on the server.
 
     ````powershell
-    Set-ADObject `
-        -Identity "CN=NTDS Settings, $($server.distinguishedName)" `
-        -Replace @{ options='0'}
+    $ntds = Get-ADObject -Identity "CN=NTDS Settings,$($server.DistinguishedName)" -Properties options
+    # Clear only the Global Catalog bit; preserve other NTDS option flags.
+    Set-ADObject -Identity $ntds -Replace @{ options = ([int]$ntds.options -band -bnot 1) }
     ````
 
 ## Exercise 3: Create site links

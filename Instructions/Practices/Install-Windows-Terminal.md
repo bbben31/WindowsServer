@@ -7,7 +7,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
 
-**Machines and network profile:** VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet20 10.10.20.0/24 (workloads), VMnet30 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+**Machines and network profile:** VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
 **Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
 
@@ -15,7 +15,7 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 
 **Risk, cost and optional status:** low; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
 
-**Success verification:** Windows Terminal launches on the named guest and its installed package version is recorded.
+**Success verification:** Windows Terminal installs with the same-release matching x64 dependency packages, launches a shell and reports its recorded installed version.
 
 **Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
 
@@ -36,13 +36,13 @@ Perform these steps on VN2-SRV1.
 
 1. Logon as **ad\Administrator**.
 1. In Microsoft Edge, navigate to https://github.com/microsoft/terminal/releases.
-1. Find the latest version.
-1. Download the files **Microsoft.Windows.Terminal.\*.msixbundle** and **Microsoft.WindowsTerminal.\*_PreInstallKit**.
+1. Find the latest stable version compatible with the guest. Record its release number and use assets from that same release, not Preview assets.
+1. Download **Microsoft.WindowsTerminal_\*.msixbundle** and its matching **Microsoft.WindowsTerminal_\*.msixbundle_Windows10_PreinstallKit.zip** into an otherwise empty **WindowsTerminalLab** subfolder of Downloads. The preinstall kit supplies dependencies for this lab's package installation; see [Windows Terminal distributions](https://learn.microsoft.com/en-us/windows/terminal/distributions). Do not confuse the bundle with the unpackaged architecture-specific ZIP.
 1. Run **Windows PowerShell** as Administrator.
 1. Change to the **Downloads** folder.
 
     ````powershell
-    Set-Location $env:USERPROFILE\Downloads
+    Set-Location $env:USERPROFILE\Downloads\WindowsTerminalLab
     ````
 
 1. Expand the zip file **Microsoft.WindowsTerminal_Win10_\*PreinstallKit.zip**
@@ -59,10 +59,12 @@ Perform these steps on VN2-SRV1.
         .\Microsoft.WindowsTerminal_*.msixbundle_Windows10_PreinstallKit
     ````
 
-1. Install the preinstall kit.
+1. Discover the kit's x64 framework packages recursively. The dependency layout can differ by release; include the supplied x64 dependencies rather than assuming only a top-level UI.Xaml package is needed.
 
     ````powershell
-    Add-AppxPackage Microsoft.UI.Xaml.*_x64__*.appx
+    $dependencies = @(Get-ChildItem -Recurse -File -Filter *.appx |
+        Where-Object Name -like '*_x64__*')
+    if (!$dependencies.Count) { throw 'No x64 dependency packages found; inspect the selected release kit.' }
     ````
 
 1. Change to the folder of the downloaded Windows Terminal.
@@ -74,5 +76,9 @@ Perform these steps on VN2-SRV1.
 1. Install Windows Terminal
 
     ````powershell
-    Add-AppxPackage Microsoft.WindowsTerminal_*.msixbundle
+    $bundle = @(Get-ChildItem -File -Filter Microsoft.WindowsTerminal_*.msixbundle)
+    if ($bundle.Count -ne 1) { throw 'Use exactly one bundle from the recorded release.' }
+    Add-AppxPackage -Path $bundle[0].FullName -DependencyPath $dependencies.FullName
     ````
+
+1. Open **Windows Terminal** from Start, launch a shell tab, and record the installed version. If package dependencies or the guest version are unsupported, resolve that compatibility gate before declaring installation complete.

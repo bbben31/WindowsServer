@@ -2,13 +2,13 @@
 
 Milestone H is the final stage and is not part of the default three-VM or 32 GB host profile. It governs source topics that need extra VMs, disks, certificates, cloud services, elevated permissions, specialist licensing, or support validation. A topic may remain conceptual: that still preserves the learning objective without creating an unsafe or unbounded environment.
 
-The hard Azure safety limit is **£10 per month**. It is a stop limit, not a target. Do not start a topic when its total cost, quota, cleanup, or support status cannot be bounded. Use the existing Entra tenant and Azure for Students subscription in **UK South** only. Use placeholders such as `<AZURE_SUBSCRIPTION_ID>`, `<AZURE_TENANT_ID>`, `<AZURE_RESOURCE_GROUP>`, `<AZURE_REGION>`, `<CERTIFICATE_TEMPLATE>`, and `<WITNESS_PATH>`.
+The learner-imposed Azure safety limit is **£10 per month**, not a target or a platform-enforced cap. Budget alerts do not stop consumption; use the [Learner setup cost gate](Learner-Setup.md#azure-and-microsoft-entra-prerequisites), leave billing/cleanup headroom, and stop before the limit is threatened. Do not start a topic when its total cost, quota, cleanup, or support status cannot be bounded. UK South is the default; H4 alone requires a separately approved second region and combined cost plan. Use the existing Entra tenant and Azure for Students subscription. Use placeholders such as `<AZURE_SUBSCRIPTION_ID>`, `<AZURE_TENANT_ID>`, `<AZURE_RESOURCE_GROUP>`, `<AZURE_REGION>`, `<CERTIFICATE_TEMPLATE>`, and `<WITNESS_PATH>`.
 
 ## Decision workflow and go/no-go gate
 
 For one selected topic, complete these steps in order:
 
-1. **Preflight:** run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with only the relevant VM names, ISO paths, subnet, DNS, and explicit Azure placeholders.
+1. **Preflight:** run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with the selected manifest Practice/Lab's `-CurriculumPath`, relevant VM names, ISO paths, subnet, DNS, and explicit Azure placeholders. General guides are not selectable manifest items; use their documented manual checks for conceptual planning.
 2. **Budget/quota/permission check:** verify current Azure cost, £10 headroom, UK South service/SKU availability, quota, required providers, and least-privilege role assignments. Confirm local CPU, RAM, storage, disks, and network capacity.
 3. **Snapshot/backup:** snapshot disposable VMs and export/copy only disposable data. Use a supported backup or export for any data that must survive. Do not rely on snapshots for AD, clustered, replicated, PKI, or database state.
 4. **Go/no-go:** proceed only when the objective, topology, support/licensing boundary, rollback, and cleanup owner are written in private notes. Stop when any value is `unverified` and cannot be resolved from current product documentation.
@@ -169,7 +169,7 @@ Use the source labs for RDS HA/external access, FSLogix, RMS, IPAM, DHCP fault t
 
 The curriculum is complete only when:
 
-- A-F local foundations were validated in order and their checkpoints are known.
+- The required A-E local foundations and the selected F topics were validated in dependency order and their checkpoints are known; unselected optional topics are not implied to have run.
 - The manifest still reports 89 Practices and 50 Labs, and every selected item has its prerequisites and cleanup understood.
 - Each optional topic has an objective, classification, permissions, topology, cost decision, checkpoint/backup plan, verification, and deletion plan.
 - Azure checks use the existing tenant/subscription, UK South default, placeholders, and a hard £10 stop limit.

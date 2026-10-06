@@ -1,5 +1,7 @@
 ﻿# Raising the domain functional level
 
+Before raising to Windows Server 2025, verify every DC in the target domain runs Server 2025, replication/DNS are healthy, required older DCs are retired, and supported backups/recovery are available. Use the selected exercise's disposable compatibility lineage rather than the only foundation forest.
+
 ## Desktop experience
 
 1. Open **Active Directory Administrative Center**.
@@ -22,11 +24,12 @@
     Set-ADDomainMode -Identity $identity -DomainMode Windows2025Domain
     ````
 
-    If you receive an error message **Set-ADDomainMode : A referral was returned from the server**, restart the domain controller and try again.
+    If you receive **A referral was returned from the server**, verify the target domain, DNS, credentials, and the appropriate DC before retrying. Connect to a verified DC in the target domain explicitly instead of blindly restarting it:
 
     ````powershell
-    $computerName = '' # Insert the name of the DC
-    Restart-Computer -ComputerName $computerName -WsmanAuthentication Default
+    $server = '' # FQDN of the verified DC in the target domain
+    Get-ADDomain -Identity $identity -Server $server
+    Set-ADDomainMode -Identity $identity -Server $server -DomainMode Windows2025Domain
     ````
 
 1. At the prompt **Performing the operation "Set" on target ...**, enter **y**.

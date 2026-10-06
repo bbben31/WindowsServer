@@ -223,7 +223,7 @@ Perform this task on CL1.
 1. Under **Step 2: Edit the properties (click an underlined value)**, click **any classification**.
 1. In Choose Update Classification, deactivate **All Classifications**, activate **Critical Updates**, and click **OK**.
 1. In **Add Update View**, under **Step 2: Edit the properties (click an underlined value)**, click **any product**.
-1. In Choose Products, deactivate **All Products**, activate **Windows 11 Dynamic Update**, and click **OK**.
+1. In Choose Products, deactivate **All Products**, select the **Windows 11 product matching the clients and the upstream synchronization selection**, and click **OK**. Dynamic Update contains setup updates, not the normal installed-OS servicing demonstration.
 1. In **Add Update View**, under **Step 3: Specify a name**, type **Critical Windows 11 updates** and click **OK**.
 1. In **Update Services**, click **Critical Windows 11 updates**.
 1. Under Critical Windows 11 updates, beside **Approval**, click **Any Except Declined**, beside **Status**, click **Any**, and click **Refresh**.
@@ -286,7 +286,7 @@ Perform these steps on CL1.
         Set-ItemProperty `
             -Path $path `
             -Name recycling.periodicRestart.privateMemory `
-            -Value 0
+            -Value (3 * 1024 * 1024) # IIS uses KB: 3 GB
         Set-ItemProperty `
             -Path $path `
             -Name recycling.periodicRestart.time `
@@ -328,12 +328,12 @@ Perform these steps on CL1.
 1. Increase the private memory limit of the WsusPool application pool to 3 GB.
 
     ````powershell
-    Invoke-Command -ComputerName VN1-SRV5 -ScriptBlock {
+    Invoke-Command -ComputerName VN2-SRV1 -ScriptBlock {
         Import-Module WebAdministration
         Set-ItemProperty `
             -Path IIS:\AppPools\WsusPool `
             -Name recycling.periodicRestart.privateMemory `
-            -Value (3GB) 
+            -Value (3 * 1024 * 1024) # IIS uses KB: 3 GB
     }
     ````
 

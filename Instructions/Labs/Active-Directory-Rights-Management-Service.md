@@ -5,19 +5,19 @@
 
 Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
 
-**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md; Instructions/Practices/Create-an-exportable-web-server-certificate-template.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Prepare the documented enterprise CA on VN1-SRV2, shared SQL default instance on VN1-SRV3 with Windows authentication and scoped SQL discovery/TCP access, and administrator-only export storage on the prerequisite VN1-SRV10 file server before RMS installation. The reusable local SQL Setup wizard requires the explicitly selected VN1-SRV3 Desktop Experience SQL-host lineage; do not assume the default Server Core image has that GUI or convert an installed Core server in place. VN1-SRV2 provides the prepared enterprise CA/template from its declared Desktop Experience member lineage.
 
-**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing); VN1-SRV2 (VMware display: VN1-SRV2; accepted display aliases: WIN-VN1-SRV2; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
 
-**Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup.
+**Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup. Authorized SQL installer sysadmin rights only during RMS setup; enterprise CA template/enrollment administration for preparation and Local Administrator on the RMS nodes. Protect exported trusted-publishing material in administrator-only storage.
 
-**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+**Outbound access:** Temporary VMware NAT VMnet8 while staging verified SQL Server/SSMS media; preserve AD DNS and disconnect after staging and installation. Endpoints: Official Microsoft SQL Server and SSMS download/install endpoints.
 
 **Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
 
 **Success verification:** Authorized clients consume the protected test document and an unauthorized account is denied; record license/support limits.
 
-**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Remove temporary VMnet8 media-staging access; retain shared SQL/CA/file-server prerequisites until their dependent exercises finish.
 
 <!-- END GENERATED COMPLETION CONTRACT -->
 
@@ -42,22 +42,41 @@ Generated from `metadata/curriculum-source.json`; edit that entry and regenerate
 * VN1-SRV6
 * VN2-SRV1
 * VN2-SRV2
+* VN1-SRV2
+* VN1-SRV10
 
 ## Setup
 
 1. On **CL1**, sign in as **ad\\Administrator**.
+1. Complete [Create an exportable web server certificate template](../Practices/Create-an-exportable-web-server-certificate-template.md), including its enterprise CA preparation on VN1-SRV2. Use the original **Web Server** template for the non-exported RMS server certificates below.
+### Prepare the shared SQL backend
+
+This preparation is reusable by the IPAM and RDS HA labs without deploying the RMS cluster.
+
+1. Prepare the shared SQL backend on **VN1-SRV3** before installing the RMS cluster:
+
+    * These local SQL Setup GUI steps require the declared **Windows Server Desktop Experience** SQL-host baseline on VN1-SRV3, not the generic Server Core member-server image. Verify the installed edition/installation type before starting. If VN1-SRV3 currently runs Server Core, stop and prepare a coordinated, disposable Desktop Experience baseline with the same recorded hostname/address and SQL role; do not attempt a GUI installation on Core, convert it in place, or overwrite an existing shared SQL instance. Preserve any required data and directory lineage before replacing a guest baseline. A supported unattended Core installation is an alternative only when its full version-specific command-line preparation is separately documented and accepted.
+    * Obtain licensed or non-production Developer SQL Server media from [Microsoft's SQL Server installation guidance](https://learn.microsoft.com/en-us/sql/database-engine/install-windows/install-sql-server-from-the-installation-wizard-setup). Verify the chosen SQL/Windows versions are compatible; do not install an unsupported historical SQL version solely to match screenshots. Stage signed media through the controlled temporary NAT workflow.
+    * On the domain-joined VN1-SRV3, run SQL Server Setup as local Administrator. Choose a new standalone installation, **Database Engine Services**, the **default instance (MSSQLSERVER)**, and **Windows authentication**. Add the disposable installer account `ad\Administrator` as a SQL administrator. Record the installed version/instance; retain the supported default service identities.
+    * In **SQL Server Configuration Manager**, enable TCP/IP for MSSQLSERVER. Under **IPAll**, clear dynamic TCP ports and set the static port to **1433**. Start **SQL Server Browser** and restart MSSQLSERVER. In Windows Firewall, allow TCP 1433 and UDP 1434 only from the recorded CL1/VN2-SRV1/VN2-SRV2 lab addresses, not from NAT or public networks. [AD RMS SQL access requirements](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/hh831554%28v%3Dws.11%29) require installer sysadmin rights and instance discovery during setup.
+    * Install current Microsoft-signed SSMS on CL1 using [Microsoft's SSMS installation instructions](https://learn.microsoft.com/en-us/ssms/install/install), then connect to `vn1-srv3.ad.lab.test` with Windows authentication as the recorded installer. Confirm the default instance appears. Run `SELECT IS_SRVROLEMEMBER('sysadmin');` and require `1` for the installer. From each RMS host, verify `Test-NetConnection vn1-srv3.ad.lab.test -Port 1433` succeeds before continuing. Task 2 creates the `rmsdb` alias; verify that alias reaches the same instance then.
+    * Keep SQL installer elevation only for setup. Do not grant the RMS service account blanket sysadmin rights; verify the RMS-created database mappings after installation. Retain this shared instance for dependent IPAM/RDS exercises, then clean up only the exercise databases/logins and scoped firewall rules.
+
+### Prepare RMS enrollment and disposable identities
+
 1. On the enterprise CA, open the Certificate Templates console and grant the VN2-SRV1 and VN2-SRV2 computer accounts **Read** and **Enroll** on the Web Server template. Confirm that the CA issues the template.
 1. Run **Terminal** as Administrator.
 1. Populate disposable lab mail attributes:
 
     ````powershell
-    Get-ADUser -Filter * | ForEach-Object { 
-        $PSItem | 
-        Set-ADUser -EmailAddress "$($PSItem.SamAccountName)@lab.test" 
+    'Ilga', 'Max', 'Lara' | ForEach-Object {
+        $rmsLabUser = Get-ADUser -Identity $PSItem
+        Set-ADUser -Identity $rmsLabUser -EmailAddress "$($rmsLabUser.SamAccountName)@lab.test"
     }
 
-    Get-ADGroup -Filter * | ForEach-Object { 
-        $PSItem | Set-ADGroup -Replace @{ mail="$($PSItem.Name)@lab.test" } 
+    'IT', 'Research' | ForEach-Object {
+        $rmsLabGroup = Get-ADGroup -Identity $PSItem
+        Set-ADGroup -Identity $rmsLabGroup -Replace @{ mail="$($rmsLabGroup.Name)@lab.test" }
     }
     ````
 
@@ -594,6 +613,8 @@ Perform this task on CL1.
 
 #### PowerShell
 
+Perform this task on **VN2-SRV2**, not CL1 or the first RMS node. Open a new elevated Windows PowerShell session there.
+
 1. Run **Windows PowerShell (Administrator)**.
 1. Import **ADRMS** and create a PowerShell drive with provider **ADRMSInstall**, name **RC** and root **JoinCluster** to join the existing root cluster.
 
@@ -677,6 +698,8 @@ Perform this task on CL1.
 
 Note: You should configure your extranet URL at the time of installation, even if it will not be initially deployed. If external access is enabled after documents are AD RMS protected you must remove the protection, remove the DRM folder on the client computers, configure extranet access, and then protect the documents again.
 
+The steps below record extranet URLs but do not expose a public service. For an actual isolated extranet test, add `rms.lab.test` to the DNS SAN of the certificates requested for **both** RMS nodes in Exercise 1, configure the test client's DNS/hosts entry to the recorded lab endpoint, and verify the client trusts the lab CA and can reach HTTPS with that name. Do not claim external access is working from configuration alone or expose the lab to the Internet.
+
 #### Desktop Experience
 
 Perform this task on VN2-SRV1.
@@ -725,6 +748,8 @@ Perform this task on VN2-SRV1.
 
 ### Task 2: Backup the Server Licensor Certificate
 
+Before either export path, on **VN1-SRV10** create `D:\Shares\IT\RMS-Admin`. In **Properties > Security > Advanced**, disable inheritance and remove the inherited entries from this new subfolder. Add only **SYSTEM** and **BUILTIN\Administrators**, both **Full control** for this folder/subfolders/files. Remove any explicit IT/user/CREATOR OWNER ACEs. Verify the administrator can write `\\VN1-SRV10\IT\RMS-Admin` and a normal IT member is denied. Use that protected subfolder for both exports below; do not store the licensor export in the user-readable IT root.
+
 #### Desktop Experience
 
 Perform this task on VN2-SRV1.
@@ -733,7 +758,7 @@ Perform this task on VN2-SRV1.
 1. In Active Directory Rights Management Services, expand **vn2-srv1 (Local)**, **Trust Policies** and click **Trusted Publishing Domain**.
 1. In Trusted Publishing Domains, in the context menu of **Adatum-RMS-Server-Licensor-Certificate**, click **Export Trusted Publishing Domain...**.
 1. In Export Trusted Publishing Domain, click **Save As...**
-1. In Export Trusted Publishing Domain File As..., save the file as **\\\\VN1-SRV6\\IT\\Adatum-RMS-Server-Licensor-Certificate**.
+1. In Export Trusted Publishing Domain File As..., save the file as **\\\\VN1-SRV10\\IT\\RMS-Admin\\Adatum-RMS-Server-Licensor-Certificate.xml** in the verified administrator-only subfolder.
 1. In **Export Trusted Publishing Domain**, in **Password** and **Confirm Password**, enter a secure password.
 1. Click **Finish**.
 
@@ -756,7 +781,7 @@ Perform this task on VN2-SRV1.
         Where-Object { $PSItem.DisplayName -eq 'Adatum-RMS-Server-Licensor-Certificate' }
     Export-RmsTPD `
         -Path "RMS:\TrustPolicy\TrustedPublishingDomain\$($tpd.Id)" `
-        -SavedFile '\\vn1-srv6\IT\Adatum-RMS-Server-Licensor-Certificate.xml'
+        -SavedFile '\\vn1-srv10\IT\RMS-Admin\Adatum-RMS-Server-Licensor-Certificate.xml'
     ````
 
     At the prompt **Password** and **Please type in a confirmed password**, enter a secure password.
@@ -939,7 +964,7 @@ Perform this task on CL2.
 1. In **File Explorer**, navigate to **C:\Users\Public\Documents**.
 1. Open **Research results**.
 
-    > You should not be able to open the document.
+    > You should be able to open the document with full control because IT is the enabled super users group. If access is denied, verify membership, the group's mail attribute, and refreshed sign-in/RMS client state before continuing.
 
 1. Click **File**, **Info**, **Protect Document**, **Restrict Access**, **Unrestricted Access**
 
