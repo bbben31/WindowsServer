@@ -4,7 +4,7 @@ Milestone E follows [Milestone D](Member-Servers-and-Clients.md). It is an order
 
 ## Prerequisites and scope
 
-Keep `C-first-DC-validated`, complete `D-members-validated`, and run the read-only preflight for `VN1-SRV1`, `VN1-SRV20`, and `CL1`. The minimum profile is `VN1-SRV1`, `VN1-SRV20`, and `CL1`; `VN1-SRV4`, `VN1-SRV5`, `VN1-SRV21`, `CL3`, extra disks, WSUS, DHCP, WAC gateway services, and file/RDS/storage nodes are optional or lab-specific. On the 32 GB host, power on only the systems required by the current step.
+Keep `C-first-DC-validated` and complete `D-members-validated`. The minimum core profile is `VN1-SRV1`, `VN1-SRV20`, and `CL1`; `VN1-SRV4`, `VN1-SRV5`, `VN1-SRV21`, `CL3`, extra disks, WSUS, DHCP, WAC gateway services, and file/RDS/storage nodes are optional or lab-specific. Run preflight with `-CurriculumPath` selecting the actual practice/lab and its declared VMs; this General runbook is not a manifest selection. A source procedure marked enterprise expansion requires its own topology/lineage; do not substitute the three core guests for its named roles. On the 32 GB host, power on only the systems required by the current step. Run built-in Windows administration snippets in Windows PowerShell 5.1 inside the indicated guest; some legacy commands such as `Get-Service -ComputerName` are not available in PowerShell 7.
 
 Keep local and domain identities distinct:
 
@@ -122,7 +122,7 @@ Run BPA from Server Manager or with the source’s `Invoke-BpaModel` pattern for
 
 ## Verification gate and troubleshooting
 
-Milestone E is verified when `CL1` can resolve and manage `VN1-SRV20`, WinRM and the required Server Manager/WAC path work, the selected role inventory matches the lab, local/domain identities are understood, firewall profiles remain enabled, and events/storage/update checks have been recorded. Re-run the [preflight checker](../../tools/Preflight-LearnerLab.ps1) with the stage’s VM names and `-ExpectedDnsServer 10.10.10.10`.
+Milestone E is verified when `CL1` can resolve and manage `VN1-SRV20`, WinRM and the required Server Manager/WAC path work, the selected role inventory matches the lab, local/domain identities are understood, firewall profiles remain enabled, and events/storage/update checks have been recorded. Re-run the [preflight checker](../../tools/Preflight-LearnerLab.ps1) for the selected manifest item, using its `-CurriculumPath`, declared VMs, and actual profile DNS (not automatically `10.10.10.10` for enterprise exercises).
 
 * **Remoting fails:** check `Resolve-DnsName`, `Test-WSMan`, port 5985/5986, WinRM service, time, and the domain firewall profile.
 * **Server Manager/WAC cannot connect:** verify hostname resolution and credentials interactively; check that the management tool version supports the target Server version.

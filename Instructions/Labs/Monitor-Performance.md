@@ -1,17 +1,40 @@
 # Lab: Monitor performance
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-app-compatibility-feature-on-demand.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. On Server Core VN1-SRV10, apply the App Compatibility practice to VN1-SRV10 with matching optional-feature media before local Resource Monitor/Performance Monitor steps; restart and verify resmon.exe and perfmon.exe launch. Completing the practice only on its original VN1-SRV5 target does not prepare VN1-SRV10.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** high; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
+
+**Success verification:** Recorded counters identify the controlled workload/resource pressure; stop the workload and confirm recovery to baseline.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
 
 ## Required VMs
 
+* CL1
 * VN1-SRV1
 * VN1-SRV10
-* CL1
 
 ## Setup
+
+The local Resource Monitor/Performance Monitor tasks require graphical tools on **VN1-SRV10**. On its Server Core baseline, install **ServerCore.AppCompatibility~~~~0.0.1.0** from matching Server Languages/Optional Features media, following [the AppCompatibility practice](../Practices/Install-app-compatibility-feature-on-demand.md) but targeting VN1-SRV10, then restart and verify `resmon.exe` and `perfmon.exe` launch. Do not assume the untouched Core image includes these tools. Record the staged ISO path instead of relying on a filename from a different release.
 
 On **VN1-SRV10**, sign in as **ad\Administrator**.
 
@@ -115,7 +138,7 @@ Perform this task on CL1.
    * Memory: Committed Bytes
    * Memory: Pages/sec
    * Network Adapter: Bytes Received/sec
-   * Network Adapter: Bytes Send/sec
+   * Network Adapter: Bytes Sent/sec
    * Network Adapter: Current Bandwidth
    * PhysicalDisk: % Disk Time \<All Instances\>
    * PhysicalDisk: Current Disk Queue Length \<All Instances\>
@@ -223,7 +246,3 @@ Perform these steps on VN1-SRV10.
 1. In **Performance Monitor**, verify the data collector set **Baseline** is running.
 1. In the context menu of **Baseline**, click **Stop**.
 1. In **Performance Monitor**, in the context menu of CPU time alert, click **Stop**.
-
-
-
-

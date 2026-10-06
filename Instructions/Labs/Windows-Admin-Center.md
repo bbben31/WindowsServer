@@ -1,6 +1,27 @@
 # Lab: Windows Admin Center
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Create-an-exportable-web-server-certificate-template.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV2 (VMware display: VN1-SRV2; accepted display aliases: WIN-VN1-SRV2; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft Windows Admin Center download/extension endpoints.
+
+**Risk, cost and optional status:** high; optional-azure; optional=true. Local-only unless optional Azure integration is selected. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** The local gateway has a trusted certificate and intended access controls; Azure registration is a separate optional prerequisite practice.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings. Azure integration is performed only through Register Windows Admin Center with Azure; use that practice contract and cleanup when choosing it.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -13,12 +34,12 @@
 
 ## Required VMs
 
+* CL1
+* CL2
 * VN1-SRV1
 * VN1-SRV2
 * VN1-SRV4
 * VN1-SRV5
-* CL1
-* CL2
 
 ## Setup
 
@@ -134,7 +155,7 @@ Perform this task on VN1-SRV4.
         Get-Certificate `
             -Template 'WebServer' `
             -SubjectName "CN=$fQDN" `
-            -DnsName $fQDN `
+            -DnsName $hostName, $fQDN `
             -CertStoreLocation 'Cert:\LocalMachine\My'
         ).Certificate
     ````
@@ -266,7 +287,7 @@ Perform this task on CL1.
 1. Open **DNS**.
 1. In Connect to DNS Server, click **The following computer**, type **vn1-srv1.ad.lab.test** below and click **OK**.
 1. Expand **vn1-srv1.ad.lab.test**, **Forward Lookup Zones**, and click **ad.lab.test**.
-1. In the context-menu of **lab.test**, click **New Host (A or AAAA)...**
+1. In the context-menu of **ad.lab.test**, click **New Host (A or AAAA)...**
 1. In New Host, under **Name (uses parent domain name if blank)**, type **admincenter**. Under IP address, type **10.1.1.32**. Click **Add Host**.
 1. In the message box The host record admincenter.ad.lab.test was successfully created, click **OK**.
 1. In **New Host**, click **Done**.
@@ -432,13 +453,15 @@ Perform this task on CL1.
 1. Click *Settings*.
 1. In Settings, click **Extensions**.
 1. In Extensions, ensure the switch **Automatically update extension** is enabled.
-1. On tab Available Extensions, **GPUs** and click **Install**.
+1. On tab Available Extensions, select **Active Directory** and click **Install**. If it is unavailable for the recorded WAC version, record the extension compatibility limitation; do not install an unrelated extension as evidence of this task.
 
     Wait for Windows Admin Center to reload.
 
 You may repeat the last step for other extensions at your choice.
 
 ### Task 3: Register Windows Admin Center with Azure
+
+This cloud registration is optional and separate from the local WAC completion checks. First follow [Register Windows Admin Center with Azure](../Practices/Register-Windows-Admin-Center-with-Azure.md) and its existing-tenant, permission and consent gates. If you cannot authorize the application registration/consent in your own tenant, skip this task and its cloud-only verification; continue local management. Never create a different tenant or accept consent for an unverified identity to satisfy these screenshots.
 
 Perform this task on CL1.
 
@@ -593,7 +616,7 @@ Perform this task on CL1.
 1. Under Gateway Access, under **Allowed Groups**, click **Add**.
 1. In the pane Add an allowed group, under **Name**, type **ad\Windows Admin Center users**. Under **Role**, ensure **Gateway users** is selected. Under **Type**, ensure **Gateway users security group** is selected. Click **Save**.
 
-    Note: You can ignore the error message regarding the invalid group name format.
+    Do not ignore a group-name validation error. Resolve the group name in the format required by the recorded WAC version, verify it was saved, and test an allowed administrator in a separate session before removing an existing gateway access group. Retain a working authorized recovery session.
 
 1. Under Gateway Access, under **Allowed Groups**, click **Add**.
 1. In the pane Add an allowed group, under **Name**, type **ad\Windows Admin Center administrators**. Under **Role**, click **Gateway administrators**. Under **Type**, ensure **Gateway users security group** is selected. Click **Save**.
@@ -664,7 +687,3 @@ Perform this task on CL2. You should still be signed in with ad\Ida.
     > Ida can stop the service.
 
 1. Click **Start**.
-
-
-
-

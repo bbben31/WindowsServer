@@ -1,17 +1,39 @@
 # Lab: Post installation configuration
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-Windows-Server-with-Desktop-Experience-manually.md; Instructions/Practices/Install-Windows-Server-manually.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV20 (VMware display: VN1-SRV20; accepted display aliases: WIN-VN1-SRV20; existing); VN1-SRV21 (VMware display: VN1-SRV21; accepted display aliases: WIN-VN1-SRV21; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Microsoft Windows Update/WSUS and feature-on-demand endpoints.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** Both VMware-created members report intended names, AD DNS/network settings and valid domain secure channels.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
 
 ## Required VMs
 
+* CL1
 * VN1-SRV1
-* VN1-SRV4
-* VN1-SRV5
 * VN1-SRV20
 * VN1-SRV21
+* VN1-SRV4
+* VN1-SRV5
 
 ## Setup
 
@@ -246,16 +268,18 @@ Perform this task on CL1.
 1. Using Microsoft Edge, navigate to <https://admincenter>.
 1. In Windows Admin Center, click **Add**.
 1. In Add or create resources, under **Servers**, click **Add**.
-1. On the tab **Add one**, type 10.1.1.160.
+1. On the tab **Add one**, type 10.1.1.168.
 1. Click **Use another account for this connection**.
 1. Enter the credentials for the default Administrator account and click **Add**.
-1. Click **10.1.1.160**.
-1. Connected to 10.1.1.160, in Overview, click **Edit Computer ID**.
+1. Click **10.1.1.168**.
+1. Connected to 10.1.1.168, in Overview, click **Edit Computer ID**.
 1. In the pane Edit computer ID, in **Computer name**, enter **VN1-SRV21**.
 1. Click **Domain** and enter **ad.lab.test.**.
 1. Click **Next**.
-1. Under **Current domain**, enter the credentials of **ad\Administrator** and click **Save**.1. In **Overview**, click **Restart**.
-1. In Windows Admin Center, activate the checkbox beside **10.1.1.160**.
+1. Under **Current domain**, enter the credentials of **ad\Administrator** and click **Save**.
+1. In **Overview**, click **Restart**.
+1. In **Restart the computer**, click **Yes**.
+1. In Windows Admin Center, activate the checkbox beside **10.1.1.168**.
 1. Click **Remove**.
 
 #### PowerShell
@@ -277,8 +301,8 @@ Perform this task on VN1-SRV21.
 
 Perform this task von VN1-SRV21.
 
-1. In the menu of **Connection to virtual Computer**, click **View**, **Enhanced Session** (Ansicht, **Erweiterte Sitzung**) to disable the enhanced session mode.
-1. In the menu of **Connection to virtual Computer**, click **Action**, **CTRL+ALT+DEL** (**Aktion**, **STRG+ALT+ENTF**).
+1. In VMware Workstation, select the VN1-SRV21 tab and click inside its console. Use the ordinary VMware console for these Server Core sign-in steps.
+1. In VMware Workstation, use **VM > Send Ctrl+Alt+Del**, or press **Ctrl+Alt+Insert**, to send the secure-attention sequence to VN1-SRV21.
 1. Under **Enter credentials for Administrator or hit ESC to switch users/sign-in methods**, press **ESC**.
 1. Under **Select a sign-in option for Administrator or hit ESC to switch users**, press **ESC** again.
 1. Under **Select a user**, use the up/down arrow keys to select **Other user** and press ENTER.
@@ -294,7 +318,7 @@ Perform this task von VN1-SRV21.
 Perform this task on CL1.
 
 1. Open **Terminal**.
-1. Set the time zone of VN1-SRV20 to the same time zone as CL1.
+1. Set the time zone of VN1-SRV21 to the same time zone as CL1.
 
     ````powershell
     $timezone = Get-TimeZone
@@ -315,7 +339,7 @@ Perform this task on VN1-SRV5.
 
     ````powershell
     $imagePath = 'C:\WindowsServerLab\Resources\26100.1.240331-1435.ge_release_amd64fre_SERVER_LOF_PACKAGES_OEM.iso'
-    $diskImage = Mount-DiskImage -ImagePath $imagePath
+    $diskImage = Mount-DiskImage -ImagePath $imagePath -PassThru
     $driveLetter = ($diskImage | Get-Volume).DriveLetter
     ````
 
@@ -356,7 +380,3 @@ Perform this task on VN1-SRV5.
     ````
 
 1. Close all open graphical applications.
-
-
-
-

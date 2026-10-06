@@ -1,11 +1,32 @@
-﻿# Practice: Install the Hyper-V role
+# Practice: Install the Hyper-V role
+
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); PM-SRV2 (VMware display: PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure.
+
+**Permissions:** Local Administrator on the explicitly declared nested Hyper-V hosts and inner guests; cluster administrator for cluster changes. VMware settings permission on the outer host.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** high; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
+
+**Success verification:** Both nested PM hosts report Hyper-V Installed and can start an inner disposable guest.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
 
 ## Required VMs
 
-* VN1-SRV1
+* CL1
 * PM-SRV1
 * PM-SRV2
-* CL1
+* VN1-SRV1
 
 ## Task
 
@@ -32,7 +53,7 @@ Perform these steps on CL1.
 1. On page Migration, click **Next >**.
 1. On page Default Stores, click **Next >**.
 1. On page Confirmation, activate **Restart the destination server automatically if required** and click **Install**.
-1. On  page **Results**, do not wait for the installation to succeed. Click **Close**.
+1. On page **Results**, wait for installation to succeed. After the required restart, verify **Hyper-V** is installed and the host is reachable before continuing.
 
 Repeat the steps of this task to install the role on **PM-SRV2**.
 
@@ -49,5 +70,3 @@ Perform this task on CL1.
       Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart
    }
    ````
-
-

@@ -1,14 +1,35 @@
 # Lab: Windows Subsystem for Linux
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV9 (VMware display: VN1-SRV9; accepted display aliases: WIN-VN1-SRV9; existing). At least 1 of [VN1-SRV1, VN1-SRV5]: Use the active AD DNS/controller from the documented deployment lineage; do not restart a retired DC. Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official WSL distribution/download and Linux package-repository endpoints.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution.
+
+**Success verification:** wsl --list --verbose shows the installed distribution/version; Linux networking/file tests pass and final uninstall leaves no exercise distribution.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
 
 ## Required VMs
 
-* A domain controller (VN1-SRV5 or VN1-SRV1)
 * VN1-SRV9
+* One active domain controller: VN1-SRV1 or VN1-SRV5
 
 ## Introduction
 
@@ -32,23 +53,14 @@ At the end of your evaluation, you want to uninstall the Linux distribution and 
 
 ### Task 1: Configure nested virtualization
 
-Perform this task on the host.
+Perform this task on the VMware Workstation host.
 
-1. Open **Windows PowerShell (Admin)**.
-1. In Windows PowerShell (Admin), for **WIN-VN1-SRV9**, shut down the virtual machine, expose the virtualization extensions to the virtual machine, enable MAC address spoofing, disable dynamic memory and set the startup memory to **3 GB**, and start the virtual machine again.
+1. Shut down **VN1-SRV9** inside Windows and wait until VMware shows it powered off.
+1. Open **VM > Settings > Processors**. Enable **Virtualize Intel VT-x/EPT or AMD-V/RVI**. Set at least **3 GB** of fixed memory under **Memory**.
+1. Keep the lab NIC on its declared isolated VMnet. Add a temporary **NAT (VMnet8)** adapter for WSL/package downloads; preserve AD DNS on the domain NIC and do not register the NAT address in AD DNS.
+1. Start VN1-SRV9. Run `systeminfo.exe` in the guest and verify virtualization is available before installing WSL 2. If the VM cannot expose virtualization extensions, stop this optional lab and record the host limitation.
 
-    ````powershell
-    $vMName = 'WIN-VN1-SRV9'
-    Stop-VM -VMName $vMName
-    Set-VMProcessor -VMName $vMName -ExposeVirtualizationExtensions $true
-    
-    Get-VMNetworkAdapter -VMName $vMName |
-    Set-VMNetworkAdapter -MacAddressSpoofing On
-
-    Set-VM -VMName $vMName -StaticMemory -MemoryStartupBytes 3GB
-    Start-VM -VMName $vMName
-    ````
-
+The setting belongs to VMware; the Microsoft Hyper-V parent-host command is not applicable here. See [Microsoft WSL VM prerequisites](https://learn.microsoft.com/en-us/windows/wsl/faq) and [Broadcom nested virtualization restrictions](https://knowledge.broadcom.com/external/article?articleNumber=313547). Host Hyper-V/VBS may prevent VMware nesting. Do not disable host security controls as an automatic lab step.
 ### Task 2: Install Windows Subsystem for Linux
 
 Perform this task on VN1-SRV9.
@@ -279,3 +291,5 @@ Perform this task on VN1-SRV9.
 
 
 
+
+After uninstalling the distribution and WSL, shut down the guest, disconnect/remove its temporary VMnet8 adapter, and restore the recorded VMware CPU/memory settings or pre-lab snapshot. Verify domain DNS still resolves.

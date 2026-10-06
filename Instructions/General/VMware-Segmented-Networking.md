@@ -10,11 +10,13 @@ This guide contains no network-mutating script. The Virtual Network Editor chang
 
 ## Target segments
 
+Windows Workstation uses the VMnet0–VMnet19 range (20 virtual switches); see the [Workstation Pro 17 guide](https://techdocs2-prod.adobecqms.net/content/dam/broadcom/techdocs/us/en/pdf/vmware/desktop-hypervisors/workstation/vmware-workstation-pro-17-0.pdf). Use the available custom identifiers VMnet10, VMnet11 and VMnet12 below. Their numbers do not need to match the subnet's third octet. If any is already owned by another workload, stop and record an unused in-range mapping consistently before changing settings; do not overwrite it.
+
 | VMnet | Network | Host adapter | DHCP | Default gateway | Intended use |
 | --- | --- | --- | --- | --- | --- |
 | `VMnet10` | `10.10.10.0/24` | Enabled | Disabled | None | Management and AD/DNS |
-| `VMnet20` | `10.10.20.0/24` | Enabled | Disabled | None | Server workloads |
-| `VMnet30` | `10.10.30.0/24` | Enabled | Enabled, `10.10.30.100-199` | `10.10.30.1` only if using NAT | Windows 11 clients |
+| `VMnet11` | `10.10.20.0/24` | Enabled | Disabled | None | Server workloads |
+| `VMnet12` | `10.10.30.0/24` | Enabled | Enabled, `10.10.30.100-199` | `10.10.30.1` only if using NAT | Windows 11 clients |
 | `VMnet8` | VMware NAT | Existing VMware adapter | VMware-managed | VMware NAT gateway | Temporary updates and approved Internet access |
 
 The address ranges are private examples dedicated to this lab. Do not bridge them to a home or corporate LAN. If they overlap with another local network, change the entire range and update the static addresses consistently.
@@ -23,11 +25,11 @@ The address ranges are private examples dedicated to this lab. Do not bridge the
 
 1. In VMware Workstation Pro 17, select **Edit > Virtual Network Editor**, then click **Change Settings** and approve the elevation prompt.
 2. Select **Add Network**, choose `VMnet10`, and select **Host-only**. Set subnet IP to `10.10.10.0` and mask to `255.255.255.0`. Clear **Use local DHCP service to distribute IP addresses to VMs**. Leave **Connect a host virtual adapter to this network** enabled, then click **Apply**.
-3. Add `VMnet20` as **Host-only**, subnet `10.10.20.0/24`, DHCP disabled, and a connected host adapter. Click **Apply**.
-4. Add `VMnet30` as **Host-only**, subnet `10.10.30.0/24`, and choose one DHCP owner. For the initial client stage, VMware DHCP may use `10.10.30.100` through `10.10.30.199`. If a later practice installs Windows DHCP, disable VMware DHCP first and let Windows DHCP be the only DHCP server. Click **Apply**.
+3. Add `VMnet11` as **Host-only**, subnet `10.10.20.0/24`, DHCP disabled, and a connected host adapter. Click **Apply**.
+4. Add `VMnet12` as **Host-only**, subnet `10.10.30.0/24`, and choose one DHCP owner. For the initial client stage, VMware DHCP may use `10.10.30.100` through `10.10.30.199`. If a later practice installs Windows DHCP, disable VMware DHCP first and let Windows DHCP be the only DHCP server. Click **Apply**.
 5. Select the existing `VMnet8` and confirm it is **NAT**. Record its displayed subnet and gateway in your private lab notes as `<VMNET8_SUBNET>` and `<VMNET8_GATEWAY>`; do not assume either value.
 6. Confirm that no lab segment is set to **Bridged**. Bridging exposes lab traffic to the physical network and can create DHCP, DNS, or address conflicts.
-7. Click **Apply** and **OK**. Open `ncpa.cpl` on the host and confirm the VMware adapters for VMnet10, VMnet20, and VMnet30 are present. Optional display names are `VMware VMnet10 Management`, `VMware VMnet20 Servers`, and `VMware VMnet30 Clients`.
+7. Click **Apply** and **OK**. Open `ncpa.cpl` on the host and confirm the VMware adapters for VMnet10, VMnet11, and VMnet12 are present. Optional display names are `VMware VMnet10 Management`, `VMware VMnet11 Servers`, and `VMware VMnet12 Clients`.
 
 Do not enable Internet Connection Sharing or Windows routing as a shortcut. VMware NAT is the only default outbound path in this design.
 
@@ -40,22 +42,23 @@ Use this concrete default plan. Values marked as placeholders are host-specific 
 | Role | Example address | NIC |
 | --- | --- | --- |
 | Host VMnet10 adapter | `<VMNET10_HOST_IP>/24` | Host only |
-| Host VMnet20 adapter | `<VMNET20_HOST_IP>/24` | Host only |
-| Host VMnet30 adapter | `<VMNET30_HOST_IP>/24` | Host only |
+| Host VMnet11 adapter | `<VMNET11_HOST_IP>/24` | Host only |
+| Host VMnet12 adapter | `<VMNET12_HOST_IP>/24` | Host only |
 | `VN1-SRV1` AD DS/DNS | `10.10.10.10/24` | VMnet10 |
 | `VN1-SRV5` additional DC/DNS | `10.10.10.11/24` | VMnet10 |
-| `VN1-SRV4` management/WAC | `10.10.10.20/24` | VMnet10, optional VMnet20 |
-| `CL1` Windows 11 management client | `10.10.30.20/24` or DHCP reservation | VMnet30 |
-| Server workload pool | `10.10.20.50-199/24` | VMnet20 |
-| Client static pool | `10.10.30.20-80/24` | VMnet30 |
+| `VN1-SRV4` management/WAC | `10.10.10.20/24` | VMnet10, optional VMnet11 |
+| `VN1-SRV20` core member | `10.10.10.30/24` and `10.10.20.20/24` | VMnet10 AD/management and VMnet11 workload |
+| `CL1` Windows 11 management client | `10.10.10.40/24` and `10.10.30.20/24` or one client reservation | VMnet10 AD/management and VMnet12 client |
+| Server workload pool | `10.10.20.50-199/24` | VMnet11 |
+| Client static pool | `10.10.30.20-80/24` | VMnet12 |
 
 Add the server, storage, cluster, and client VMs named by a lab only when needed. Use `10.10.20.0/24` for server workload traffic and `10.10.30.0/24` for clients. Keep the first NIC on VMnet10 for domain management unless a lab explicitly requires another design.
 
-On isolated VMnet10 and VMnet20 NICs, leave **Default gateway** blank. On VMnet30, use no gateway for an isolated client or the documented `<VMNET30_GATEWAY>` only when a deliberate router/NAT design exists. Set the preferred DNS server to `10.10.10.10` on domain members, and add `10.10.10.11` only after the second DNS server is healthy. Do not point domain controllers or domain members directly to public DNS or the VMnet8 NAT DNS.
+On isolated VMnet10 and VMnet11 NICs, leave **Default gateway** blank. On VMnet12, use no gateway for an isolated client or the documented `<VMNET12_GATEWAY>` only when a deliberate router/NAT design exists. Set the preferred DNS server to `10.10.10.10` on domain members, and add `10.10.10.11` only after the second DNS server is healthy. Do not point domain controllers or domain members directly to public DNS or the VMnet8 NAT DNS.
 
 For Internet access, add a second NIC connected to `VMnet8` only to a VM that needs updates, downloads, Azure Arc, or another documented outbound operation. Keep the lab NIC as the primary/domain NIC and do not assign the VMnet8 DNS server to the AD NIC. Disconnect the NAT NIC after the operation. Do not enable Internet Connection Sharing, Windows NAT, or IP forwarding unless a specific routing lab requires it.
 
-VMnet10, VMnet20, and VMnet30 do not route between one another by default. This isolation is intentional. A multi-homed Windows Server can route between them only when you deliberately enable and secure routing; avoid doing so for the foundation. If a lab requires cross-segment traffic, document the route and firewall rules before enabling it.
+VMnet10, VMnet11, and VMnet12 do not route between one another by default. This isolation is intentional. A multi-homed Windows Server can route between them only when you deliberately enable and secure routing; avoid doing so for the foundation. If a lab requires cross-segment traffic, document the route and firewall rules before enabling it.
 
 ## Place VM NICs
 
@@ -63,8 +66,8 @@ For each VM, open **VM > Settings > Network Adapter**:
 
 1. Select **Custom: Specific virtual network** and choose the required VMnet.
 2. Use one NIC on VMnet10 for AD, DNS, management, and domain reachability.
-3. Add a VMnet20 NIC for server, storage, cluster, or workload traffic only when the lab calls for it.
-4. Add a VMnet30 NIC to `CL1`, `CL3`, and other client VMs.
+3. Add a VMnet11 NIC for server, storage, cluster, or workload traffic only when the lab calls for it.
+4. Add a VMnet12 NIC to `CL1`, `CL3`, and other client VMs.
 5. Add VMnet8 temporarily for safe outbound access; select **Connect at power on** only when required.
 6. Inside Windows, rename adapters to `LAB-AD`, `LAB-SRV`, `LAB-CLIENT`, or `NAT-OUTBOUND`. Confirm the intended interface with `Get-NetIPConfiguration` before assigning an address.
 
@@ -72,7 +75,7 @@ Never attach a lab VM directly to a bridged physical adapter unless the exercise
 
 ## DNS and AD reachability
 
-Build `VN1-SRV1` first with `10.10.10.10`, install AD DS and DNS, and create `ad.lab.test`. Configure its own DNS client to use its static address. Join `VN1-SRV4` and `CL1` only after:
+Build `VN1-SRV1` first with `10.10.10.10`, install AD DS and DNS, and create `ad.lab.test`. Configure its own DNS client to use its static address. Join `VN1-SRV20` and `CL1` (and optional `VN1-SRV4`) only after the D runbook's VMnet10 management NICs are configured and these checks pass:
 
 ```powershell
 Get-NetIPConfiguration
@@ -120,8 +123,8 @@ Use `ipconfig /all` when comparing DHCP leases, DNS suffixes, and gateways. Use 
 
 Expected conditions before Milestone B:
 
-* VMnet10, VMnet20, and VMnet30 are present as custom host-only networks with the planned subnets.
-* VMware DHCP is disabled on VMnet10 and VMnet20, and exactly one DHCP owner is selected for VMnet30.
+* VMnet10, VMnet11, and VMnet12 are present as custom host-only networks with the planned subnets.
+* VMware DHCP is disabled on VMnet10 and VMnet11, and exactly one DHCP owner is selected for VMnet12.
 * Host VMware adapters are present and enabled; no physical adapter was disabled.
 * No isolated NIC has an unintended default gateway.
 * `VN1-SRV1` will use `10.10.10.10` and DNS on that address; no domain controller is dependent on VMnet8 NAT.
@@ -141,7 +144,7 @@ Common fixes:
 2. Reopen **Edit > Virtual Network Editor > Change Settings** and restore the recorded subnet, DHCP, NAT, and host-adapter settings from `A-before-vmnet-changes`.
 3. In `ncpa.cpl`, re-enable only a VMware host adapter that was intentionally disabled. Do not disable or reset the physical Ethernet/Wi-Fi adapter.
 4. If a guest has an incorrect address, disconnect its NIC before correcting the VMnet assignment. Do not use a broad host network reset.
-5. Re-run the read-only checks above and preflight. If the host has lost connectivity, stop and restore the VMware settings with the host's normal physical adapter left enabled.
+5. Re-run the read-only checks above. Run curriculum preflight only when selecting an actual Practice/Lab with `-CurriculumPath`. If the host has lost connectivity, stop and restore the VMware settings with the host's normal physical adapter left enabled.
 
 Cleanup after Milestone A is limited to removing unused VMnet definitions and temporary notes. Do not delete a VMnet still used by a snapshot or guest.
 

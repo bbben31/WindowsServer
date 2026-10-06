@@ -1,19 +1,44 @@
 # Lab: Migrate Active Directory
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Use a coordinated older Windows Server 2022 VN1-SRV1 DC and Windows Server 2025 VN1-SRV5 pre-promotion member lineage for upgrade/replacement. Skip duplicate verified promotion; never downgrade or independently rewind the current Server 2025 foundation. Before dMSA migration, stage reviewed NSSM/service resources and manually configure a working ad\PSService with scoped logon/file permissions on the supported updated 2025 service host, an active 2025 DC and ready KDS key.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV9 (VMware display: VN1-SRV9; accepted display aliases: WIN-VN1-SRV9; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup.
+
+**Permissions:** Lab Enterprise/Domain Administrator for the named forest/domain changes; Schema Admin only for schema extension. Local Administrator for guest setup. Remove temporary role membership afterward.
+
+**Outbound access:** Windows Update downloads Windows 11 RSAT Features on Demand on CL1 during the documented setup/fallback. Before installing capabilities, attach a temporary second VMware NIC to VMnet8 NAT; retain the AD NIC and its AD DNS, disable DNS registration on the NAT NIC, and record adapters/routes/DNS. Disconnect VMnet8 immediately after installation. If the required tools are already installed, the download step needs no outbound access. Endpoints: *.windowsupdate.com (Windows Update service/content); *.update.microsoft.com (Microsoft Update service); *.delivery.mp.microsoft.com (Windows Update delivery); https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance).
+
+**Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** The intended migrated accounts/service retain their required identity/access and AD replication is healthy afterward.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect the temporary VMnet8 NIC after capability installation and restore recorded adapters/routes/DNS; retain installed RSAT until dependent exercises finish.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
 
 ## Required VMs
 
+* CL1
 * VN1-SRV1
 * VN1-SRV4
 * VN1-SRV5
 * VN1-SRV9
-* CL1
 
 ## Setup
+
+This migration begins with **VN1-SRV1 as a Windows Server 2022 DC** and **VN1-SRV5 as a Windows Server 2025 member server before promotion**. If the additional-controller prerequisite already promoted SRV5 in your lineage, verify that promotion and omit the duplicate promotion task. If SRV1 has already been upgraded/retired, use a separate coordinated migration snapshot, not the current forest, for the replacement demonstration.
+
+Copy Resources to VN1-SRV9 and obtain/verify `nssm.exe` as described in [Resources](../../Resources/README.md) before running Install-Service. The helper creates **PSService as LocalSystem**; that is not the account required by Exercise 8. Account preparation below is manual and must precede dMSA migration.
 
 1. On **CL1**, sign in as **ad\\Administrator**.
 1. On **VN1-SRV9**, sign in as **ad\\Administrator**.
@@ -296,6 +321,14 @@ The domain controller still running Windows Server 2022 must be replaced by a Wi
 
 ## Exercise 8: Validate delegated managed service accounts
 
+### Prepare the superseded service account manually
+
+1. On CL1 as the authorized lab directory administrator, use **Active Directory Users and Computers** to create **Service accounts** at the domain root if absent. In it, manually create an enabled user with name **Powershell Service**, sAMAccountName **PSService**, and UPN **PSService@ad.lab.test**. Enter a unique lab password interactively; clear **User must change password at next logon**. Do not grant Domain Admin or local Administrator membership. Store the credential privately outside Git.
+1. On VN1-SRV9, create/verify `C:\Logs`. Grant this user **Modify** on C:\Logs and **Read & execute** on the service script/NSSM binary. Through **Local Security Policy > Local Policies > User Rights Assignment**, grant only this account **Log on as a service**, checking that domain policy does not override it.
+1. Open **Services**, edit **PSService > Log On**, choose **This account** and set **ad\PSService** using the password interactively. Restart PSService and verify its StartName and that `C:\Logs\Policies.log` receives a fresh successful SYSVOL policy list within a minute (not an ERROR entry). Stop here if it fails. Only a working user-backed service demonstrates migration from the named superseded account.
+
+### Migrate and verify
+
 1. On VN1-SRV9, inspect the service **PSService** and `C:\WindowsServerLab\Resources\service.ps1`. Verify that the startup type is Automatic, the service is running, and the executable path is correct.
 
     > Which account does the service use?
@@ -344,8 +377,4 @@ The domain controller still running Windows Server 2022 must be replaced by a Wi
 
     [Migrating a service account to a dMSA](../General/Migrating-a-service-account-to-a-dMSA.md)
 
-    If time allows, check that the service is still configured to log on with the superseded service account.
-
-
-
-
+1. Restart PSService after completing the linked dMSA workflow. Verify its configured Log On account remains the recorded superseded account, the service stays Running, and Policies.log receives a fresh successful policy list. Inspect Kerberos/service events for failures; existence of the dMSA object alone is not success. Restore the coordinated snapshot if migration/authentication fails.

@@ -1,10 +1,33 @@
-﻿# Practice: Configure nested virtualization
+# Practice: Configure nested virtualization
+
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Provision a dedicated VMware guest as an intermediate Hyper-V host with two inner WIN-PM-SRV1/WIN-PM-SRV2 VMs. These commands run inside that host, never on the outer Windows VMware host. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer. HV-MGMT is the dedicated outer VMware Windows guest hosting the two inner PM VMs; enable its VMware virtualization extensions and install Hyper-V before this optional practice.
+
+**Machines and network profile:** PM-SRV1 (Hyper-V name: WIN-PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing-inner); PM-SRV2 (Hyper-V name: WIN-PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing-inner); HV-MGMT (VMware display: HV-MGMT; existing). Dedicated isolated VMware custom VMnet for HV-MGMT and the inner PM hosts; map their inner Hyper-V switches explicitly. This separate optional topology does not replace the direct VMware PM hosts used elsewhere.
+
+**Permissions:** Local Administrator on the explicitly declared nested Hyper-V hosts and inner guests; cluster administrator for cluster changes. VMware settings permission on the outer host.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. Verify current support for optional products before execution.
+
+**Success verification:** The explicitly named inner Hyper-V VMs show fixed 4 GB memory, exposed extensions and MAC spoofing; inner virtualization starts.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
 
 > **Optional nested-Hyper-V exercise:** The Hyper-V commands below target a nested Hyper-V guest, not the Windows 11 VMware host. Do not run them against VMware Workstation VMs.
 
 ## Required VMs
 
-None
+* PM-SRV1
+* PM-SRV2
+* HV-MGMT
 
 ## Task
 
@@ -12,7 +35,7 @@ For WIN-PM-SRV1 and WIN-PM-SRV2 disable dynamic memory, set the memory to 4 GB, 
 
 ## Instructions
 
-Perform these steps on the host.
+Perform these steps inside the declared nested Hyper-V host.
 
 1. Open **Hyper-V Manager**.
 1. In Hyper-V Manager, click the name of your computer.
@@ -34,5 +57,4 @@ Perform these steps on the host.
 1. Switch to **Hyper-V Manager**.
 1. In the context-menu of **WIN-PM-SRV1**, click **Start**.
 
-Repeat this task from step 3 for **WIN-PM-SRV2**.
-
+Repeat this task from the **Shut down** step for **WIN-PM-SRV2**, and verify its state is **Off** before exposing processor extensions or changing fixed memory. Apply MAC spoofing to every declared inner NIC, not to an assumed pair if the recorded topology differs.

@@ -1,195 +1,98 @@
-﻿# Practice: Find PowerShell commands, get help, and manage modules
+# Practice: Find PowerShell commands, get help, and manage modules
+
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Standard lab user for local read-only queries and user-owned files; no local elevation. If the explicitly documented system-help prerequisite is selected under Windows PowerShell 5.1, use a separate authorized elevated session.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: www.powershellgallery.com and its documented package CDN; Microsoft help endpoints if Update-Help is selected.
+
+**Risk, cost and optional status:** low; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
+
+**Success verification:** Record discovery/help output and Graph module versions/paths; verify import and unload, then absence after exercise uninstall.
+
+**Rollback and cleanup:** Unload and uninstall only the Graph module installed for this practice; verify it is absent. Restore the disposable user/snapshot and recorded execution policy/help/provider settings; disconnect VMnet8 and verify AD DNS.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
 
 ## Required VMs
 
-* VN1-SRV1
 * CL1
+* VN1-SRV1
 
 ## Task
 
-On CL1, find a command to create a new local user and display the help for it. Display the help for the command syntax of PowerShell. Install the AzureAD PowerShell module in the Scope of the current user.
+On CL1, discover local-user commands and their help, explore command syntax, then find, install, list, import, update, unload, and uninstall a Microsoft Graph PowerShell module. No tenant connection or directory changes are needed.
 
 ## Instructions
 
-Perform these steps on CL1.
+Perform these steps on CL1 with a standard lab user in **PowerShell 7**. Microsoft recommends PowerShell 7 for Graph; if using Windows PowerShell 5.1, first satisfy the .NET/PowerShellGet prerequisites in [Microsoft's installation guide](https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation). Install modules only for the current user. Record any approved execution-policy change and restore it afterward; do not override organizational policy.
 
-1. Logon as **ad\Administrator**.
-1. From the context-menu of **Start** (you can press WIN + X), launch **Terminal** as Administrator.
-1. Find a command to create a local user.
-
-    ````powershell
-    Get-Command -Verb New -Noun *user*
-    ````
-
-1. Find other commands to manage local users.
+1. Record the guest's current adapters, routes, DNS, and VMware settings. Temporarily attach **NAT (VMnet8)** for HTTPS access to PowerShell Gallery and help endpoints. Keep AD DNS on the domain NIC; disable DNS registration on the NAT NIC. Remove temporary NAT when finished.
+1. Open **Terminal**, select PowerShell, and discover commands:
 
     ````powershell
+    Get-Command -Verb New -Noun *User*
     Get-Command -Noun LocalUser
-    ````
-
-1. Display help for New-LocalUser in a separate window.
-
-    ````powershell
-    Get-Help New-LocalUser -ShowWindow
-    ````
-
-    Notice, that the help is incomplete, e.g. no examples are provided and the paramters are not explained in detail.
-
-1. Close the separate help window.
-1. List all about_ topics in help.
-
-    ````powershell
+    Get-Help New-LocalUser
     Get-Help about_*
+    Get-Help about_Command_Syntax
     ````
 
-    Notice, that the list is incomplete, e.g. about_command_syntax is missing.
+    This is discovery only; do not create a user. Available local-user commands depend on the engine/platform. If help is incomplete, fetch help for an installed module that supports it. For example, `Update-Help -Module Microsoft.PowerShell.Utility -Scope CurrentUser` in PowerShell 7 writes user-scoped help. Windows PowerShell's system help update may require a separately elevated session. Wait for completion and repeat the help query; record unavailable endpoints rather than assuming all topics are present.
 
-1. Get help about the command syntax.
-
-    ````powershell
-    Get-Help about_command_syntax
-    ````
-
-    PowerShell will not find this topic.
-
-1. Update the help files.
-
-    ````powershell
-    Update-Help
-    ````
-
-    Do not wait for the command to complete, instead continue to the next step.
-
-1. In Terminal, click **+** to open a new tab.
-
-1. List the available modules
+1. Inventory available modules and find the small Graph authentication module. Check the repository URL before accepting any Gallery/provider prompt:
 
     ````powershell
     Get-Module -ListAvailable
+    Get-PSRepository -Name PSGallery
+    Find-Module -Name Microsoft.Graph.Authentication -Repository PSGallery
+    Get-InstalledModule -Name Microsoft.Graph.Authentication -AllVersions -ErrorAction SilentlyContinue
     ````
 
-1. In PowerShell Gallery, find a module to aminister AzureAD.
+    Use a disposable user/snapshot without an existing Graph installation. If it already exists, record its versions and stop before uninstalling anything owned by another exercise.
+
+1. Install and inspect its location:
 
     ````powershell
-    Find-Module *AzureAD*
+    Install-Module -Name Microsoft.Graph.Authentication -Scope CurrentUser -Repository PSGallery
+    Get-InstalledModule -Name Microsoft.Graph.Authentication
+    Get-Module -Name Microsoft.Graph.Authentication -ListAvailable | Format-List Name, Version, ModuleBase
     ````
 
-1. If you receive a question to install a certain NuGet provider, type *y*.
-1. Install the module **AzureAD** from PowerShell Gallery.
+1. Import it explicitly, inspect loaded modules and exported commands, then unload it:
 
     ````powershell
-    Install-Module AzureAD
+    Import-Module Microsoft.Graph.Authentication
+    Get-Module Microsoft.Graph.Authentication
+    Get-Command -Module Microsoft.Graph.Authentication
+    Remove-Module Microsoft.Graph.Authentication
+    Get-Module Microsoft.Graph.Authentication
     ````
 
-1. If you receive a question about installing modules from an untrusted repository, type *y*.
-1. Verify the installation and location of the AzureAD module
+    Unloading affects this session; it does not uninstall files. Do not run `Connect-MgGraph`, request consent, or create a tenant merely to manage modules.
+
+1. Update and inspect installed versions. An already-current version is a successful observation:
 
     ````powershell
-    Get-Module AzureAD -ListAvailable | Format-List
+    Update-Module -Name Microsoft.Graph.Authentication
+    Get-InstalledModule -Name Microsoft.Graph.Authentication -AllVersions
+    Get-Module -Name Microsoft.Graph.Authentication -ListAvailable
     ````
 
-    Notice the value of the **Path** property.
-
-1. Uninstall the module **AzureAD**.
+1. Remove the module installed for this exercise. Close other sessions that imported it first:
 
     ````powershell
-    Uninstall-Module AzureAD
+    Remove-Module Microsoft.Graph.Authentication -ErrorAction SilentlyContinue
+    Uninstall-Module -Name Microsoft.Graph.Authentication -AllVersions
+    Get-Module -Name Microsoft.Graph.Authentication -ListAvailable
+    Get-InstalledModule -Name Microsoft.Graph.Authentication -ErrorAction SilentlyContinue
     ````
 
-1. Verify the removal of the module.
-
-    ````powershell
-    Get-Module AzureAD -ListAvailable | Format-List
-    ````
-
-    You should not receive results.
-
-1. Install the AzureAD module for the current user. You do not need to have administrative rights to do that.
-
-    ````powershell
-    Install-Module `
-        -Name AzureAD `
-        -Scope CurrentUser `
-        -RequiredVersion 2.0.2.2 `
-        -Force
-    ````
-
-    Notice the double prompt, because you split the command over several lines.
-
-    Note: For testing purposes, we install an older version of the module. Sometimes this is necessary to provide compatibility with older scripts until they are updated.
-
-1. Verify the installation and location of the AzureAD module
-
-    ````powershell
-    Get-Module AzureAD -ListAvailable | Format-List
-    ````
-
-    Notice the value of the **Path** property.
-
-1. List the available commands from the AzureAD module.
-
-    ````powershell
-    Get-Command -Module AzureAD
-    ````
-
-1. List the currently loaded modules
-
-    ````powershell
-    Get-Module
-    ````
-
-    Notice that the **azuread** module is loaded.
-
-1. Remove the module **azuread** from memory.
-
-    ````powershell
-    Remove-Module AzureAD
-    ````
-
-1. Verify, that **azuread** is not loaded anymore.
-
-    ````powershell
-    Get-Module
-    ````
-
-1. Update the AzureAD module to the latest version.
-
-    ````powershell
-    Update-Module AzureAD -Force
-    ````
-
-1. Show the installed versions of the AzureAD module
-
-    ````powershell
-    Get-Module AzureAD -ListAvailable
-    ````
-
-    Notice, that two versions are available now.
-
-1. Click the first tab. The help files should have finished downloading.
-
-    Note: If you receive an error that some files could not download, you can safely ignore it for the moment.
-
-1. List all about_ topics in help.
-
-    ````powershell
-    Get-Help about_*
-    ````
-
-    Notice, that the list is much longer than before.
-
-1. Get help about the command syntax.
-
-    ````powershell
-    Get-Help about_command_syntax -ShowWindow
-    ````
-
-1. Get help about the **New-LocalUser** command.
-
-    ````powershell
-    Get-Help New-LocalUser -ShowWindow
-    ````
-
-    Notice that the help is much more detailed now and includes e.g. examples.
-
-
+    The final two commands should find no remaining exercise installation. Restore the pre-lab snapshot if provider/help dependencies or user settings changed. Disconnect/remove VMnet8 and verify domain DNS remains usable.

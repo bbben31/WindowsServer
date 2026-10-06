@@ -53,11 +53,11 @@
     }
     ````
 
-1. Get the BPA results
+1. Get the BPA results. Retrieve all model results if you ran all models, or use the populated ID of the single model selected.
 
     ```powershell
     Invoke-Command -ComputerName $computerName -ScriptBlock {
-        Get-BpaResult -Id $using:bpaModelId
+        Get-BpaModel | ForEach-Object { Get-BpaResult -Id $_.Id }
     }
     ```
 

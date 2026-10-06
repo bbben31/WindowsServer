@@ -1,6 +1,27 @@
 # Lab: Managing Hyper-V
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Configure-basic-Hyper-V-settings.md; Instructions/Practices/Create-and-install-a-virtual-machine.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); PM-SRV2 (VMware display: PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing); PM-SRV20 (Hyper-V name: PM-SRV20; accepted display aliases: WIN-PM-SRV20; existing-inner); PM-SRV21 (Hyper-V name: PM-SRV21; accepted display aliases: WIN-PM-SRV21; created in the designated task; not a preflight prerequisite); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the explicitly declared nested Hyper-V hosts and inner guests; cluster administrator for cluster changes. VMware settings permission on the outer host.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft product download endpoints and installer dependencies.
+
+**Risk, cost and optional status:** high; local-only; optional=false. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware.
+
+**Success verification:** Inner Hyper-V differencing disks, checkpoints, switches/NAT and VM replication match the selected tasks; the disposable guest remains usable. Record the measured replication state and recovery-point result.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -11,10 +32,12 @@
 
 ## Required VMs
 
-* VN1-SRV1
+* CL1
 * PM-SRV1
 * PM-SRV2
-* CL1
+* PM-SRV20
+* VN1-SRV1
+* Created during exercise: PM-SRV21
 
 ## Setup
 
@@ -342,9 +365,9 @@ Perform this task on CL1.
 
     > What is the IP address of any new network adapter on PM-SRV1?
 
-    Configure any new network adapter on PM-SRV1 with the IP address 10.0.201.1/24.
+    Configure any new network adapter on PM-SRV1 with the IP address 10.1.201.1/24.
 
-    Change the IP addresses of PM-SRV20 and PM-SRV21 to 10.0.201.160/24 and 10.0.201.168/24.
+    Change the IP addresses of PM-SRV20 and PM-SRV21 to 10.1.201.160/24 and 10.1.201.168/24.
 
     > Can the virtual machines connect to the host?
 
@@ -533,6 +556,7 @@ Perform this task on CL1.
 1. Open **Hyper-V Manager**.
 1. In Hyper-V Manager, **PM-SRV1**.
 1. Under Virtual Machines, double-click **PM-SRV21**.
+1. Also open the **PM-SRV20** console. On its Windows guest, identify the adapter attached to **Internal** and configure **10.1.201.160/24**, gateway **10.1.201.1**, and AD DNS **10.1.1.8**. Record/remove its previous address on that adapter; do not change an unrelated adapter. Return to PM-SRV21 for the Linux configuration below.
 1. In PM-SRV21 on PM-SRV1 - Virtual Machine Connection, click on the desktop, **System tools**, **ControlPanel**.
 1. In ControlPanel, click **Network**.
 1. In Network, under **IP Address**, type  **10.1.201.168**. Under **Gateway**, type **10.1.201.1**. Under **NameServers**, type **10.1.1.8**. Ensure that under **Save Configuration**, **Yes** is selected. Click **Apply** and click **Exit**.
@@ -753,11 +777,7 @@ Perform these steps on CL1.
 
 ### Task 6: Simulate a failure
 
-Perform these steps on the host.
-
-1. Open **Hyper-V Manager**.
-1. In Hyper-V Manager, click the name of your computer.
-1. Under Virtual Machines, in the context-menu of **WIN-PM-SRV2**, click **Turn Off...**
+On the VMware host, select the outer **PM-SRV2** VM and choose **VM > Power > Power Off** to simulate failure of the disposable Hyper-V host. Manage the replica inner PM-SRV21 using Hyper-V inside PM-SRV1.
 
 ### Task 7: Perform an unplanned fail over
 
@@ -773,11 +793,7 @@ Perform these steps on CL1.
 
 ### Task 8: Recover from failure
 
-Perform this task on the host.
-
-1. Open **Hyper-V Manager**.
-1. In Hyper-V Manager, click the name of your computer.
-1. Under Virtual Machines, in the context-menu of **WIN-PM-SRV2**, click **Start**.
+On the VMware host, select the outer **PM-SRV2** VM and choose **VM > Power > Power On**. Record and restore the original VM state; keep inner Hyper-V workload controls inside the PM guest.
 
 ### Task 9: Enable replication again
 
@@ -799,7 +815,3 @@ Perform this task on CL1.
 1. On page Configure Additional Recovery Points, ensure **Create additional hourly recovery points** is selected. In **Coverage provided by additional recovery points (in hours)**, ensure **12** is filled in. Ensure, **Volume Shadow Copy Service (VSS) snapshot frequency (in hours)** is activated and **2** is filled in. Click **Next >**.
 1. On page Choose Initial Replication Method, ensure **Send initial copy over the network** and **Start replication immediately** is selected. Click **Next >**.
 1. On page Summary, click **Finish**.
-
-
-
-

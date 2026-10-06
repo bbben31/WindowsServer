@@ -14,7 +14,7 @@
 
 ## PowerShell
 
-Perform this task on CL3.
+Perform this task locally on the client named by the selected runbook or exercise (for example CL1 in the core foundation or CL3 when explicitly required). Use Windows 11 Pro/Enterprise, not Home.
 
 1. In the context menu of **Start**, click **Terminal (Admin)**.
 1. Add the computer to the domain and restart it.

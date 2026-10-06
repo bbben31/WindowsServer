@@ -1,23 +1,46 @@
 # Lab: BranchCache
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-prerequisites-for-file-serving.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Prepare the VNet3 AD site and its 10.1.3.0/24 subnet mapping using Managing sites and replication Exercise 1 only; this prerequisite does not require the later GC/site-link experiments.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); CL4 (VMware display: CL4; accepted display aliases: WIN-CL4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+
+**Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Optional configuration study: no reliable VMware-local performance gain is guaranteed; record cache state and skip unobservable portions. See the local adapted issue 201 explanation.
+
+**Success verification:** Get-BCStatus shows the intended hosted/distributed mode, SCP registration and imported cache data; timing improvement is optional.
+
+**Rollback and cleanup:** Restore coordinated pre-lab guests; remove only the exercise BranchCache GPOs, exported/imported packages and copied client data. No outer bandwidth limit was applied.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
 
 ## Required VMs
 
-* VN1-SRV1
-* VN1-SRV4
-* VN1-SRV10
-* VN3-SRV1
 * CL1
 * CL3
-* CL3
+* CL4
+* VN1-SRV1
+* VN1-SRV10
+* VN1-SRV4
+* VN3-SRV1
 
 ## Setup
 
-1. On the host, run **Windows PowerShell** as Administrator.
+Prepare the named file shares and disposable data through [Install prerequisites for file serving](../Practices/Install-prerequisites-for-file-serving.md). For hosted-cache automatic discovery, complete only the site/subnet preparation in [Managing sites and replication, Exercise 1](Managing-sites-and-replication.md#exercise-1-create-sites): **10.1.3.0/24** must map to **VNet3**. Verify `nltest /DSGETSITE` reports VNet3 on VN3-SRV1 and the hosted-cache clients after their move; an absent/mismatched AD site is not a valid SCP-discovery baseline.
+
+1. On the host, open **VMware Workstation**.
 1. Shut down CL3 and CL4. In VMware Workstation, attach each lab NIC to the custom VMnet mapped to source **VNet3**, then start both guests.
 1. Sign in to each guest with its local Administrator account and verify that it received or was assigned the VNet3 address, can reach the AD DNS server, and resolves `ad.lab.test`.
 1. On each guest, run the following from an elevated PowerShell session and provide an authorized domain-join credential interactively:
@@ -28,25 +51,18 @@
         -Credential (Get-Credential -Message 'Authorized domain-join account') `
         -Restart
     ````
-1. Limit the bandwidth of VN1-SRV10's network adapter to 8 MB/s.
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName WIN-VN1-SRV10 | 
-    Where-Object { $PSItem.SwitchName -eq 'VNet1' } |
-    Set-VMNetworkAdapter -MaximumBandwidth 8MB
-    ````
-
+1. The timing comparison is optional. This VMware adaptation does not prescribe an unverified WAN throttle. Record transfer times as observations only; a local virtual network does not reproduce a slow WAN. Complete the configuration and cache-status checks even if the timing comparison is skipped.
 1. On CL1, sign in as **ad\Administrator**.
 1. On CL3, sign in as **ad\Administrator**.
 1. On CL4, sign in as **ad\Administrator**.
 
 ## Introduction
 
-Adatum wants to improve the performance accessing the file server from VNet2 and VNet3 using BranchCache. Because on VNet2 several servers are installed, one of the servers should be configured in hosted cache mode. On VNet3 the distributed cache mode should be used and validated.
+Adatum wants to improve the performance accessing the file server from VNet2 and VNet3 using BranchCache. Because on VNet2 several servers are installed, one of the servers should be configured in hosted cache mode. This procedure uses VN3-SRV1 and CL3 on VNet3 for the hosted-cache phase, then CL3 and CL4 on that same segment for distributed mode. On VNet3 the distributed cache mode should be used and validated.
 
 ## Known Issues
 
-[No effect can be discovered](https://github.com/EnterpriseTrainingCenter/WindowsServer/issues/201)
+This lab is optional. [Upstream issue 201](https://github.com/EnterpriseTrainingCenter/WindowsServer/issues/201) reports no measurable performance gain in hosted-cache exercise 2 task 8 or distributed-cache exercise 3 task 2; its suspected Windows 11 cause is unconfirmed. VMware-local throughput and client caching can also obscure timing. Do not require a faster second transfer to pass. Verify `Get-BCStatus`, hosted-cache registration, imported cache data, client mode, and policy application instead. If those results cannot be observed on the selected Windows edition, record the limitation and skip the affected portion.
 
 ## Exercises
 
@@ -56,12 +72,12 @@ Adatum wants to improve the performance accessing the file server from VNet2 and
 
 ## Exercise 1: Configuring the file server and Active Directory for BranchCache
 
-1. [Validate a slow network connection to VN1-SRV10](#task-1-validate-a-slow-network-connection-to-vn1-srv10)
+1. [Record the optional WAN simulation limitation](#task-1-record-the-optional-wan-simulation-limitation)
 1. [Install the BranchCache service role](#task-2-install-the-branchcache-service-role) on VN1-SRV10
 1. [Enable hash publication for BranchCache](#task-3-enable-hash-publication-for-branchcache)
-1. [Enable BranchCache for shares](#task-4-enable-branchcache-for-shares) IT and Marekting on VN1-SRV10
+1. [Enable BranchCache for shares](#task-4-enable-branchcache-for-shares) IT and Marketing on VN1-SRV10
 
-### Task 1: Validate a slow network connection to VN1-SRV10
+### Task 1: Record the optional WAN simulation limitation
 
 Perform this task on CL3.
 
@@ -74,7 +90,7 @@ Perform this task on CL3.
     }
     ````
 
-    The command will run for about a minute. Take a note of the time measured to complete the command.
+    Record the measured duration; it depends on the dataset and host. Timing is optional and has no fixed expected duration.
 
 ### Task 2: Install the BranchCache service role
 
@@ -156,11 +172,11 @@ Repeat from step 4 for the share **Marketing**.
 
 1. [Install the BranchCache feature](#task-1-install-the-branchcache-feature) on VN3-SRV1
 1. [Configure the hosted cache](#task-2-configure-the-hosted-cache) on VN3-SRV1
-1. [Configure BranchCache for clients](#task-3-configure-branchcache-for-clients) on VNet2
+1. [Configure BranchCache for clients](#task-3-configure-branchcache-for-clients) on VNet3
 1. [Prehash and export a BranchCache package](#task-4-prehash-and-export-a-branchcache-package) of share IT on VN1-SRV10
-1. [Remove the bandwidth limit on virtual machine](#task-5-remove-the-bandwidth-limit-on-virtual-machine) WIN-VN1-SRV10
+1. [Record skipped WAN unthrottling](#task-5-record-skipped-wan-unthrottling) WIN-VN1-SRV10
 1. [Import the BranchCache package](#task-6-import-the-branchcache-package) on VN3-SRV1
-1. [Set the bandwidth limit on virtual machine](#task-7-set-the-bandwidth-limit-on-virtual-machine) WIN-VN1-SRV10 to 8MB
+1. [Record skipped WAN throttling](#task-7-record-skipped-wan-throttling) WIN-VN1-SRV10 (optional timing-only placeholder; no VMware throttle is applied)
 1. [Validate BranchCache](#task-8-validate-branchcache) on CL3
 
 ### Task 1: Install the BranchCache feature
@@ -296,18 +312,9 @@ Perform this task on CL1.
     Remove-CimSession -CimSession $cimSession
     ````
 
-### Task 5: Remove the bandwidth limit on virtual machine
+### Task 5: Record skipped WAN unthrottling
 
-Perform this task on the host.
-
-1. Run **Windows PowerShell** as Administrator.
-1. In Windows PowerShell, on the virtual machine **WIN-VN1-SRV10**, disable the maximum bandwidth on the network adapter connected to **VNet1**.
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName WIN-VN1-SRV10 | 
-    Where-Object { $PSItem.SwitchName -eq 'VNet1' } |
-    Set-VMNetworkAdapter -MaximumBandwidth 0
-    ````
+No outer bandwidth setting is changed in this VMware adaptation. Skip this timing-only step; retain the package export/import and cache configuration tasks.
 
 ### Task 6: Import the BranchCache package
 
@@ -326,7 +333,8 @@ Perform this task on CL1.
     Copy-Item `
         -Path '\\vn1-srv10\d$\Shares\BCCachePackage' `
         -ToSession $pSSession `
-        -Destination c:\
+        -Destination c:\ `
+        -Recurse
     ````
 
 1. Enter the remote PowerShell session.
@@ -347,7 +355,7 @@ Perform this task on CL1.
     Get-BCStatus
     ````
 
-    Under **DataCache**, take a note of **CurrentActiveCacheSize**. This should be about 68 MB.
+    Under **DataCache**, take a note of **CurrentActiveCacheSize**. Record the imported cache size and compare it with the actual package; the classroom 68 MB value is an example.
 
 1. Exit and remove the remote PowerShell session
 
@@ -356,18 +364,9 @@ Perform this task on CL1.
     Remove-PSSession $pSSession
     ````
 
-### Task 7: Set the bandwidth limit on virtual machine
+### Task 7: Record skipped WAN throttling
 
-Perform this task on the host.
-
-1. Run **Windows PowerShell** as Administrator.
-1. In Windows PowerShell, on the virtual machine **WIN-VN1-SRV10**, set the maximum bandwidth on the network adapter connected to **VNet1** to 8 MB/s.
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName WIN-VN1-SRV10 | 
-    Where-Object { $PSItem.SwitchName -eq 'VNet1' } |
-    Set-VMNetworkAdapter -MaximumBandwidth 8MB
-    ````
+No outer bandwidth setting is changed in this VMware adaptation. Skip this timing-only step; retain the package export/import and cache configuration tasks.
 
 ### Task 8: Validate BranchCache
 
@@ -382,7 +381,7 @@ Perform this task on CL3.
     }
     ````
 
-    > The command should complete within seconds.
+    > Record the duration without requiring a speedup. Use the cache-status checks below for configuration verification.
 
 ## Exercise 3: Configuring and validating BranchCache in distributed cache mode
 
@@ -445,7 +444,7 @@ Perform this task on CL3.
     Get-BCStatus
     ````
 
-    Under **DataCache**, the **CurrentActiveCacheSize** should be around 60 MB.
+    Under **DataCache**, record **CurrentActiveCacheSize** and compare it with the transferred dataset; the classroom 60 MB value is not a pass threshold.
 
 ### Task 3: Validate BranchCache
 
@@ -472,21 +471,8 @@ Perform this task on CL4.
     Get-BCStatus
     ````
 
-    Under **DataCache**, the **CurrentActiveCacheSize** should be around 60 MB.
+    Under **DataCache**, record **CurrentActiveCacheSize** and compare it with the transferred dataset; the classroom 60 MB value is not a pass threshold.
 
 ## Cleanup
 
-Perform the cleanup on the host.
-
-1. Run **Windows PowerShell** as Administrator.
-1. In Windows PowerShell, on the virtual machine **WIN-VN1-SRV10**, disable the maximum bandwidth on the network adapter connected to **VNet1**.
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName WIN-VN1-SRV10 | 
-    Where-Object { $PSItem.SwitchName -eq 'VNet1' } |
-    Set-VMNetworkAdapter -MaximumBandwidth 0
-    ````
-
-
-
-
+Restore the coordinated pre-lab VMware snapshots of the file server, cache server, clients, and affected domain controllers. Remove the two lab BranchCache GPOs only if they were created by this exercise; verify their links no longer apply. Remove the exported/imported package and copied client files. No outer bandwidth setting was changed.

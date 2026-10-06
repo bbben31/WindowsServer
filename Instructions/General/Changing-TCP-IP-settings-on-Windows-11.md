@@ -29,7 +29,7 @@
     ````powershell
 
     $interfaceAlias = 'Ethernet' # Change this if required
-    $serverAddresses = '' # Provide a comma separated list of DNS servers
+    $serverAddresses = @('10.10.10.10') # Replace with your profile's AD DNS; add a healthy second DNS as a separate array element
 
     Set-DnsClientServerAddress `
         -InterfaceAlias $interfaceAlias -ServerAddresses $serverAddresses

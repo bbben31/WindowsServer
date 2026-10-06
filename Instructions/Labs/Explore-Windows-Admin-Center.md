@@ -1,6 +1,27 @@
 # Lab: Explore Windows Admin Center
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-Windows-Admin-Center-using-a-script.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); PM-SRV2 (VMware display: PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing); PM-SRV3 (VMware display: PM-SRV3; accepted display aliases: WIN-PM-SRV3; existing); PM-SRV4 (VMware display: PM-SRV4; accepted display aliases: WIN-PM-SRV4; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV11 (VMware display: VN1-SRV11; accepted display aliases: WIN-VN1-SRV11; existing); VN1-SRV12 (VMware display: VN1-SRV12; accepted display aliases: WIN-VN1-SRV12; existing); VN1-SRV13 (VMware display: VN1-SRV13; accepted display aliases: WIN-VN1-SRV13; existing); VN1-SRV2 (VMware display: VN1-SRV2; accepted display aliases: WIN-VN1-SRV2; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing); VN1-SRV9 (VMware display: VN1-SRV9; accepted display aliases: WIN-VN1-SRV9; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary VMnet8 NAT on the configured WAC gateway guest and CL1 browser during extension installation only; retain isolated AD NICs/DNS and disconnect afterward.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access. WAC gateway Administrator for installing the extension; Local Administrator on gateway/browser guests only for temporary NIC configuration.
+
+**Outbound access:** Download the WAC Active Directory extension from the configured official Microsoft extension feed. Before extension installation, attach temporary VMnet8 NAT NICs to the existing WAC gateway guest and CL1 browser guest (one NIC if they are the same machine); preserve the AD NIC/DNS, disable NAT NIC DNS registration, and record adapters/routes/DNS. Disconnect these NICs after installation. If the extension is already installed, this setup step needs no download. Endpoints: https://aka.ms/wac-public-extensions (official feed redirect); https://pkgs.dev.azure.com (gateway extension packages); *.vsblob.visualstudio.com (gateway package content); https://winadmincenterassets.blob.core.windows.net (browser extension assets); https://js.monitor.azure.com (browser extension assets); https://nuget.org (browser extension management); https://announcements.blob.core.windows.net (browser extension management).
+
+**Risk, cost and optional status:** high; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. The Active Directory extension must be compatible with the installed WAC gateway version; verify its publisher/version before installation.
+
+**Success verification:** WAC reaches every declared enterprise connection and displays the requested management tools on the selected targets.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect temporary VMnet8 NICs on the gateway/browser and restore recorded adapters/routes/DNS. Retain the Active Directory extension until dependent labs finish; uninstall only an exercise-installed extension when no dependent lab needs it.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -11,7 +32,17 @@
 
 ## Required VMs
 
+* CL1
+* CL2
+* PM-SRV1
+* PM-SRV2
+* PM-SRV3
+* PM-SRV4
 * VN1-SRV1
+* VN1-SRV10
+* VN1-SRV11
+* VN1-SRV12
+* VN1-SRV13
 * VN1-SRV2
 * VN1-SRV3
 * VN1-SRV4
@@ -20,19 +51,9 @@
 * VN1-SRV7
 * VN1-SRV8
 * VN1-SRV9
-* VN1-SRV10
-* VN1-SRV11
-* VN1-SRV12
-* VN1-SRV13
 * VN2-SRV1
 * VN2-SRV2
 * VN3-SRV1
-* PM-SRV1
-* PM-SRV2
-* PM-SRV3
-* PM-SRV4
-* CL1
-* CL2
 
 ## Setup
 
@@ -67,7 +88,7 @@ Perform this task on CL1.
 
 ## Exercise 2: Manage connections
 
-[In Windows Admin Center, add connections](#task-in-windows-admin-center-add-connections) to VN1-SRV1, VN1-SRV5, VN1-SRV6, VN1-SRV2, CL1, and CL2.
+[In Windows Admin Center, add connections](#task-in-windows-admin-center-add-connections) to the recorded required-server inventory and CL1/CL2, using individual and Active Directory search methods.
 
 ### Task: In Windows Admin Center, add connections
 
@@ -90,6 +111,7 @@ Perform this task on CL1.
 1. Click the tab **Search Active Directory**.
 1. Enter **VN1-\*** and click **Search**.
 1. Activate the checkbox left to the column header **Name** to select all servers and click **Add**.
+1. Repeat **Add > Server > Search Active Directory** for **VN2-\***, **VN3-\*** and **PM-\***, selecting only the live prerequisite guests recorded for this exercise. Add any non-domain member by its recorded FQDN/address using **Add one**. Verify the resulting connections cover the declared required inventory; do not restart a retired controller or treat stale AD objects as provisioned servers.
 
 ## Exercise 3: Install extensions
 
@@ -200,6 +222,7 @@ Perform this task on CL1.
 
 1. Activate and deactivate the checkbox left to the column header **Name** to clear all selections.
 1. Activate the checkbox left to **cl2.ad.lab.test**.
+1. Click **Edit Tags**.
 1. Click **Add tags**, enter **win11, office** and press ENTER.
 
     > You can create multiple tags in a single operation by separating them with a comma.
@@ -224,7 +247,3 @@ Perform this task on CL1.
 
 1. Click the icon *Filter* again.
 1. In Filter connections, click **Clear filter** and click **Save**.
-
-
-
-

@@ -1,19 +1,42 @@
 # Lab: Manage file sharing
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Manage-local-storage.md; Instructions/Practices/Install-roles-using-Server-Manager.md; Instructions/Labs/Explore-Windows-Admin-Center.md; Instructions/Practices/Install-app-compatibility-feature-on-demand.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. On Server Core VN1-SRV10, apply the App Compatibility procedure to that named target before local File Explorer steps, or follow the documented remote equivalent. Prepare the exact licensed Office test files and offline/VSS dataset named in Setup; generic text files are not substitutes.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** high; local-only; optional=false. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware.
+
+**Success verification:** Authorized clients access the intended share and unauthorized access fails according to both share and NTFS permissions.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
 
 ## Required VMs
 
-* VN1-SRV1
-* VN1-SRV4
-* VN1-SRV10
 * CL1
 * CL2
+* VN1-SRV1
+* VN1-SRV10
+* VN1-SRV4
 
 ## Setup
+
+For the local Shadow Copies UI on **VN1-SRV10**, install **ServerCore.AppCompatibility~~~~0.0.1.0** from matching Server Languages/Optional Features media using [the AppCompatibility practice](../Practices/Install-app-compatibility-feature-on-demand.md), targeting VN1-SRV10, then restart and verify `explorer.exe` launches. An untouched Server Core guest cannot follow that local GUI task. For Office editing and offline-file tests, CL2 must have an authorized compatible desktop Office installation; verify the prepared XLSX/PPTX fixtures open before taking CL2 offline. Do not download/install licensed Office as an undeclared free prerequisite.
 
 On **CL1**, logon as **ad\Administrator**.
 
@@ -25,7 +48,7 @@ Complete [Install roles using Server Manager](../Practices/Install-roles-using-S
 
 Complete [Manage local storage](../Labs/Manage-local-storage.md) and verify the required VN1-SRV10 volumes before continuing.
 
-Verify `C:\WindowsServerLab\Resources\Sample Documents` exists on VN1-SRV10. If it does not, copy the repository `Resources` directory and run `Solutions\Initialize-SampleDocuments.ps1` there before continuing.
+Verify `C:\WindowsServerLab\Resources\Sample Documents` exists on VN1-SRV10. If absent, copy Resources and run `Solutions\Initialize-SampleDocuments.ps1` there. Complete [Prepare valid Office fixtures](../Practices/Install-prerequisites-for-file-serving.md#prepare-valid-office-fixtures) before copying sample data or testing offline/VSS access. If groups/shares already exist from the prerequisite practice, inspect their exact membership/permissions and skip duplicate creation; do not overwrite another exercise's configuration.
 
 ## Introduction
 
@@ -163,8 +186,11 @@ Perform this task on CL1.
 1. Create the group and add the members.
 
     ````powershell
-    New-ADGroup -Name $groupName -Path $path -GroupScope DomainLocal -PassThru |
-    Add-ADGroupMember -Members $members
+    $group = New-ADGroup -Name $groupName -Path $path -GroupScope DomainLocal -PassThru
+    $members = @($members | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    if ($members.Count -gt 0) {
+        Add-ADGroupMember -Identity $group -Members $members
+    }
     ````
 
 ### Task 3: Create shares and configure file system and share permissions
@@ -268,10 +294,10 @@ Perform this task on CL1.
     ````powershell
     $acl.Access | 
     Where-Object { 
-        $PSItem.IdentityReference -notin @(
-            'BUILTIN\Administrators', 
-            'NT AUTHORITY\SYSTEM', 
-            'CREATOR OWNER'
+        $PSItem.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -notin @(
+            'S-1-5-32-544', # Administrators
+            'S-1-5-18',     # SYSTEM
+            'S-1-3-0'       # CREATOR OWNER
         ) 
     } | 
     ForEach-Object { $acl.RemoveAccessRule($PSItem) }
@@ -334,6 +360,8 @@ Perform this task on CL1.
         -EncryptData $true
     ````
 
+1. After finishing all share iterations, run `Exit-PSSession` to return to CL1 before starting another remote session.
+
 ### Task 4: Copy the contents of the folders with the respective names
 
 #### Desktop Experience
@@ -378,6 +406,8 @@ Perform this task on CL1.
         -Recurse
     ````
 
+1. After copying every department, run `Exit-PSSession` to return to CL1.
+
 ### Task 5: Verify access to the file shares
 
 Perform this task on CL2.
@@ -401,7 +431,7 @@ Repeat this task for every user from the table above.
     | IT         | Only the files and programs that users specify are avaiable offline                              | Manual       |
     | Marketing  | All files and program that users open from the shared folder are automatically available offline | Documents    |
 
-1. [Make files available offline](#task-2-make-files-available-offline) on CL2. In the **IT** share, make **Step-by-Step Guides** available offline. In the **Marketing** share, open a **Building Partnerships.pptx**.
+1. [Make files available offline](#task-2-make-files-available-offline) on CL2. In the **IT** share, make **Step-by-Step Guides** available offline. In the **Marketing** share, open **Marketing With Partners.pptx**; leave **Building Partnerships.pptx** unopened until the offline test.
 
     > In the **Finance** share, can you make a file available offline?
 
@@ -461,6 +491,8 @@ Perform this task on CL1.
     Set-SmbShare -Name $shareName -CachingMode $cachingMode
     ````
 
+1. After configuring every share, run `Exit-PSSession` to return to CL1.
+
 ### Task 2: Make files available offline
 
 Perform this task on CL2.
@@ -484,15 +516,7 @@ Stay signed in for the upcoming tasks.
 
 ### Task 3: Take computer offline
 
-Perform these steps on the host.
-
-1. Run **Windows PowerShell** as Administrator.
-1. In Windows PowerShell, execute
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName WIN-CL2 | 
-    Disconnect-VMNetworkAdapter
-    ````
+On the VMware host, record CL2's current network connections. In **VM > Settings > Network Adapter**, clear **Connected** for each CL2 adapter so it has no alternate network path. Keep the adapters and their custom VMnet assignments. Verify offline access in the guest.
 
 ### Task 4: Verify offline access
 
@@ -526,15 +550,7 @@ Perform these tasks on CL2.
 
 ### Task 5: Bring computer online
 
-Perform this task on the host.
-
-1. Run **Windows PowerShell** as Administrator.
-1. In Windows PowerShell, execute
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName WIN-CL2 | 
-    Connect-VMNetworkAdapter -SwitchName VNet2
-    ````
+In VMware Workstation, restore **Connected** on CL2's recorded adapters and the original custom VMnet mapped to **VNet2**. Verify its address and domain DNS before testing online access.
 
 ### Task 6: Verify online access
 
@@ -562,7 +578,7 @@ Perform this task on VN1-SRV10.
 
 1. Open **File Explorer**.
 1. In File Explorer, navigate to **This PC**.
-1. In the context menu of **Local Disk (C:)**, click **Properties**.
+1. In the context menu of **Local Disk (D:)**, click **Properties**.
 1. In Local Disk (D:) Properties, click the tab **Shadow Copies**.
 1. In the tab Shadow Copies, under **Select a volume**, click **D:\\**.
 1. Click **Settings**.
@@ -574,7 +590,7 @@ Perform this task on VN1-SRV10.
 1. At the top drop down, click **2: At 12:00 every Mo, ...**. Under **Schedule Task**, click **Daily**.
 1. Click **OK**.
 1. In **Settings**, click **OK**.
-1. In **Local Disk (C:) Properties**, on tab Shadow Copies, ensure **D:\** is still selected.
+1. In **Local Disk (D:) Properties**, on tab Shadow Copies, ensure **D:\** is still selected.
 1. Click **Create now**.
 1. Click **OK**.
 
@@ -584,7 +600,7 @@ Perform this task on CL2.
 
 1. Sign in as **ad\Pia**.
 1. Using **File Explorer**, navigate to **\\\\VN1-SRV10\\Finance**.
-1. In Finance, delete the file **3 Month Snapshot.xls**.
+1. In Finance, delete the file **3 Month Snapshot.xlsx**.
 1. Open **6 Month Snapshot.xlsx**.
 1. In 6 Month Snapshot, click **Sheet1**.
 1. On Sheet1, delete the first column with the header **Argumentum**.
@@ -624,7 +640,3 @@ Perform this task on CL2.
 1. In Finance (\\\\VN1-SRV10) Properties, click the tab **Previous Versions**.
 1. On the tab Previous Versions, click **Open**. A new File Explorer window opens.
 1. From the new File Explorer window, copy **3 Month Snapshot.xlsx** to the original **Finance** window.
-
-
-
-

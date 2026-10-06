@@ -1,27 +1,52 @@
 # Lab: Configuring and managing Storage Spaces Direct and hyper-converged virtualization
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Installing-and-configuring-a-fail-over-cluster.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer. Use the existing inner Hyper-V VN1-SRV23 created by Installing-and-configuring-a-fail-over-cluster.md; this lab moves its storage and creates only VN1-SRV24 as a new inner VM. Each of the four S2D nodes has three new growable 1 TB HDD-labelled capacity disks and two new growable 100 GB SSD-labelled performance disks, unformatted/eligible and separate from OS or prerequisite workloads. Verify actual CSV mount paths and stage a boot-tested Generation 1 TinyCorePure64 VHDX.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV11 (VMware display: VN1-SRV11; accepted display aliases: WIN-VN1-SRV11; existing); VN1-SRV12 (VMware display: VN1-SRV12; accepted display aliases: WIN-VN1-SRV12; existing); VN1-SRV23 (Hyper-V name: VN1-SRV23; accepted display aliases: WIN-VN1-SRV23; existing-inner); VN1-SRV24 (Hyper-V name: VN1-SRV24; accepted display aliases: WIN-VN1-SRV24; created in the designated task; not a preflight prerequisite); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+
+**Permissions:** Local Administrator on the explicitly declared nested Hyper-V hosts and inner guests; cluster administrator for cluster changes. VMware settings permission on the outer host.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** Cluster storage pools/CSV and the intended inner VM are healthy; controlled node failover moves ownership without losing the test workload.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
 
 ## Required VMs
 
+* CL1
 * VN1-SRV1
+* VN1-SRV10
+* VN1-SRV11
+* VN1-SRV12
+* VN1-SRV23
 * VN1-SRV4
 * VN1-SRV5
 * VN1-SRV6
 * VN1-SRV7
-* VN1-SRV10
-* VN1-SRV11
-* VN1-SRV12
-* CL1
+* Created during exercise: VN1-SRV24
 
 ## Setup
 
 1. On CL1, sign in as **ad\Administrator**.
 1. On VN1-SRV6, sign in a **ad\Administrator**.
 1. In Sconfig, enter **15**.
+
+Before starting, shut down the four disposable S2D nodes in VMware and attach the same eligible data-disk layout to **each** node: **three growable 1 TB capacity disks and two growable 100 GB performance disks**, separate from the OS and any existing workload volumes. Record VMDK/SCSI-node/MAC mappings and host free-space limits; virtual capacities are not a requirement to preallocate terabytes. Start the nodes, use `Get-PhysicalDisk` to map unique IDs to those disks, and assign their media types as **HDD** (1 TB) and **SSD** (100 GB). Require all five new disks per node to be unformatted, eligible to pool, and not used by any prerequisite workload. The four-node inventory supplies roughly 12 TB of capacity disks plus performance media; measure actual pool capacity rather than treating a classroom total as invariant. Stage the explicitly documented TinyCore VHDX from [Resources](../../Resources/README.md) on VN1-SRV6 and verify it boots as a disposable Generation 1 image before the later inner-VM task.
 
 ## Introduction
 
@@ -168,6 +193,7 @@ Note: The failover cluster installation must have finished before.
       -NoStorage
    ````
 
+1. On CL1, after the cluster's **VN1-CLST2** computer object exists, add that computer account to **Witness Modify** in Active Directory Users and Computers (**Object Types > Computers**). Verify the group has the recorded NTFS Modify and share Change access on the witness. The cluster name object, not just the node accounts added earlier, needs access. Wait for replication/refresh the cluster's security context as required before configuring the witness.
 1. Configure the quorum to use the file share **\\\\VN1-CLST1-FS\\Witness**.
 
    ````powershell
@@ -225,7 +251,7 @@ Peform these steps on CL1.
    Get-StoragePool -CimSession $cimSession
    ````
 
-   > There is a new storage pool with the **FiendlyName** **S2D on VN1-CLST2** with a size of about 12 TB.
+   > There is a new storage pool with the **FriendlyName** **S2D on VN1-CLST2**. Record its actual size and included physical disks; it must match the staged four-node inventory, not an unexplained fixed capacity.
 
 1. Set the cluster resiliency period to 10 seconds.
 
@@ -286,6 +312,7 @@ Perform this task on CL1.
 1. Open **Failover Cluster Manager**.
 1. In Failover Cluster Manager, expand **VN1-CLST2.ad.lab.test**, **Storage**, and click **Disks**.
 1. Under Disks (3), in the context-menu of **Cluster Virtual Disk (Hyper-converged disk)** click **Add to Cluster Shared Volumes**. Repeat for the **Cluster Virtual Disk (SOFS disk)**.
+1. Run `Get-ClusterSharedVolume -Cluster VN1-CLST2 | Select-Object Name,@{Name='Path';Expression={$_.SharedVolumeInfo.FriendlyVolumeName}}` and record each disk's actual CSV path. While the new volumes are empty, on the owner node rename only their CSV mount-point folders under `C:\ClusterStorage` to **Hyper-converged Disk** and **SOFS disk**, matching their recorded cluster disk resources. Refresh the command and verify those exact paths before any share/VM data is created. Do not infer the path from the virtual disk label; CSVs initially use names such as Volume1. If retaining the original names instead, substitute the recorded actual paths consistently throughout the following tasks.
 
 ## Exercise 2: Using a Scale-Out File Server with Hyper-V
 
@@ -456,29 +483,12 @@ Perform this task on CL1.
 1. [Configure nested virtualization](#task-1-configure-nested-virtualization) for WIN-VN1-SRV6, WIN-VN1-SRV7, WIN-VN1-SRV11, and WIN-VN1-SRV12
 1. [Install Hyper-V](#task-2-install-hyper-v) on WIN-VN1-SRV6, WIN-VN1-SRV7, WIN-VN1-SRV11, and WIN-VN1-SRV12
 1. [Configure a virtual switch](#task-3-configure-a-virtual-switch) connected to the external network adapter on WIN-VN1-SRV6, WIN-VN1-SRV7, WIN-VN1-SRV11, and WIN-VN1-SRV12
-1. [Create a virtual machine](#task-4-create-a-virtual-machine) on the cluster with 1 GB RAM using a copy of the VHDX file for Windows Server 2022 Core
+1. [Create a virtual machine](#task-4-create-a-virtual-machine) on the cluster with **256 MB RAM** using a copy of **TinyCorePure64.vhdx**, a Generation 1 Linux guest
 1. [Configure the virtual machine's operating system](#task-5-configure-the-virtual-machines-operating-system) with the IP address 10.1.1.192
 
 ### Task 1: Configure nested virtualization
 
-Perform this task on the host.
-
-1. Open **Windows PowerShell (Admin)**.
-1. In Windows PowerShell (Admin), for **WIN-VN1-SRV6**, **WIN-VN1-SRV7**, **WIN-VN1-SRV11**, and **WIN-VN1-SRV12**, shut down the virtual machine, expose the virtualization extensions to the virtual machine, enable MAC address spoofing, disable dynamic memory and set the startup memory to **3 GB**, and start the virtual machine again. Make sure all cluster services running keep on running.
-
-    ````powershell
-    $vMName = @('WIN-VN1-SRV6', 'WIN-VN1-SRV7', 'WIN-VN1-SRV11', 'WIN-VN1-SRV12')
-    $vMName | ForEach-Object { 
-      Stop-VM -VMName $PSItem
-      Set-VMProcessor -VMName $PSItem -ExposeVirtualizationExtensions $true
-      
-      Get-VMNetworkAdapter -VMName $PSItem |
-      Set-VMNetworkAdapter -MacAddressSpoofing On
-
-      Set-VM -VMName $PSItem -StaticMemory -MemoryStartupBytes 3GB
-      Start-VM -VMName $PSItem
-   }
-    ````
+On the VMware host, shut down **VN1-SRV6**, **VN1-SRV7**, **VN1-SRV11**, and **VN1-SRV12**. In each outer VM's **Settings > Processors**, enable **Virtualize Intel VT-x/EPT or AMD-V/RVI** and allocate fixed memory sufficient for the cluster and inner guest (at least the original 3 GB, preferably more). Record all custom VMnet and disk mappings. Start the guests and verify nesting; perform the later Hyper-V role/switch/inner-VM tasks inside these Windows guests.
 
 ### Task 2: Install Hyper-V
 
@@ -498,7 +508,7 @@ Perform this task on CL1.
 1. On page Hyper-V, click **Next >**.
 1. On page Virtual Switches, click **Next >**.
 1. On page Virtual Machine Migration, click **Next >**.
-1. On page Default Stores, in **Default location for virtual hard disk files**, type **C:\\ClusterStorage\\Hyper-converged Disk\\Hyper-V\\Virtual Hard Disks**, where x is the volume number you recorded for the 80 GB disk in the previous exercise. In **Default location for virtualmachine configuration files**, type **C:\\ClusterStorage\\Hyper-converged Disk\\Hyper-V**, where x is the volume number you recorded for the 80 GB disk in the previous exercise. Click **Next >**.
+1. On page Default Stores, in **Default location for virtual hard disk files**, type **C:\\ClusterStorage\\Hyper-converged Disk\\Hyper-V\\Virtual Hard Disks**. In **Default location for virtual machine configuration files**, type **C:\\ClusterStorage\\Hyper-converged Disk\\Hyper-V**. These use the verified CSV path of the **160 GB** Hyper-converged disk (40 GB performance plus 120 GB capacity), not the separate 80 GB SOFS disk. Click **Next >**.
 1. On page Confirmation, activate **Restart the destination server automatically if required** and click **Install**.
 1. On  page **Results**, wait for the installation to succeed, then click **Close**.
 
@@ -582,7 +592,7 @@ Perform this task on CL1.
 1. Open **Failover Cluster Manager**.
 1. In Failover Cluster Manager, expand **VN1-CLST2.ad.lab.test** and click **Roles**.
 1. Under Roles (1), in the context-menu of **VN1-SRV24**, click **Connect...**.
-1. In VN1-SRV23 on VN1-SRV4 - Virtual Machine Connection, click on the desktop, **System tools**, **ControlPanel**.
+1. In VN1-SRV24 on VN1-SRV6 - Virtual Machine Connection, click on the desktop, **System tools**, **ControlPanel**.
 1. In ControlPanel, click **Network**.
 1. In Network, under **IP Address**, type  **10.1.1.192**. Under **Gateway**, type **10.1.1.1**. Under **NameServers**, type **10.1.1.8**. Ensure that under **Save Configuration**, **Yes** is selected. Click **Apply** and click **Exit**.
 
@@ -619,21 +629,21 @@ Perform this task on CL1.
 
 Perform this task on the host.
 
-1. Open **Hyper-V Manager**.
-1. In Hyper-V Manager, click your computer name.
-1. Under Virtual Machines, in the context-menu of the Virtual Machines corresponding to the current owner of VN1-SRV24, click **Turn off...**.
+1. Open **VMware Workstation**.
+1. Identify the outer VMware VM corresponding to the recorded current cluster owner node.
+1. For the outer VMware VM corresponding to the current owner of inner VN1-SRV24, choose **VM > Power > Power Off** for this controlled failure simulation.
 
    > After a few seconds, virtual machine should be running again on a different node and the connection test should continue successfully.
 
    Take a note of the new **Owner Node**.
 
-1. In **Hyper-V Manager**, under **Virtual Machines**, in the context-menu of the Virtual Machines corresponding to the current owner of VN1-SRV24, click **Turn off...**.
+1. In VMware Workstation, power off the outer VM corresponding to the newly recorded owner node; do not power off the inner VN1-SRV24 directly.
 
    > After a few seconds, virtual machine should be running again on a different node and the connection test should continue successfully.
 
    Take a note of the new **Owner Node**.
 
-1. In **Hyper-V Manager**, under **Virtual Machines**, in the context-menu of the Virtual Machines corresponding to the current owner of VN1-SRV24, click **Turn off...**.
+1. In VMware Workstation, power off the outer VM corresponding to the newly recorded owner node; do not power off the inner VN1-SRV24 directly.
 
    > While the virtual machine shows a **Status** of Running, the connection test keeps failing. After a few minutes, the status will change to **Failed**.
 
@@ -655,7 +665,7 @@ Perform this task on CL1.
 
 Perform this task on the host.
 
-In **Hyper-V-Manager**, in the context menu of the virtual machines **WIN-VN1-SRV6**, **WIN-VN1-SRV7**, **WIN-VN1-SRV11**, and **WIN-VN1-SRV12**, which are turned off, click **Start**.
+In **VMware Workstation**, power on only the outer VN1-SRV6, VN1-SRV7, VN1-SRV11 and VN1-SRV12 machines turned off by this failure simulation. Retain the original state of other machines.
 
 ### Task 5: Verify the recovery
 
@@ -670,7 +680,3 @@ Perform this task on CL1.
 1. In Roles (2), in the context-menu of **VN1-SRV24** click **Start**.
 
    > The virtual machine should start and run again.
-
-
-
-

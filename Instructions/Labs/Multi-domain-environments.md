@@ -1,6 +1,27 @@
 # Lab: Multi-domain environments
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md; Instructions/Practices/Install-prerequisites-for-file-serving.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. VN1-SRV3 hosts the SQL instance required for historical ADMT; verify current ADMT limitations before this optional migration portion. AD forest ad.lab.test (AD), child clients.ad.lab.test (CLIENTS), same-forest tree extranet.lab.test (EXTRANET), and separate ad.contoso.com (CONTOSO) must keep their documented DNS and credential contexts distinct. The promoted/replacement root DC remains authoritative after VN1-SRV1 retirement.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); CL3 (VMware display: CL3; accepted display aliases: WIN-CL3; existing); CL4 (VMware display: CL4; accepted display aliases: WIN-CL4; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional until retired; supply the guest or explicitly confirm retirement with -RetiredVmName); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Lab Enterprise/Domain Administrator for the named forest/domain changes; Schema Admin only for schema extension. Local Administrator for guest setup. Remove temporary role membership afterward.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Approved DNS forwarders on UDP/TCP 53; public name resolution only; Official Microsoft ADMT download (download.microsoft.com); optional legacy migration component; Microsoft Windows Update capability service (*.windowsupdate.com, *.update.microsoft.com); RSAT DNS tools on CL3 when missing.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Enterprise multi-forest exercise. ADMT migration is a historical conceptual study on the Server 2025/Windows 11 baseline; verify the official limited-support policy and SQL prerequisites before any isolated legacy execution. Keep trust, UPN and DNS contexts distinct.
+
+**Success verification:** Child/tree/forest DNS and trusts work; paused VMware machines resume; selective authentication allows only the intended test resource access.
+
+**Rollback and cleanup:** Unpause only VMware VMs paused by this lab; verify DNS/AD recovery. Remove exercise trusts/principals only after dependent tests finish, then restore the coordinated multi-forest pre-lab environment and disconnect temporary NAT.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -11,17 +32,20 @@
 
 ## Required VMs
 
-* VN1-SRV5
-* VN1-SRV7
-* VN1-SRV10
-* VN2-SRV2
-* PM-SRV1
 * CL1
 * CL2
 * CL3
 * CL4
+* PM-SRV1
+* VN1-SRV10
+* VN1-SRV5
+* VN1-SRV7
+* VN2-SRV1
+* VN2-SRV2
+* VN1-SRV3
+* Conditional until retired: VN1-SRV1
 
-If you did not complete the lab [Deploying domain controllers](Deploying-domain-controllers.md), in addition to the VMs above, **VN1-SRV1** is required. If VN1-SRV1 is already shut down after the lab, do not start it.
+> **Conditional controller lifecycle:** Supply VN1-SRV1 while it remains the active original controller. After its documented retirement, confirm that VN1-SRV5 serves the original DNS address and the required directory roles, then pass `-RetiredVmName VN1-SRV1` to preflight; never restart a retired controller. Retirement requires the completed address/role handover, not merely completing controller promotion or switching off a guest. Steps concerning the retired server apply only to recorded historical state or removal of its stale directory objects.
 
 ## Setup
 
@@ -121,7 +145,7 @@ Perform this task on CL1.
 1. For users in the organizational units **Development**, **IT**, **Marketing**, **Research**, and **Sales**, replace the domain part of the user principal name with **lab.test**.
 
     ````powershell
-    @('Development', 'IT', 'Marketing', 'Research', 'Sales') | ForEach-Object { 
+    @('Development', 'IT', 'Managers', 'Marketing', 'Research', 'Sales') | ForEach-Object {
         Get-ADUser `
             -SearchBase "ou=$PSItem, DC=ad,DC=lab,DC=test" `
             -Filter * | 
@@ -181,7 +205,7 @@ Perform this task on VN2-SRV2 while signed in as **contoso\Administrator**.
 Perform this task on VN2-SRV2 while signed in as **contoso\Administrator**.
 
 1. Open **Active Directory Administrative Center**.
-1. In Active Directory Administrative Center, click **ad (local)** and then **Users**.
+1. In Active Directory Administrative Center on VN2-SRV2, select **contoso (local)** and then **Users**.
 1. In the **Tasks** pane under **Users**, click **New**, **User**.
 1. In Create User, set **First name** to **Wil**, **Last name** to **Ruiz**, **User UPN logon** to **Wil@contoso.com**, and **User SamAccountName logon** to **CONTOSO\Wil**. Enter a unique lab-only password, require password change at next sign-in, and click **OK**.
 
@@ -249,7 +273,7 @@ Perform this task on VN2-SRV2 while signed in as **contoso\Administrator**.
     > Why does name resolution for clients.ad.lab.test work on VN1-SRV1 or VN1-SRV5 without further configuration?
 
 1. [Change the DNS client settings](#task-6-change-the-dns-client-settings) on CL4 to use 10.1.1.56 (VN1-SRV7)
-1. [Connect to domain](#task-7-connect-to-domain) clients.ad.contoso.com on CL4.
+1. [Connect to domain](#task-7-connect-to-domain) clients.ad.lab.test on CL4.
 
 ### Task 1: Install Active Directory Domain Services
 
@@ -275,7 +299,7 @@ Perform this task on CL1.
 Peform this task on CL1.
 
 1. In the context menu of **Start**, click **Terminal**.
-1. Install the windows feature **Active Directory Domain Services** on **VN1-SRV5**.
+1. Install the windows feature **Active Directory Domain Services** on **VN1-SRV7**.
 
     ````powershell
     Install-WindowsFeature `
@@ -515,7 +539,7 @@ Perform this task on CL4.
 Perform this task on CL4.
 
 1. In the context menu of **Start**, click **Terminal (Admin)**.
-1. Set the DNS client server address on the interface **Ethernet** to **10.1.2.16**.
+1. Set the DNS client server address on the interface **Ethernet** to **10.1.1.56** (the child-domain DNS server VN1-SRV7).
 
     ````powershell
     Set-DnsClientServerAddress -InterfaceAlias Ethernet -ServerAddresses 10.1.1.56
@@ -540,7 +564,7 @@ Perform this task on CL4.
 #### PowerShell
 
 1. In the context menu of **Start**, click **Terminal (Admin)**.
-1. Add the computer to the domain **ad.clients.lab.test** and restart it.
+1. Add the computer to the domain **clients.ad.lab.test** and restart it.
 
     ````powershell
     Add-Computer -DomainName clients.ad.lab.test -Restart
@@ -630,7 +654,7 @@ Perform this task on CL1.
         Set-NetFirewallRule `
             -Name WINRM-HTTP-In-TCP-PUBLIC `
             -Profile Public `
-            -RemoteAddress Any
+            -RemoteAddress 10.1.1.0/24
     }
     ````
 
@@ -658,7 +682,7 @@ Peform this task on CL1.
         Set-NetFirewallRule `
             -Name WINRM-HTTP-In-TCP-PUBLIC `
             -Profile Public `
-            -RemoteAddress Any
+            -RemoteAddress 10.1.1.0/24
     }
     ````
 
@@ -710,7 +734,7 @@ Perform this task on CL1.
     ````
 
 1. When prompted, enter the credentials for **Administrator@ad.lab.test**.
-1. Install a new tree **extranet.lab.test** with the parent domain **ad.lab.test** on VN1-SRV7. Install DNS at the same time, but do not make it a Global Catalog server.
+1. Install a new tree **extranet.lab.test** with the parent domain **ad.lab.test** on PM-SRV1. Install DNS at the same time, but do not make it a Global Catalog server.
 
     ````powershell
     $job = Invoke-Command `
@@ -902,40 +926,30 @@ Perform this task on CL1.
 
 ### Task 1: Simulate a failure of an intermediate domain
 
-#### Desktop experience
+Perform this task on the VMware Workstation host.
 
-Perform this task on the host.
+1. Record the current state and absolute `.vmx` path of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**. Map those display names to their guest hostnames. Leave any already powered-off machine untouched.
+1. For each running machine, choose **VM > Power > Pause**. Record exactly which machines were paused. Pause stops execution in memory; do not select **Suspend**.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager click **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, hold down CTRL and click **WIN-VN2-SRV1**.
+Alternatively, use VMware's documented `vmrun` **pause** command for each running machine's recorded path:
 
-    If WIN-VN1-SRV1 is not running anymore, do not select it.
-
-1. In the context menu of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, or **WIN-VN2-SRV1**, click **Pause**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. In the context menu of **Start**, click **Windows PowerShell (Admin)**.
-1. Suspend the virtual machines **WIN-VN1-SRV1**, **WIN-VN1-SRV5** and **WIN-VN2-SRV1** if they are running.
-
-    ````powershell
-    Get-VM -Name WIN-VN1-SRV1, WIN-VN1-SRV5, WIN-VN2-SRV1 |
-    Where-Object { $PSItem.State -eq 'Running' } |
-    Suspend-VM
-    ````
+````powershell
+$vmxPath = '<ABSOLUTE_PATH_TO_RUNNING_VM.vmx>'
+if ($vmxPath -match '^<.+>$') { throw 'Supply the recorded VMware VMX path first.' }
+vmrun -T ws pause $vmxPath
+if ($LASTEXITCODE -ne 0) { throw 'VMware pause failed; inspect the VM state.' }
+````
 
 ### Task 2: Validate the effects of an failure of an intermediate domain
 
 Perform this task on CL4.
 
 1. Sign in as **Administrator@clients.ad.lab.test**.
-1. Using **File Explorer**, try to navigate to **\\\\VN1-SRV7**.
+1. Using **File Explorer**, try to navigate to `\\VN1-SRV7`.
 
     > You should see the shares NETLOGON and SYSVOL.
 
-1. Using **File Explorer**, try to navigate to **\\\\PM-SRV1.extranet.lab.test**.
+1. Using **File Explorer**, try to navigate to `\\PM-SRV1.extranet.lab.test`.
 
     > You will receive a prompt to enter network credentials with an error message that the system cannot contact a domain controller to service the authentication request.
 
@@ -949,29 +963,20 @@ Perform this task on CL4.
 
 ### Task 3: Recover from the failure of the intermediate domain
 
-#### Desktop experience
+Perform this task on the VMware Workstation host.
 
-Perform this task on the host.
+1. Select each VM recorded as paused during the preceding failure simulation: **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**, where present.
+1. Choose **VM > Power > Pause** again to clear the paused state and resume execution. Do not select a machine that was already powered off or suspended before the simulation.
+1. Verify AD DNS and domain connectivity recover before continuing.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager click **WIN-VN1-SRV1, **WIN-VN1-SRV5**, hold down CTRL and click **WIN-VN2-SRV1**.
+Alternatively, use VMware's documented `vmrun` **unpause** command with each recorded absolute `.vmx` path. Substitute the path recorded when pausing; do not use guest hostnames as paths:
 
-    Select WIN-VN1-SRV1 only, if it is in the suspended state and not turned off.
-
-1. In the context menu of **WIN-VN1-SRV5** or **WIN-VN2-SRV1**, click **Resume**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. In the context menu of **Start**, click **Windows PowerShell (Admin)**.
-1. Resume the paused virtual machines **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**.
-
-    ````powershell
-    Get-VM -Name WIN-VN1-SRV1, WIN-VN1-SRV5, WIN-VN2-SRV1 |
-    Where-Object { $PSItem.State -eq 'Paused' } |
-    Resume-VM
-    ````
+````powershell
+$vmxPath = '<ABSOLUTE_PATH_TO_PAUSED_VM.vmx>'
+if ($vmxPath -match '^<.+>$') { throw 'Supply the recorded VMware VMX path first.' }
+vmrun -T ws unpause $vmxPath
+if ($LASTEXITCODE -ne 0) { throw 'VMware unpause failed; inspect the VM state.' }
+````
 
 ### Task 4: Create a shortcut trust
 
@@ -1032,36 +1037,26 @@ Perform this task on CL1.
 
 ### Task 5: Simulate a failure of an intermediate domain
 
-#### Desktop experience
+Perform this task on the VMware Workstation host.
 
-Perform this task on the host.
+1. Record the current state and absolute `.vmx` path of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**. Map those display names to their guest hostnames. Leave any already powered-off machine untouched.
+1. For each running machine, choose **VM > Power > Pause**. Record exactly which machines were paused. Pause stops execution in memory; do not select **Suspend**.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager click **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, hold down CTRL and click **WIN-VN2-SRV1**.
+Alternatively, use VMware's documented `vmrun` **pause** command for each running machine's recorded path:
 
-    If WIN-VN1-SRV1 is not running anymore, do not select it.
-
-1. In the context menu of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, or **WIN-VN2-SRV1**, click **Suspend**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. In the context menu of **Start**, click **Windows PowerShell (Admin)**.
-1. Suspend the virtual machines **WIN-VN1-SRV1**, **WIN-VN1-SRV5** and **WIN-VN2-SRV1** if they are running.
-
-    ````powershell
-    Get-VM -Name WIN-VN1-SRV1, WIN-VN1-SRV5, WIN-VN2-SRV1 |
-    Where-Object { $PSItem.State -eq 'Running' } |
-    Suspend-VM
-    ````
+````powershell
+$vmxPath = '<ABSOLUTE_PATH_TO_RUNNING_VM.vmx>'
+if ($vmxPath -match '^<.+>$') { throw 'Supply the recorded VMware VMX path first.' }
+vmrun -T ws pause $vmxPath
+if ($LASTEXITCODE -ne 0) { throw 'VMware pause failed; inspect the VM state.' }
+````
 
 ### Task 6: Validate the effects of the shortcut trust
 
 Perform this task on CL4.
 
 1. Sign in as **Administrator@clients.ad.lab.test**.
-1. Using **File Explorer**, try to navigate to **\\\\PM-SRV1.extranet.lab.test**.
+1. Using **File Explorer**, try to navigate to `\\PM-SRV1.extranet.lab.test`.
 
     > You should see the shares NETLOGON and SYSVOL.
 
@@ -1074,29 +1069,20 @@ Perform this task on CL4.
 
 ### Task 7: Recover from the failure of the intermediate domain
 
-#### Desktop experience
+Perform this task on the VMware Workstation host.
 
-Perform this task on the host.
+1. Select each VM recorded as paused during the preceding failure simulation: **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, and **WIN-VN2-SRV1**, where present.
+1. Choose **VM > Power > Pause** again to clear the paused state and resume execution. Do not select a machine that was already powered off or suspended before the simulation.
+1. Verify AD DNS and domain connectivity recover before continuing.
 
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager click **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, hold down CTRL and click **WIN-VN2-SRV1**.
+Alternatively, use VMware's documented `vmrun` **unpause** command with each recorded absolute `.vmx` path. Substitute the path recorded when pausing; do not use guest hostnames as paths:
 
-    If WIN-VN1-SRV1 is not running anymore, do not select it.
-
-1. In the context menu of **WIN-VN1-SRV1**, **WIN-VN1-SRV5**, or **WIN-VN2-SRV1**, click **Resume**.
-
-#### PowerShell
-
-Perform this task on the host.
-
-1. In the context menu of **Start**, click **Windows PowerShell (Admin)**.
-1. Suspend the virtual machines **WIN-VN1-SRV1**, **WIN-VN1-SRV5** and **WIN-VN2-SRV1** if they are running.
-
-    ````powershell
-    Get-VM -Name WIN-VN1-SRV1, WIN-VN1-SRV5, WIN-VN2-SRV1 |
-    Where-Object { $PSItem.State -eq 'Running' } |
-    Resume-VM
-    ````
+````powershell
+$vmxPath = '<ABSOLUTE_PATH_TO_PAUSED_VM.vmx>'
+if ($vmxPath -match '^<.+>$') { throw 'Supply the recorded VMware VMX path first.' }
+vmrun -T ws unpause $vmxPath
+if ($LASTEXITCODE -ne 0) { throw 'VMware unpause failed; inspect the VM state.' }
+````
 
 ## Exercise 5: Create and validate a forest trust
 
@@ -1105,10 +1091,10 @@ Perform this task on the host.
 1. [Verify DNS name resolution between the forests](#task-3-verify-dns-name-resolution-between-the-forests)
 1. [Create a forest trust](#task-4-create-a-forest-trust)
 1. [Add a principal from an external forest to a domain-local group](#task-5-add-a-principal-from-an-external-forest-to-a-domain-local-group): Add Wil to Marketing Read.
-1. [Verify the effect of selective authentication accessing resources](#task-6-verify-the-effect-of-selective-authentication-accessing-resources) by trying to access \\\\VN1-SRV10 with the user Wil@contoso.com.
+1. [Verify the effect of selective authentication accessing resources](#task-6-verify-the-effect-of-selective-authentication-accessing-resources) by trying to access `\\VN1-SRV10` with the user Wil@contoso.com.
 1. [Verify the effect of selective authentication on sign in](#task-7-verify-the-effect-of-selective-authentication-on-sign-in) by traing to sign in to CL4 as Wil@contoso.com.
 1. [Allow users from the external forest to access computers](#task-8-allow-users-from-the-external-forest-to-access-computers) VN1-SRV10 and CL4
-1. [Verify sign in and resource access over a forest trust](#task-9-verify-sign-in-and-resource-access-over-a-forest-trust) with the user Wil@contoso.com signing into CL4 and accessing \\\\VN1-SRV10\\Marketing.
+1. [Verify sign in and resource access over a forest trust](#task-9-verify-sign-in-and-resource-access-over-a-forest-trust) with the user Wil@contoso.com signing into CL4 and accessing `\\VN1-SRV10\Marketing`.
 
 ### Task 1: Implement DNS name resolution of ad.contoso.com
 
@@ -1155,7 +1141,7 @@ Perform this task on VN2-SRV2.
 Perform this task on VN2-SRV2.
 
 1. In the context menu of **Start**, click **Windows PowerShell**.
-1. Add a conditional forwarder for zone **ad.lab.test** pointing to **10.1.1.40** and **10.1.2.8**. The forwarder should be replicated forest-wide.
+1. Add a conditional forwarder for zone **ad.lab.test** pointing to **10.1.1.8** and **10.1.2.8**. The forwarder should be replicated forest-wide.
 
     ````powershell
     Add-DnsServerConditionalForwarderZone `
@@ -1181,7 +1167,7 @@ Perform this task on CL1.
 1. Verify the DNS name resolution for **ad.contoso.com** on the server **10.1.1.8**.
 
     ````powershell
-    Resolve-DnsName -Name ad.contoso.com -Server 10.1.1.40
+    Resolve-DnsName -Name ad.contoso.com -Server 10.1.1.8
     ````
 
     > You should get the IP address 10.1.2.16.
@@ -1254,7 +1240,7 @@ Perform this task on CL1.
 Perform this task on CL3.
 
 1. Sign in as **Wil@contoso.com**.
-1. Using **File Explorer**, navigate to \\\\VN1-SRV10.ad.lab.test.
+1. Using **File Explorer**, navigate to `\\VN1-SRV10.ad.lab.test`.
 
     > You will receive an error message like in [figure 1].
 
@@ -1299,13 +1285,15 @@ Perform this task on CL4.
 
     > You should be able sign in.
 
-1. Using File Explorer, navigate to **\\\\VN1-SRV10.ad.lab.test\\Marketing**.
+1. Using File Explorer, navigate to `\\VN1-SRV10.ad.lab.test\Marketing`.
 
     > You should be able to access the share.
 
 1. Sign out.
 
 ## Exercise 6: Migrating users between domains
+
+> **ADMT compatibility gate:** This is an optional historical migration study. Microsoft's [ADMT support policy](https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/support-policy-and-known-issues-for-admt) excludes modern client/server combinations and does not establish support for this Server 2025/Windows 11 baseline. Preserve the migration, trust and SID-history objectives as a conceptual walkthrough here. Attempt execution only in a separate disposable legacy compatibility environment with its SQL and credential prerequisites verified; do not disable current security protections or downgrade the primary forest to make ADMT run.
 
 1. [Install the Active Directory Migration Tool](#task-1-install-the-active-directory-migration-tool)
 1. [Create the target organizational group](#task-2-create-the-target-organizational-group) Marketing in domain clients.ad.lab.test
@@ -1425,7 +1413,7 @@ Perform this task on CL2.
 
     > You will have to change the password.
 
-1. Using **File Explorer**, navigate to \\\\VN1-SRV10\\Marketing.
+1. Using **File Explorer**, navigate to `\\VN1-SRV10\Marketing`.
 
     > Ada should still have access.
 
@@ -1549,7 +1537,3 @@ Perform this task on CL3.
 
 [figure 1]: /images/Authentication-Firewall-Error.png
 [figure 2]: /images/Authentication-Firewall-Error-signin.png
-
-
-
-

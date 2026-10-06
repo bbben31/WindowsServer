@@ -4,29 +4,29 @@ Milestone D starts only after [Milestone C](AD-DNS-Foundation.md) has passed its
 
 ## Prerequisites, capacity, and checkpoints
 
-Complete Milestones A-C, keep `C-first-DC-validated` (and `C-second-DC-validated` if used), and run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1). On the 32 GB host, run `VN1-SRV1`, one member, and one client first. Shut down unused templates and optional VMs. Take `D-before-members` before cloning and `D-members-validated` after the required members pass the checks below.
+Complete Milestones A-C and keep `C-first-DC-validated` (and `C-second-DC-validated` if used). Use the foundation checks below; run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) only when selecting an actual manifest Practice/Lab with `-CurriculumPath`. On the 32 GB host, run `VN1-SRV1`, one member, and one client first. Shut down unused templates and optional VMs. Take `D-before-members` before cloning and `D-members-validated` after the required members pass the checks below.
 
 The minimum D set is `VN1-SRV20` and `CL1`. Add `VN1-SRV21` and `CL3` only for a practice or lab that names them. File serving, DHCP, WSUS, RDS, clustering, storage, and management labs may require additional disks, servers, clients, or an expanded VM profile; use the manifest rather than assuming this topology is sufficient.
 
 ## Default names, addresses, and NIC placement
 
-VMnet10 and VMnet20/30 do not route by themselves. A member that must reach AD DNS needs a VMnet10 management/domain NIC, or a deliberately documented router. This runbook uses a second NIC instead of enabling Windows routing.
+VMnet10 and VMnet11/12 do not route by themselves. A member that must reach AD DNS needs a VMnet10 management/domain NIC, or a deliberately documented router. This runbook uses a second NIC instead of enabling Windows routing.
 
 | VM | Role | VMnet10 management/AD | Workload/client NIC | DNS |
 | --- | --- | --- | --- | --- |
-| `VN1-SRV20` | Primary member server | `10.10.10.30/24` | VMnet20: `10.10.20.20/24` | `10.10.10.10`, then `10.10.10.11` |
-| `VN1-SRV21` | Optional second member server | `10.10.10.31/24` | VMnet20: `10.10.20.21/24` | `10.10.10.10`, then `10.10.10.11` |
-| `CL1` | Primary Windows 11 client | VMnet10: `10.10.10.40/24` | VMnet30: `10.10.30.20/24` or one DHCP reservation | `10.10.10.10`, then `10.10.10.11` on the VMnet10 path |
-| `CL3` | Optional second client | VMnet10: `10.10.10.41/24` | VMnet30: `10.10.30.21/24` or one DHCP reservation | AD DNS only |
+| `VN1-SRV20` | Primary member server | `10.10.10.30/24` | VMnet11: `10.10.20.20/24` | `10.10.10.10`, then `10.10.10.11` |
+| `VN1-SRV21` | Optional second member server | `10.10.10.31/24` | VMnet11: `10.10.20.21/24` | `10.10.10.10`, then `10.10.10.11` |
+| `CL1` | Primary Windows 11 client | VMnet10: `10.10.10.40/24` | VMnet12: `10.10.30.20/24` or one DHCP reservation | `10.10.10.10`, then `10.10.10.11` on the VMnet10 path |
+| `CL3` | Optional second client | VMnet10: `10.10.10.41/24` | VMnet12: `10.10.30.21/24` or one DHCP reservation | AD DNS only |
 
-Use no default gateway on the isolated VMnet10 and VMnet20 NICs. Use `<VMNET30_GATEWAY>` only if a selected client lab supplies an intentional router/NAT design. Do not configure two gateways on a dual-homed member. If VMnet8 is temporarily attached for updates, record `<VMNET8_GATEWAY>` privately and disconnect it before domain administration. Never use VMnet8 DNS as the domain DNS server.
+Use no default gateway on the isolated VMnet10 and VMnet11 NICs. Use `<VMNET12_GATEWAY>` only if a selected client lab supplies an intentional router/NAT design. Do not configure two gateways on a dual-homed member. If VMnet8 is temporarily attached for updates, record `<VMNET8_GATEWAY>` privately and disconnect it before domain administration. Never use VMnet8 DNS as the domain DNS server.
 
-The VMnet10 NIC provides AD/DNS and management reachability; the VMnet20 or VMnet30 NIC provides the workload/client segment. Do not enable IP forwarding or Internet Connection Sharing. For a selected lab that truly requires cross-segment routing, document and verify that routing separately before enabling it.
+The VMnet10 NIC provides AD/DNS and management reachability; the VMnet11 or VMnet12 NIC provides the workload/client segment. Do not enable IP forwarding or Internet Connection Sharing. For a selected lab that truly requires cross-segment routing, document and verify that routing separately before enabling it.
 
 ## Create and prepare `VN1-SRV20`
 
 1. From the clean Server 2025 template, create a full clone named `VN1-SRV20`. Do not clone `VN1-SRV1` or any promoted server.
-2. Add a NIC on **Custom: VMnet10** and a second NIC on **Custom: VMnet20**. Connect VMnet8 only for approved updates, then disconnect it.
+2. Add a NIC on **Custom: VMnet10** and a second NIC on **Custom: VMnet11**. Connect VMnet8 only for approved updates, then disconnect it.
 3. In the guest, rename the adapters so their purpose is unambiguous, for example `LAB-AD` and `LAB-SRV`. Assign `10.10.10.30/24` to `LAB-AD` and `10.10.20.20/24` to `LAB-SRV`. Leave both gateways blank.
 4. Configure the VMnet10 NIC to use `10.10.10.10` as preferred DNS. Add `10.10.10.11` only after the second DC/DNS has passed replication validation. Do not configure public DNS.
 5. Set the computer name before joining. Use the GUI **Server Manager > Local Server > Computer name** or the interactive command:
@@ -47,8 +47,8 @@ Add-Computer -ComputerName 'VN1-SRV20' -DomainName 'ad.lab.test' -Credential (Ge
 
 ## Create and prepare `CL1`
 
-1. Full-clone the clean Windows 11 template as `CL1`; do not use a personal Microsoft account or a domain-joined source template.
-2. Attach VMnet30 for client traffic and a second NIC on VMnet10 for AD/DNS and management reachability. Use `10.10.30.20/24` (or the single documented VMnet30 DHCP reservation) and `10.10.10.40/24`; leave gateways blank unless a deliberate router is documented.
+1. Install `CL1` from official Windows 11 Pro/Enterprise media using the B runbook's client configuration, with its own vTPM. This default avoids copying a TPM-backed identity. Do not use Windows Home (it cannot join AD), a personal Microsoft account, or a domain-joined source image.
+2. Attach VMnet12 for client traffic and a second NIC on VMnet10 for AD/DNS and management reachability. Use `10.10.30.20/24` (or the single documented VMnet12 DHCP reservation) and `10.10.10.40/24`; leave gateways blank unless a deliberate router is documented.
 3. Set DNS on the VMnet10 path to `10.10.10.10`, then optionally `10.10.10.11` after the second DC is healthy. Do not accept a public DNS server from an accidental DHCP service.
 4. Rename the client through **Settings > System > About > Rename this PC** or an elevated PowerShell prompt, then restart:
 
@@ -58,7 +58,7 @@ Restart-Computer
 ```
 
 5. Join `ad.lab.test` through **System Properties** or with `Add-Computer -Credential (Get-Credential) -Restart`. Use an approved, disposable domain account interactively.
-6. After reboot, sign in with the least-privilege practice account and verify the client firewall remains enabled. The VMnet30 interface is for client exercises; do not turn the client into a router.
+6. After reboot, sign in with the least-privilege practice account and verify the client firewall remains enabled. The VMnet12 interface is for client exercises; do not turn the client into a router.
 
 Use the same sequence for optional `VN1-SRV21`/`CL3`, substituting the table’s names and addresses. Do not reuse static addresses, hostnames, certificates, or local profiles.
 
@@ -107,7 +107,7 @@ Expected conditions:
 * The hostname and Windows version match the intended clone.
 * `PartOfDomain` is true and `whoami /fqdn` identifies the disposable `ad.lab.test` account context.
 * AD DNS resolves the forest and member records; no public DNS appears on the domain NIC.
-* The VMnet10 path reaches DNS/LDAP/WinRM, and VMnet20/30 addresses are present without an unintended gateway.
+* The VMnet10 path reaches DNS/LDAP/WinRM, and VMnet11/12 addresses are present without an unintended gateway.
 * The Windows Firewall is enabled with a suitable private/domain profile.
 * `Test-ComputerSecureChannel` returns `True` for a healthy member.
 
@@ -120,7 +120,7 @@ Take `D-members-validated` only after the required members pass. Then begin [Mil
 * **No route between VMnets:** expected without a router. Ensure the management/AD NIC is connected to VMnet10 instead of enabling routing as a shortcut.
 * **Secure channel failure:** verify DNS, time, hostname uniqueness, and the member’s computer object. Use a planned repair or de-join/rejoin only after capturing diagnostics.
 * **WinRM/Server Manager/WAC failure:** check `Test-WSMan`, ports 5985/5986 as applicable, firewall profile, hostname resolution, and the selected management account. Do not disable the firewall globally.
-* **Unexpected Internet/DHCP:** disconnect VMnet8, inspect `ipconfig /all`, and confirm exactly one DHCP owner on VMnet30.
+* **Unexpected Internet/DHCP:** disconnect VMnet8, inspect `ipconfig /all`, and confirm exactly one DHCP owner on VMnet12.
 
 ## Rollback, de-join, and cleanup
 

@@ -1,5 +1,7 @@
 ﻿# Raising the forest functional level
 
+Proceed only after every domain is at the required Windows Server 2025 domain functional level, every DC is compatible, DNS/replication are healthy, and the selected disposable forest has a supported backup/recovery plan. Verify all domains, not just the root. Raising the forest level is not an ordinary snapshot-revert exercise.
+
 ## Desktop experience
 
 1. Open **Active Directory Administrative Center**.

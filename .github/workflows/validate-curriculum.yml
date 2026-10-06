@@ -16,11 +16,24 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Verify generated manifest is current
+        shell: powershell
+        run: |
+          .\tools\Update-CurriculumManifest.ps1
+          .\tools\Validate-Curriculum.ps1
+          .\tools\Test-CurriculumRegression.ps1
+          git diff --exit-code -- metadata/curriculum-manifest.json Instructions
+          if ($LASTEXITCODE -ne 0) { throw 'Generated curriculum artifacts are stale.' }
+          (Get-FileHash metadata/curriculum-manifest.json -Algorithm SHA256).Hash |
+            Set-Content (Join-Path $env:RUNNER_TEMP 'windowsserver-manifest.sha256') -Encoding ascii
+
+      - name: Verify generated manifest is current under PowerShell 7
         shell: pwsh
         run: |
           .\tools\Update-CurriculumManifest.ps1
-          git diff --exit-code -- metadata/curriculum-manifest.json
-
-      - name: Validate curriculum
-        shell: pwsh
-        run: .\tools\Validate-Curriculum.ps1
+          .\tools\Validate-Curriculum.ps1
+          .\tools\Test-CurriculumRegression.ps1
+          git diff --exit-code -- metadata/curriculum-manifest.json Instructions
+          if ($LASTEXITCODE -ne 0) { throw 'Generated curriculum artifacts are stale.' }
+          $legacyHash = (Get-Content (Join-Path $env:RUNNER_TEMP 'windowsserver-manifest.sha256') -Raw).Trim()
+          $modernHash = (Get-FileHash metadata/curriculum-manifest.json -Algorithm SHA256).Hash
+          if ($legacyHash -cne $modernHash) { throw 'Manifest bytes differ between PowerShell engines.' }

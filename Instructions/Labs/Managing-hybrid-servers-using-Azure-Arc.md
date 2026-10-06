@@ -1,6 +1,27 @@
 # Lab: Managing hybrid servers using Azure Arc
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Create-a-Log-Analytics-Workspace.md; Instructions/Practices/Add-server-to-Azure-Arc.md; Instructions/Practices/Create-an-Automation-account.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access. Scoped Arc, Policy, Monitor and Update Manager permissions required by the selected task
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: login.microsoftonline.com; management.azure.com; Service-specific endpoints in the linked Microsoft product requirements.
+
+**Risk, cost and optional status:** high; cost-gated; optional=false. Estimate current service charges before deployment; stop at the GBP 10 monthly safety limit. Confirm deletion and billing after completion. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware.
+
+**Success verification:** Arc agent connection, monitored data and assigned lab policy/update results are visible in the approved scope.
+
+**Rollback and cleanup:** Delete only resources created for this exercise in the disposable resource group; remove exercise-specific assignments, agents/registrations and identities after checking dependencies. Verify the group is empty, no schedules remain and no recurring charges continue. Retain required prerequisite resources until dependent exercises finish. Disconnect temporary VMnet8 and restore recorded guest DNS/adapters.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -75,7 +96,7 @@ Perform this task on the host computer.
 1. In Assign policy, on tab Basics, under **Scope**, click the ellipsis.
 1. In the pane Scope, click the **Subscription**, **Resource Group**, and click **Select**.
 1. In Assign policy, under **Basics**, **Policy definition**, click the ellipsis.
-1. In the pane Available Definitions, in search, type **Log Analytics extension should be installed on your Windows Azure Arc machines**. Click **\[Preview\]: Log Analytics extension should be installed on your Windows Azure Arc machines** and click **Add**.
+1. In Available Definitions, select **Windows Arc-enabled machines should have Azure Monitor Agent installed**, with **AuditIfNotExists**, from the [current built-in Arc policy reference](https://learn.microsoft.com/en-us/azure/azure-arc/servers/policy-reference). Scope it only to the exercise resource group. Do not select the retired legacy Log Analytics/MMA agent policy or a DeployIfNotExists initiative for this audit task.
 1. Click **Review + Create**.
 1. On tab Review + Create, click **Create**.
 
@@ -88,17 +109,19 @@ Perform this task on the host computer.
 1. In **Search resources, services and docs (G+/)**, type **Policy** and click it.
 1. In **Policy**, click **Compliance**.
 
-    > The policy Audit Windows VMs with a pending reboot will have the state Non-Compliant with a resource compliance of 0 out of 1, because VN1-SRV8 should not have a pending reboot.
+    > After assessment completes, the pending-reboot audit should be Compliant when VN1-SRV8 has no pending reboot, and Non-Compliant when it has a pending reboot. Record the actual assessment; Not started or an assessment error is not proof of compliance.
 
-    > The policy Audit Windows machines that contain certificate expiring within the specified number of days will have the state Non-Compliant with a resource compliance of 0 out of 1, because VN1-SRV8 should not have expiring certificates.
+    > After assessment completes, the expiring-certificate audit should be Compliant when no certificate meets its expiry condition, and Non-Compliant when a certificate does. Record the actual result and configured expiry threshold.
 
-    > The policy \[Preview\]: Log Analytics extension should be installed on your Windows Azure Arc machines will have the state Non-Compliant with a resource compliance of 0 out of 1, because VN1-SRV8 does not have an agent installed yet. You will fix that in an upcoming exercise.
+    > After assessment, the AMA installation audit should report Non-Compliant for the eligible VN1-SRV8 resource until the upcoming exercise installs Azure Monitor Agent. Reassess it afterward. Not applicable/unsupported region or an assessment error must be recorded separately from agent absence.
 
     You may want to click one or the other of the policy to review details.
 
 ## Exercise 2: Using Windows Admin Center in the Azure Portal
 
-1. [Install Windows Admin Center in the Azure portal](#task-1-install-windows-admin-center-in-the-azure-portal) for VN1-SRV5
+> **Eligibility gate:** Verify the current [Windows Server management entitlement](https://learn.microsoft.com/en-us/azure/azure-arc/servers/windows-server-management-overview) for the Arc-enabled VN1-SRV8 before installing this optional extension. Attest Software Assurance/subscription coverage only when the recorded machine license actually qualifies. If an evaluation guest lacks the required entitlement, record Exercise 2 as conceptual/skipped; do not enable billable licensing just to complete it. Continue with other eligible Arc exercises under their existing cost gates.
+
+1. [Install Windows Admin Center in the Azure portal](#task-1-install-windows-admin-center-in-the-azure-portal) for VN1-SRV8
 1. [Assign user to the role Windows Admin Center Administrator login](#task-2-assign-user-to-the-role-windows-admin-center-administrator-login)
 1. [Validate Windows Admin Center in the Azure portal](#task-3-validate-windows-admin-center-in-the-azure-portal)
 
@@ -114,11 +137,11 @@ Perform this task on the host computer.
 
 1. Open **Microsoft Edge** and navigate to <https://portal.azure.com>
 1. Sign in to Azure.
-1. In **Search resources, services and docs (G+/)**, type **VN1-SRV5** and click it.
-1. In VN1-SRV5, under **Licenses**, click **Windows Server**.
-1. In VN1-SRV5 | Windows Server, under **Azure Benefits**, click to activate **By checking this box, you attest that your Windows Server licenses have active Software Assurance or your Windows Server licenses are active subscription licenses.** Click **Confirm**.
-1. In VN1-SRV5, under **Settings**, click **Windows Admin Center (preview)**.
-1. In VN1-SRV5 | Windows Admin Center (preview), click **Set up**.
+1. In **Search resources, services and docs (G+/)**, type **VN1-SRV8** and click it.
+1. In VN1-SRV8, under **Licenses**, click **Windows Server**.
+1. Only after confirming the eligibility gate, in VN1-SRV8 | Windows Server, under **Azure Benefits**, attest the documented coverage and click **Confirm**. If coverage cannot be confirmed, stop this exercise and record the skip.
+1. In VN1-SRV8, under **Settings**, click **Windows Admin Center (preview)**.
+1. In VN1-SRV8 | Windows Admin Center (preview), click **Set up**.
 1. In the pane Windows Admin Center, take a note of the **Listening port**, e.g., 6516 and click **Install**.
 
     The deployment will take a few minutes. You may continue with the lab. The deployment has to complete before you can use Windows Admin Center.
@@ -129,9 +152,9 @@ Perform this task on the host computer.
 
 1. Open **Microsoft Edge** and navigate to <https://portal.azure.com>
 1. Sign in to Azure.
-1. In **Search resources, services and docs (G+/)**, type **VN1-SRV5** and click it.
-1. In VN1-SRV5, click **Access control (IAM)**.
-1. In VN1-SRV5 | Access control (IAM), click **Add**, **Add role assignment**.
+1. In **Search resources, services and docs (G+/)**, type **VN1-SRV8** and click it.
+1. In VN1-SRV8, click **Access control (IAM)**.
+1. In VN1-SRV8 | Access control (IAM), click **Add**, **Add role assignment**.
 1. In Add role assignment, on tab Role, click **Windows Admin Center Administrator login** and click **Next**.
 1. On tab Members, ensure **User, group, or service principal** is selected and click **+ Select members**.
 1. In the pane Select members, search and click your Azure AD user account and click **Select**.
@@ -146,9 +169,9 @@ Perform this task on the host computer.
 
 1. Open **Microsoft Edge** and navigate to <https://portal.azure.com>
 1. Sign in to Azure.
-1. In **Search resources, services and docs (G+/)**, type **VN1-SRV5** and click it.
-1. In VN1-SRV5, under **Settings**, click **Windows Admin Center (preview)**.
-1. In VN1-SRV5 | Windows Admin Center (preview), click **Connect**.
+1. In **Search resources, services and docs (G+/)**, type **VN1-SRV8** and click it.
+1. In VN1-SRV8, under **Settings**, click **Windows Admin Center (preview)**.
+1. In VN1-SRV8 | Windows Admin Center (preview), click **Connect**.
 1. In Windows Admin Center, unter **Tools**, click **Settings**.
 1. In Settings, click **Remote Desktop**.
 1. In Settings | Remote Desktop, click **Allow remote connections to this computer** and click **Save**.
@@ -174,7 +197,7 @@ Perform this task on the host computer.
     Get-ComputerInfo
     ````
 
-    Confirm, that you see the information of VN1-SRV5.
+    Confirm, that you see the information of VN1-SRV8.
 
 1. Exit from the remote PowerShell session.
 
@@ -265,7 +288,7 @@ Perform this task on the host computer.
 1. In the breadcrumb navigation at the top, click **VN1-SRV8 | Change tracking**.
 1. Under **Operations** section, click **Inventory**.
 
-    The tabs Software, Files, Windows Registry, and Windows Services will show no data, because no changes were detected recently
+    Wait for the initial inventory collection. Software and Windows Services can show current-state inventory even without changes; Files/Registry depend on the selected collection configuration. An initially empty inventory indicates pending collection or a configuration/agent problem, not proof that no changes occurred. Verify collection/agent health before drawing conclusions.
 
 You might want to revisit this task at the end of the lab to see changes.
 
@@ -317,7 +340,7 @@ Perform this task on the host computer.
 1. Navigate to <https://portal.azure.com> and sign in to Azure, if necessary.
 1. In Microsoft Azure, in **Search resource, service, and docs (G+/)**, type **Azure Update Manager** and click it.
 1. In Azure Update Manager, under **Resources**, click **Machines**.
-1. Under Azure Update Manager | Machines, activate the checkbox **Select all**, click **One-time update** and click **Install Now**.
+1. Under Azure Update Manager | Machines, filter to the exercise resource group and select **VN1-SRV8 only**, click **One-time update** and click **Install Now**. Do not update unrelated subscription machines.
 1. In Install one-time updates, on tab Machines, ensure **VN1-SRV8** was added, and click **Next**.
 1. On tab Updates, review the Windows updates to install and click **Next**.
 1. On tab Properties, beside **Reboot option**, click **Reboot of required**. Beside **Maintenance windows (in minutes)**, type **60**. Click **Next**.
@@ -335,7 +358,3 @@ Perform this task on the host computer.
     Review the data on the tab **Recommendeds updates**.
 
 1. Click the tab **History** and review the data.
-
-
-
-

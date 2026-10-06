@@ -20,7 +20,7 @@ The baseline is **Windows Server 2025 Evaluation** and **Windows 11** running in
 
 ## Scope and safety
 
-This is a personal lab using an **existing Microsoft Azure for Students subscription** and **Microsoft Entra tenant**. The default Azure region is **UK South** and the hard monthly safety limit is **£10**. It never creates a dedicated tenant or provisions student tenants, users, invitations, passwords, or subscription resources for anyone else. Azure access is expected to be **Owner** or **User Access Administrator**; use narrower per-lab roles where possible. Never commit passwords, recovery codes, tenant IDs, subscription IDs, invitation URLs, exported certificates, private keys, or access tokens. Use placeholders such as `<AZURE_SUBSCRIPTION_ID>`, `<AZURE_TENANT_ID>`, `<AZURE_RESOURCE_GROUP>`, and `<AZURE_REGION>`; do not replace them with real values in documentation.
+This is a personal lab using an **existing Microsoft Azure for Students subscription** and **Microsoft Entra tenant**. The default Azure region is **UK South** and the learner-imposed monthly safety limit is **£10**. Budget alerts do not enforce that cap or stop consumption: use the [cost and permission gate](Instructions/General/Learner-Setup.md#azure-and-microsoft-entra-prerequisites), leave headroom, and clean up before projected charges threaten it. The lab never creates a dedicated tenant or provisions student tenants, users, invitations, passwords, or subscription resources for anyone else. Use the declared scoped role for resource deployment and an authorized RBAC-management role only where role assignments are required; User Access Administrator alone is not a deployment role. Never commit passwords, recovery codes, tenant IDs, subscription IDs, invitation URLs, exported certificates, private keys, or access tokens. Use placeholders such as `<AZURE_SUBSCRIPTION_ID>`, `<AZURE_TENANT_ID>`, `<AZURE_RESOURCE_GROUP>`, and `<AZURE_REGION>`; do not replace them with real values in documentation.
 
 Some source procedures used instructor automation or shared classroom assets. The learner must now complete the linked prerequisite or the documented manual setup. A procedure must not depend on an unavailable helper script. Treat every script downloaded from the Internet as untrusted until its source and hash have been verified.
 
@@ -33,11 +33,11 @@ Use host-only or custom VMware networks for isolated lab traffic, and add NAT on
 | Segment | Example network | Purpose |
 | --- | --- | --- |
 | `VMnet10` | `10.10.10.0/24` | Management, AD, and DNS |
-| `VMnet20` | `10.10.20.0/24` | Server workloads and optional storage/cluster traffic |
-| `VMnet30` | `10.10.30.0/24` | Windows 11 clients |
+| `VMnet11` | `10.10.20.0/24` | Server workloads and optional storage/cluster traffic |
+| `VMnet12` | `10.10.30.0/24` | Windows 11 clients |
 | `VMnet8` | VMware NAT | Temporary, controlled outbound access |
 
-Use the [Milestone A VMware runbook](Instructions/General/VMware-Segmented-Networking.md) to create these networks and host adapters. Reserve `10.10.10.10` for `VN1-SRV1` (AD DS/DNS), `10.10.10.11` for `VN1-SRV5` (second DC/DNS), `10.10.10.20` for `VN1-SRV4`, and `10.10.30.20` for `CL1` when using static client addressing. DHCP ranges, host adapter addresses, VMware NAT gateway values, and any overlapping home-network values are host-specific placeholders; do not copy them blindly.
+Use the [Milestone A VMware runbook](Instructions/General/VMware-Segmented-Networking.md) to create these networks and host adapters. Reserve `10.10.10.10` for `VN1-SRV1` (AD DS/DNS), `10.10.10.11` for optional `VN1-SRV5` (second DC/DNS), and `10.10.10.20` for optional `VN1-SRV4` (WAC). The D/E core minimum member is `VN1-SRV20` at `10.10.10.30` plus `10.10.20.20`; `CL1` uses `10.10.10.40` plus `10.10.30.20` or one documented client reservation. Both members need VMnet10 AD/management NICs because the isolated VMnets do not route by themselves. DHCP ranges, host adapter addresses, VMware NAT gateway values, and any overlapping home-network values are host-specific placeholders; do not copy them blindly.
 
 Recommended recognizable names are `VN1-SRV1`, `VN1-SRV4`, `VN1-SRV5`, `VN2-SRV1`, `VN2-SRV2`, `VN1-SRV20`, `VN1-SRV21`, `CL1`, and `CL3`. Retain additional source names such as `PM-SRV*` and `WIN-*` when they identify distinct enterprise roles. The primary AD forest/domain is **`ad.lab.test`**; alternate forests exist only inside exercises that explicitly create them.
 
@@ -51,12 +51,14 @@ See [Instructor content mapping](Instructions/General/Instructor-Content-Mapping
 
 Keep links relative to this repository, preserve the lab objective, and document any environment-specific value as a named placeholder. Do not add instructor provisioning, bulk-account creation, or credential-handling automation.
 
-Regenerate and validate curriculum metadata before committing changes:
+Regenerate and validate curriculum metadata before committing changes. Run the complete checks in both Windows PowerShell 5.1 and PowerShell 7:
 
 ````powershell
 .\tools\Update-CurriculumManifest.ps1
 .\tools\Validate-Curriculum.ps1
-git diff --exit-code -- metadata/curriculum-manifest.json
+.\tools\Test-CurriculumRegression.ps1
+.\tools\Update-CurriculumManifest.ps1 -Check
+git diff --check
 ````
 
-The same checks run automatically for pull requests and pushes to `main`.
+Inspect and commit intended generated changes with their source edits. `-Check` verifies that the generated files match the source without requiring a clean working tree. CI validates both engines, checks generated-file drift against the committed files, and compares manifest hashes for pull requests and pushes to `main`.

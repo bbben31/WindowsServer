@@ -6,7 +6,8 @@ $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
     $RepositoryRoot = Split-Path $scriptRoot -Parent
 }
-$RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+$RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).ProviderPath
+if ($RepositoryRoot.Length -gt [IO.Path]::GetPathRoot($RepositoryRoot).Length) { $RepositoryRoot = $RepositoryRoot.TrimEnd([char[]]'\/') }
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false, $true)
 
 function Read-Utf8Text([string]$Path) {
@@ -24,12 +25,115 @@ function Get-MarkdownSlug([string]$Heading) {
     return ($slug -replace ' ', '-')
 }
 
+$proseCache = @{}
+function Get-MarkdownProse([string]$Path) {
+    if ($proseCache.ContainsKey($Path)) { return $proseCache[$Path] }
+    $lines = [System.Collections.Generic.List[object]]::new()
+    $insideComment = $false
+    $markerCharacter = $null
+    $markerLength = 0
+    $openingLine = 0
+    $lineNumber = 0
+    $inlineDelimiter = $null
+    $sourceLines = @(Read-Utf8Lines $Path)
+    foreach ($line in $sourceLines) {
+        $lineNumber++
+        if ($null -ne $markerCharacter) {
+            $closingPattern = '^\s*' + [regex]::Escape([string]$markerCharacter) + '{' + $markerLength + ',}\s*$'
+            if ($line -match $closingPattern) {
+                $markerCharacter = $null
+                $markerLength = 0
+                $openingLine = 0
+            }
+            $lines.Add([pscustomobject]@{ Number=$lineNumber; Text='' })
+            continue
+        }
+        # A comment cannot open inside a code fence, nor can a fence open inside a comment.
+        if (!$insideComment -and !$inlineDelimiter) {
+            $opening = [regex]::Match($line, '^\s*(`{3,}|~{3,}).*$')
+            if ($opening.Success) {
+                $markerCharacter = $opening.Groups[1].Value[0]
+                $markerLength = $opening.Groups[1].Value.Length
+                $openingLine = $lineNumber
+                $lines.Add([pscustomobject]@{ Number=$lineNumber; Text='' })
+                continue
+            }
+        }
+        $prose = New-Object System.Text.StringBuilder
+        $cursor = 0
+        while ($cursor -lt $line.Length) {
+            if ($inlineDelimiter) {
+                $close = [regex]::Match($line.Substring($cursor), '(?<!`)' + [regex]::Escape($inlineDelimiter) + '(?!`)')
+                if (!$close.Success) { break }
+                [void]$prose.Append(' ')
+                $cursor += $close.Index + $inlineDelimiter.Length
+                $inlineDelimiter = $null
+                continue
+            }
+            if ($insideComment) {
+                $commentEnd = $line.IndexOf('-->', $cursor)
+                if ($commentEnd -lt 0) { break }
+                [void]$prose.Append(' ')
+                $cursor = $commentEnd + 3
+                $insideComment = $false
+                continue
+            }
+            if ($line.Substring($cursor).StartsWith('<!--')) {
+                $insideComment = $true
+                $cursor += 4
+                continue
+            }
+            if ($line[$cursor] -eq [char]96) {
+                $slashes = 0
+                for ($previous = $cursor - 1; $previous -ge 0 -and $line[$previous] -eq [char]92; $previous--) { $slashes++ }
+                if ($slashes % 2 -eq 0) {
+                    $end = $cursor
+                    while ($end -lt $line.Length -and $line[$end] -eq [char]96) { $end++ }
+                    $delimiter = $line.Substring($cursor, $end - $cursor)
+                    $close = [regex]::Match($line.Substring($end), '(?<!`)' + [regex]::Escape($delimiter) + '(?!`)')
+                    if ($close.Success) {
+                        [void]$prose.Append(' ')
+                        $cursor = $end + $close.Index + $delimiter.Length
+                        continue
+                    }
+                    # Inline spans may cross soft line breaks, but not paragraph/fence/heading boundaries.
+                    $hasLaterClose = $false
+                    for ($following = $lineNumber; $following -lt $sourceLines.Count; $following++) {
+                        $laterLine = $sourceLines[$following]
+                        if ([string]::IsNullOrWhiteSpace($laterLine) -or $laterLine -match '^\s*(`{3,}|~{3,})' -or $laterLine -match '^\s{0,3}#{1,6}(?:\s|$)') { break }
+                        if ($laterLine -match ('(?<!`)' + [regex]::Escape($delimiter) + '(?!`)')) { $hasLaterClose = $true; break }
+                    }
+                    if ($hasLaterClose) {
+                        $inlineDelimiter = $delimiter
+                        [void]$prose.Append(' ')
+                        break
+                    }
+                    # An unmatched delimiter is ordinary prose; do not hide subsequent links.
+                    [void]$prose.Append($delimiter)
+                    $cursor = $end
+                    continue
+                }
+            }
+            [void]$prose.Append($line[$cursor])
+            $cursor++
+        }
+        $lines.Add([pscustomobject]@{ Number=$lineNumber; Text=$prose.ToString() })
+    }
+    $result = [pscustomobject]@{ Lines=$lines.ToArray(); UnclosedFenceLine=$openingLine }
+    $proseCache[$Path] = $result
+    return $result
+}
+
 $headingCache = @{}
 function Get-MarkdownHeadings([string]$Path) {
-    if ($headingCache.ContainsKey($Path)) { return $headingCache[$Path] }
+    if ($headingCache.ContainsKey($Path)) { return ,($headingCache[$Path]) }
     $counts = @{}
     $headings = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-    foreach ($line in Read-Utf8Lines $Path) {
+    $sourceLines = @(Read-Utf8Lines $Path)
+    foreach ($proseLine in (Get-MarkdownProse $Path).Lines) {
+        # Only rendered prose creates anchors. Retain inline-code title text for its slug.
+        if ($proseLine.Text -notmatch '^#{1,6}\s') { continue }
+        $line = $sourceLines[$proseLine.Number - 1]
         if ($line -match '^#{1,6}\s+(.+?)\s*#*\s*$') {
             $base = Get-MarkdownSlug $Matches[1]
             if (!$counts.ContainsKey($base)) {
@@ -44,11 +148,12 @@ function Get-MarkdownHeadings([string]$Path) {
         }
     }
     $headingCache[$Path] = $headings
-    return $headings
+    return ,$headings
 }
 
 $manifestPath = Join-Path $RepositoryRoot 'metadata\curriculum-manifest.json'
 $manifest = Read-Utf8Text $manifestPath | ConvertFrom-Json
+if ($manifest.schemaVersion -ne 3) { throw 'Expected explicit curriculum schema version 3.' }
 $entries = @($manifest.entries)
 $practices = @($entries | Where-Object category -eq 'Practices')
 $labs = @($entries | Where-Object category -eq 'Labs')
@@ -59,6 +164,8 @@ if ($practices.Count -ne 89 -or $labs.Count -ne 50) {
 $curriculumFiles = @(Get-ChildItem -LiteralPath (Join-Path $RepositoryRoot 'Instructions\Practices'), (Join-Path $RepositoryRoot 'Instructions\Labs') -File -Filter '*.md')
 $curriculumPaths = @($curriculumFiles | ForEach-Object { $_.FullName.Substring($RepositoryRoot.Length + 1).Replace('\', '/') })
 $declaredPaths = @($entries | ForEach-Object path)
+. (Join-Path $scriptRoot 'Test-CurriculumRules.ps1')
+Test-CurriculumDependencyCycles $entries
 $missingManifestEntries = @($curriculumPaths | Where-Object { $_ -notin $declaredPaths })
 $unexpectedManifestEntries = @($declaredPaths | Where-Object { $_ -notin $curriculumPaths })
 if ($missingManifestEntries.Count -or $unexpectedManifestEntries.Count) {
@@ -82,45 +189,34 @@ foreach ($entry in $entries) {
         throw "Azure-required entry has no Azure service: $($entry.path)"
     }
     $content = Read-Utf8Text $entryPath
-    $documentVms = @(
-        [regex]::Matches($content, '(?i)\b(?:VN[123]-SRV\d+|PM-SRV\d+|CL\d+|WIN-[A-Z0-9-]+)\b') |
-            ForEach-Object { $_.Value.ToUpperInvariant() } |
-            Sort-Object -Unique
-    )
-    $manifestVms = @($entry.requiredVmsOrTopology | Where-Object { $_ -match '^(?:VN[123]-SRV\d+|PM-SRV\d+|CL\d+|WIN-[A-Z0-9-]+)$' } | ForEach-Object { $_.ToUpperInvariant() } | Sort-Object -Unique)
-    if (($documentVms -join '|') -ne ($manifestVms -join '|')) {
-        throw "Manifest VM list does not match document: $($entry.path). Document=[$($documentVms -join ', ')]; manifest=[$($manifestVms -join ', ')]."
-    }
+
 }
 
+. (Join-Path $scriptRoot 'Test-CurriculumRules.ps1')
+$policyErrors = @(Test-CurriculumRules -Entries $entries -RepositoryRoot $RepositoryRoot)
+if ($policyErrors.Count) { throw "Curriculum consistency errors:`n$($policyErrors -join "`n")" }
+& (Join-Path $scriptRoot 'Update-CurriculumManifest.ps1') -RepositoryRoot $RepositoryRoot -Check
 $markdownFiles = @(Get-ChildItem -LiteralPath $RepositoryRoot -Recurse -File -Filter '*.md' |
     Where-Object FullName -NotMatch '[\\/]\.git[\\/]')
+foreach ($instruction in $markdownFiles | Where-Object FullName -Match '[\\/]Instructions[\\/]') {
+    if ((Read-Utf8Text $instruction.FullName) -match '(?i)comicrosoft\.com|smart\.etc|smpt\.ad\.lab\.test') {
+        throw "Known invalid domain in instruction document: $($instruction.FullName)"
+    }
+}
+$roadmap = Read-Utf8Text (Join-Path $RepositoryRoot 'Instructions\General\Staged-Lab-Roadmap.md')
+if ($roadmap -notmatch 'riskCost\.costClass=cost-gated' -or $roadmap -match 'riskCost\.cost=cost-gated') {
+    throw 'Stage H must filter the normalized riskCost.costClass field.'
+}
 $linkErrors = [System.Collections.Generic.List[string]]::new()
+$fenceErrors = [System.Collections.Generic.List[string]]::new()
 foreach ($file in $markdownFiles) {
-    $lineNumber = 0
-    $insideComment = $false
-    foreach ($line in Read-Utf8Lines $file.FullName) {
-        $lineNumber++
-        $scanLine = $line
-        if ($insideComment) {
-            if ($scanLine -match '-->') {
-                $scanLine = $scanLine.Substring($scanLine.IndexOf('-->') + 3)
-                $insideComment = $false
-            }
-            else { continue }
-        }
-        while ($scanLine -match '<!--') {
-            $commentStart = $scanLine.IndexOf('<!--')
-            $commentEnd = $scanLine.IndexOf('-->', $commentStart + 4)
-            if ($commentEnd -ge 0) {
-                $scanLine = $scanLine.Remove($commentStart, $commentEnd + 3 - $commentStart)
-            }
-            else {
-                $scanLine = $scanLine.Substring(0, $commentStart)
-                $insideComment = $true
-                break
-            }
-        }
+    $networkErrors = @(Test-WindowsVmnetNames (Read-Utf8Text $file.FullName))
+    if ($networkErrors.Count) { throw "$($file.FullName): $($networkErrors -join '; ')" }
+    $prose = Get-MarkdownProse $file.FullName
+    if ($prose.UnclosedFenceLine) { $fenceErrors.Add("$($file.FullName):$($prose.UnclosedFenceLine) unclosed Markdown code fence") }
+    foreach ($proseLine in $prose.Lines) {
+        $lineNumber = $proseLine.Number
+        $scanLine = $proseLine.Text
         foreach ($match in [regex]::Matches($scanLine, '!?\[[^\]]*\]\(([^)]+)\)')) {
             $target = $match.Groups[1].Value.Trim('<>')
             if ($target -match '^(https?:|mailto:)') { continue }
@@ -142,34 +238,6 @@ foreach ($file in $markdownFiles) {
 }
 if ($linkErrors.Count) { throw "Broken Markdown links:`n$($linkErrors -join "`n")" }
 
-$fenceErrors = [System.Collections.Generic.List[string]]::new()
-foreach ($file in $markdownFiles) {
-    $markerCharacter = $null
-    $markerLength = 0
-    $openingLine = 0
-    $lineNumber = 0
-    foreach ($line in Read-Utf8Lines $file.FullName) {
-        $lineNumber++
-        if ($null -eq $markerCharacter) {
-            $opening = [regex]::Match($line, '^\s*(`{3,}|~{3,}).*$')
-            if ($opening.Success) {
-                $markerCharacter = $opening.Groups[1].Value[0]
-                $markerLength = $opening.Groups[1].Value.Length
-                $openingLine = $lineNumber
-            }
-            continue
-        }
-        $closingPattern = '^\s*' + [regex]::Escape([string]$markerCharacter) + '{' + $markerLength + ',}\s*$'
-        if ($line -match $closingPattern) {
-            $markerCharacter = $null
-            $markerLength = 0
-            $openingLine = 0
-        }
-    }
-    if ($null -ne $markerCharacter) {
-        $fenceErrors.Add("$($file.FullName):$openingLine unclosed Markdown code fence")
-    }
-}
 if ($fenceErrors.Count) { throw "Unclosed Markdown code fences:`n$($fenceErrors -join "`n")" }
 
 $powerShellErrors = [System.Collections.Generic.List[string]]::new()
@@ -308,4 +376,4 @@ if ($multiDomainLab -notmatch '#task-4-add-the-contoso-upn-suffix' -or
     throw 'The multi-domain lab must configure the Contoso UPN suffix and create Wil in ad.contoso.com.'
 }
 
-Write-Output 'PASS: manifest file and VM coverage; metadata and uniqueness; Markdown links, images, anchors, and fences; standalone and embedded PowerShell syntax; script dependencies; self-learner language; legacy identity values; pinned container installer; VMware MDT and Contoso scenario integrity.'
+Write-Output 'PASS: explicit metadata and generated contracts for 139 exercises; VM declarations and role layers; Azure cost/cleanup; outbound access; permissions; normalized filters; local workarounds; adjacent WAC targets; instruction domains; links/fences; PowerShell syntax; script dependencies; pinned installer; VMware MDT and Contoso scenario integrity.'

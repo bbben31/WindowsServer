@@ -21,7 +21,7 @@
 ## PowerShell
 
 1. Open a terminal.
-1. Retrieve the Domain Administrator credentials and the Domain Services Restore Mode (DSRM) password.
+1. Run elevated as the new server's local administrator and collect the Directory Services Restore Mode (DSRM) password. No existing Domain Administrator credential is required to create the first forest.
 
     ```powershell
     $safeModeAdministratorPassword = Read-Host `
@@ -29,7 +29,6 @@
         -AsSecureString
     ```
 
-1. At the prompt Domain Administrator credential, enter the credentials of a Domain Administrator.
 1. At the prompt Directory Services Restore Mode password, enter a secure password and take a note.
 1. Configure parameters for the domain controller.
 

@@ -4,7 +4,7 @@ Use clean templates to reduce repeated installation work. This is the operationa
 
 ## Prerequisites, sizing, and rollback
 
-Complete [Milestone A networking](VMware-Segmented-Networking.md), verify `VMnet10`, `VMnet20`, `VMnet30`, and optional `VMnet8`, and run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) with both ISO paths. Download the Windows Server 2025 Evaluation ISO and Windows 11 ISO only from official Microsoft sources. Keep their SHA-256 values and download dates in private notes; never commit media, keys, tokens, or personal identifiers.
+Complete [Milestone A networking](VMware-Segmented-Networking.md), verify `VMnet10`, `VMnet11`, `VMnet12`, and optional `VMnet8`, and validate both ISO downloads against their official source/hash. The [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) requires a selected manifest Practice/Lab via `-CurriculumPath`; it is not a host-only/template checker. Download the Windows Server 2025 Evaluation ISO and Windows 11 Pro/Enterprise ISO only from official Microsoft sources. Home cannot join the later AD lab. Keep their SHA-256 values and download dates in private notes; never commit media, keys, tokens, or personal identifiers.
 
 On the 32 GB host, start conservatively:
 
@@ -12,7 +12,7 @@ On the 32 GB host, start conservatively:
 | --- | ---: | ---: | ---: | --- | --- |
 | `TEMPLATE-SRV2025` Server Core | 2 | 4 GB | 60 GB thin | VMnet10; VMnet8 only for updates | Run alone during installation |
 | `TEMPLATE-SRV2025-DE` Desktop Experience | 2 | 6 GB | 80 GB thin | VMnet10; VMnet8 only for updates | Use instead of Core, not alongside it |
-| `TEMPLATE-WIN11` | 2 | 4 GB | 64 GB thin | VMnet30; VMnet8 only for updates | Run with one Server template |
+| `TEMPLATE-WIN11` | 2 | 4 GB | 64 GB thin | VMnet12; VMnet8 only for updates | Run with one Server template |
 
 Do not power on every template and lab VM together. A practical initial startup is one Server template plus the Windows 11 template; shut down the template before cloning the next role. Leave at least 8 GB for the Windows 11 host and VMware overhead. Storage-heavy or nested labs need a separate expanded profile from the compatibility matrix.
 
@@ -29,14 +29,14 @@ Before changing a template, create `B-before-template-build`. If installation or
 ## Create the Windows 11 VM
 
 1. Create a second VM from the Windows 11 ISO named `TEMPLATE-WIN11`, stored under the same templates directory.
-2. Use 2 vCPUs, 4 GB RAM, a 64 GB thin-provisioned disk, UEFI firmware, and one adapter on **Custom: VMnet30**.
-3. Enable Secure Boot when supported by the selected Windows 11 configuration. Add a virtual TPM only if required by the edition or a later lab; do not copy a TPM-backed identity into another clone.
-4. Complete setup with a local administrator account and no personal Microsoft account, domain join, tokens, or private certificates. Keep its password outside Git.
+2. Use 2 vCPUs, 4 GB RAM, a 64 GB thin-provisioned disk, UEFI firmware, and one adapter on **Custom: VMnet12**.
+3. Use Secure Boot-capable UEFI and a virtual TPM 2.0, as required by the [supported Windows 11 VM baseline](https://learn.microsoft.com/en-us/windows/whats-new/windows-11-requirements). Configure the Workstation encryption/vTPM options through the supported UI; keep encryption/recovery material privately. Do not bypass installation checks or copy a TPM-backed identity into another VM.
+4. Use Pro/Enterprise media with a supported local/domain-oriented setup flow. If the selected edition/build requires a personal Microsoft account, do not bypass that requirement: select appropriate licensed/evaluation media instead. Complete setup without domain join, tokens, or private certificates. Keep the local administrator password outside Git.
 
 ## Prepare each clean template
 
 1. From **VM > Install VMware Tools**, install VMware Tools and restart. Verify that the VMware Tools service is running; do not download an untrusted installer.
-2. Connect VMnet8 only for approved updates and downloads. Keep the VMnet10/VMnet30 lab NIC as the intended primary NIC. Disconnect VMnet8 when updates finish.
+2. Connect VMnet8 only for approved updates and downloads. Keep the VMnet10/VMnet12 lab NIC as the intended primary NIC. Disconnect VMnet8 when updates finish.
 3. Apply Windows updates, restart until no pending restart remains, and confirm the correct time zone. Do not activate with a personal or committed key; follow the evaluation license terms and record the evaluation start date privately.
 4. Set a temporary workgroup name and temporary hostname only. Do not join `ad.lab.test`. Remove personal files, browser profiles, downloaded secrets, installers containing credentials, and test accounts other than the local administrator.
 5. Confirm the network profile and firewall are appropriate for an isolated workgroup. Do not assign an AD DNS server, static domain address, or production gateway to the template.
@@ -53,7 +53,7 @@ Before changing a template, create `B-before-template-build`. If installation or
 ## Windows 11 client template
 
 1. Create a new VMware VM from the Windows 11 ISO named `TEMPLATE-WIN11`.
-2. Attach the NIC to VMnet30 for client testing; use VMnet8 only for controlled updates.
+2. Attach the NIC to VMnet12 for client testing; use VMnet8 only for controlled updates.
 3. Install VMware Tools and updates. Do not join `ad.lab.test`, enroll the device, add personal accounts, or store tokens in the template.
 4. Take `B-windows11-clean` after shutdown and record the media version outside Git.
 
@@ -63,7 +63,9 @@ Templates use temporary names and workgroup identity. Assign final names and sta
 
 For a repeatable base, use a **full clone** when you need an independent, portable VM or expect to change disks extensively. A **linked clone** saves space and starts quickly but depends on the parent snapshot; use it only while the parent remains unchanged and available. Either clone type must receive a unique final hostname, machine identity, NIC configuration, and local test data before joining the domain.
 
-Sysprep/generalization is optional and must be used only on a disposable, supported workgroup template after reviewing the current Microsoft guidance. Do not generalize or clone domain controllers, certificate authorities, AD FS/RMS servers, machines with unique security identities, machines with a virtual TPM identity, or machines containing lab secrets. **Never clone an already-promoted AD identity.** Create `VN1-SRV1` from a clean template and promote it once; create `VN1-SRV5` through the documented additional-domain-controller procedure, not by cloning `VN1-SRV1`.
+Before duplicating a Windows Server installation, generalize the disposable, supported workgroup template with `C:\Windows\System32\Sysprep\Sysprep.exe /generalize /oobe /shutdown`, following [Microsoft's Sysprep guidance](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep-process-overview?view=windows-11). Capture the shut-down generalized checkpoint and clone without booting that source again; each clone completes OOBE independently. A renamed VMware display name or changed MAC address is not Windows generalization. If generalization fails, diagnose it or install each guest from media rather than cloning an unprepared image.
+
+Do not generalize or clone domain controllers, certificate authorities, AD FS/RMS servers, machines with unique security identities, machines with a virtual TPM identity, or machines containing lab secrets. The Windows 11 VM is a configuration reference in this default workflow: install each client separately with its own vTPM instead of cloning it. **Never clone an already-promoted AD identity.** Create `VN1-SRV1` from the generalized Server template and promote it once; create `VN1-SRV5` through the documented additional-domain-controller procedure, not by cloning `VN1-SRV1`.
 
 ## Read-only verification and expected state
 
@@ -82,7 +84,7 @@ Get-CimInstance Win32_ComputerSystem | Select-Object Name,Domain,PartOfDomain,Hy
 
 Expected conditions are the correct Windows version/build, one intended lab NIC, no domain membership, no unexpected default gateway on the isolated NIC, a suitable firewall profile, and a running VMware Tools service where installed. `PartOfDomain` must be `False` for both templates.
 
-After a full or linked clone, rename the VM and guest, assign its intended VMnet and address, verify `Get-NetIPConfiguration`, run preflight with the final VM name, and take a role-specific snapshot before joining `ad.lab.test`. The unique clone steps are deliberately not automated.
+After a full or linked Server clone, complete OOBE, rename the VM and guest, assign its intended VMnet and address, verify `Get-NetIPConfiguration`, and take a role-specific snapshot before joining `ad.lab.test`. When beginning a manifest practice/lab, run preflight with that item's `-CurriculumPath` and declared existing VM names. The unique clone steps are deliberately not automated.
 
 ## Cleanup
 

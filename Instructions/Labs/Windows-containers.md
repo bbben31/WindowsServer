@@ -1,6 +1,27 @@
 # Windows containers
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV13 (VMware display: VN1-SRV13; accepted display aliases: WIN-VN1-SRV13; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: raw.githubusercontent.com/microsoft/Windows-Containers pinned installer; mcr.microsoft.com and registry CDN; github.com/MicrosoftDocs/Virtualization-Documentation; Official winget/Git/Visual Studio Code sources and VS Code extension marketplace.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Optional nested Windows-container exercise. Verify VMware nesting and Microsoft host/image compatibility. Preserve the historical SDK 6 sample only in disposable compatibility work; skip sample-app building if its SDK/runtime/framework cannot be validated, and retain the basic container exercise.
+
+**Success verification:** The pinned installer hash matches and the compatible Nano Server image runs. The optional historical sample image is built only when its SDK/runtime/host compatibility gate passes; otherwise record the explicit skip and retain the basic container result.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -11,9 +32,9 @@
 
 ## Required VMs
 
+* CL1
 * VN1-SRV1
 * VN1-SRV13
-* CL1
 
 ## Introduction
 
@@ -47,6 +68,7 @@ Perform this task on VN1-SRV13.
 1. Download and install Docker CE from Github.
 
     ````powershell
+    New-Item -Path C:\WindowsServerLab\Resources\Downloads -ItemType Directory -Force | Out-Null
     Set-Location C:\WindowsServerLab\Resources\Downloads
     $uri = 'https://raw.githubusercontent.com/microsoft/Windows-Containers/9fd4c4d85597ce75834f4e1cd21695c34642de3d/helpful_tools/Install-DockerCE/install-docker-ce.ps1'
     $expectedHash = '09DED921D046EE98723ED533E6E517691C744A916769C181AA1C4A2DC784E63E'
@@ -114,10 +136,11 @@ Perform this task on VN1-SRV13.
 
     You are now in a `cmd.exe` session inside the container.
 
-1. In the container, create a simple text file **Hello.txt** in **C:\\Users\\ContainerUser** and exit from the container.
+1. In the container, run `echo %USERNAME%` and verify **ContainerAdministrator**, as explicitly selected by the preceding `--user ContainerAdministrator` run command. If it is not the administrator identity, stop and correct the disposable container's run configuration before writing at C:\.
+1. In that verified administrator container, create a simple text file **C:\\Hello.txt** and exit from the container.
 
     ````shell
-    echo "Hello World!" > Hello.txt
+    echo "Hello World!" > C:\Hello.txt
     exit
     `````
 
@@ -148,18 +171,18 @@ Perform this task on VN1-SRV13.
 
     You should see the helloworld image in addition to the Nano server image.
 
-1. Run the new container, type the content of **C:\\Users\\ContainerUser\\Hello.txt** and remove the container.
+1. Run the new container, type the content of **C:\\Hello.txt** and remove the container.
 
     ````powershell
-    docker container run --rm helloworld cmd.exe /s /c type Hello.txt
+    docker container run --rm helloworld cmd.exe /s /c type C:\Hello.txt
     ````
 
     You should see the content of Hello.txt.
 
 ## Exercise 2: Containerize a sample app
 
-1. [Install Git](#task-1-install-git) on VN2-SRV2
-1. [Install Visual Studio Code](#task-2-install-visual-studio-code) on VN2-SRV2 and add the Docker extension
+1. [Install Git](#task-1-install-git) on CL1
+1. [Install Visual Studio Code](#task-2-install-visual-studio-code) on CL1 and add the Docker extension
 1. [Clone the app repository](#task-3-clone-the-app-repository) <https://github.com/MicrosoftDocs/Virtualization-Documentation.git>
 1. [Build and run the app](#task-4-build-and-run-the-app): To build the app, you must change the base image for the build environment to mcr.microsoft.com/dotnet/sdk:6.0.406-nanoserver-ltsc2022. Run the container in Hyper-V isolation mode and map port 80 of the container to port 5000 on the host.
 
@@ -215,7 +238,7 @@ Perform this task on CL1.
 
 ### Task 4: Build and run the app
 
-Peform this task on CL1.
+Perform this task on CL1.
 
 1. Open **Visual Studio Code**.
 1. In Visual Studio Code, if the repository **VIRTUALIZATION-DOCUMENTATION** is not open:
@@ -233,7 +256,7 @@ Peform this task on CL1.
 
     Take a look at the file content. You can find a line-by-line explanation under <https://learn.microsoft.com/en-us/virtualization/windowscontainers/quick-start/building-sample-app#write-the-dockerfile>
 
-    *Note*:  For building containers, hyper-v isolation is not available. The source image has to be changed, because the original image does not run on Windows Server 2025 in process isolation mode. Therefore, we need an image of a more recent operating system that runs in process isolation mode on Windows Server 2025. Alternatively, you could build the container on an older version of Windows Server.
+    *Compatibility gate*: Consult [Microsoft's Windows container compatibility matrix](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility) for the actual host and image versions. Its Server 2025 table permits Server 2022 images in process or Hyper-V isolation; do not describe Server 2022 as newer than Server 2025. The pinned SDK 6 sample is historical. Inspect the project's target framework and every Dockerfile stage before building; if the old SDK/runtime or sample cannot be obtained and validated, skip this optional sample-app portion and retain exercise 1. Record the actual builder's supported isolation mode rather than claiming all builders forbid Hyper-V isolation.
 
 1. On the menu click **File**, **Save**.
 1. On the menu, click **View**, **Terminal**.
@@ -287,13 +310,12 @@ Peform this task on CL1.
     docker container run -d -p 5000:80 --isolation hyperv --name myapp my-asp-app
     ````
 
-    *Note:* The container must be run in Hyper-V isolation mode, because it is based on an older version of Windows Server.
+    *Note:* This step deliberately demonstrates Hyper-V isolation. It is a teaching choice; consult the compatibility matrix before claiming that image/host versions require it.
 
-1. Open **Microsoft Edge**.
+1. On VN1-SRV13, allow the published port only from CL1's recorded lab address, using an exercise-specific inbound TCP rule for **5000** (Domain profile). Record any existing rule; do not open the port to unrelated networks.
+1. Exit the remote PowerShell session to return to **CL1**. Open **Microsoft Edge**.
 1. In Microsoft Edge, navigate to <http://VN1-SRV13:5000>.
 
     You should see a sample web site.
 
 [figure 1]: /images/Docker-VSCode-extension.png
-
-

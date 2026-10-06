@@ -10,10 +10,10 @@
 1. If there is no KDS root key, generate it.
 
     ````powershell
-    Add-KdsRootKey -EffectiveTime (Get-Date).AddHours((-10))
+    Add-KdsRootKey -EffectiveImmediately
     ````
 
-    *Note:* In a real-world scenario, it is recommended to not use the ```-EffectiveTime```parameter. Instead, after generating the KDS root key, wait for at least 10 hours before proceeding.
+    Wait at least 10 hours for safe replication before using the key in a multi-DC forest. Only in an isolated single-DC test forest may you instead use `Add-KdsRootKey -EffectiveTime (Get-Date).AddHours(-10)` to avoid that wait. Do not create a second key or backdate a key in the multi-controller enterprise lab merely to bypass the replication delay.
 
 1. Verify the KDS root key again.
 

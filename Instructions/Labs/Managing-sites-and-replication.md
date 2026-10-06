@@ -1,6 +1,27 @@
 # Lab: Managing sites and replication
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Labs/Deploying-domain-controllers.md; Instructions/Labs/Deploying-and-managing-read-only-domain-controllers.md; Instructions/Labs/Multi-domain-environments.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional until retired; supply the guest or explicitly confirm retirement with -RetiredVmName); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN3-SRV1 (VMware display: VN3-SRV1; accepted display aliases: WIN-VN3-SRV1; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup.
+
+**Permissions:** Lab Enterprise/Domain Administrator for the named forest/domain changes; Schema Admin only for schema extension. Local Administrator for guest setup. Remove temporary role membership afterward.
+
+**Outbound access:** Windows Update downloads Windows 11 RSAT Features on Demand on CL1 during the documented setup/fallback. Before installing capabilities, attach a temporary second VMware NIC to VMnet8 NAT; retain the AD NIC and its AD DNS, disable DNS registration on the NAT NIC, and record adapters/routes/DNS. Disconnect VMnet8 immediately after installation. If the required tools are already installed, the download step needs no outbound access. Endpoints: *.windowsupdate.com (Windows Update service/content); *.update.microsoft.com (Microsoft Update service); *.delivery.mp.microsoft.com (Windows Update delivery); https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance).
+
+**Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** Sites/subnets and replication schedules match the declared topology; repadmin and client site discovery show expected partners/site.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect the temporary VMnet8 NIC after capability installation and restore recorded adapters/routes/DNS; retain installed RSAT until dependent exercises finish.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -11,14 +32,16 @@
 
 ## Required VMs
 
+* CL1
+* CL2
+* PM-SRV1
 * VN1-SRV5
 * VN1-SRV7
 * VN2-SRV1
 * VN3-SRV1
-* CL1
-* CL2
+* Conditional until retired: VN1-SRV1
 
-If you did not complete the lab [Deploying domain controllers](Deploying-domain-controllers.md), in addition to the VMs above, **VN1-SRV1** is required. If VN1-SRV1 is already shut down after the lab, do not start it.
+> **Conditional controller lifecycle:** Supply VN1-SRV1 while it remains the active original controller. After its documented retirement, confirm that VN1-SRV5 serves the original DNS address and the required directory roles, then pass `-RetiredVmName VN1-SRV1` to preflight; never restart a retired controller. Retirement requires the completed address/role handover, not merely completing controller promotion or switching off a guest. Steps concerning the retired server apply only to recorded historical state or removal of its stale directory objects.
 
 ## Setup
 
@@ -178,13 +201,12 @@ Perform this task on CL1.
 
 1. Open **Active Directory Sites and Services**.
 1. In Active Directory Sites and Services, expand **VNet1** and **Servers**.
-1. In the context-menu of **VN1-SRV1**, click **Delete**.
-1. In the message box **Are you sure you want to delete the server named 'VN1-SRV1'?**, click **Yes**.
-1. In the message box **Obbject VN1-SRV1 contains other objects. Are you sure you want to delete object VN1-SRV1 and all of the objects it contains?**, click **Yes**.
+1. Check the recorded controller lifecycle and `Get-ADDomainController -Filter *`. If **VN1-SRV1 is still a live controller**, retain its server and NTDS Settings objects and skip deletion. Only after documented demotion/retirement and healthy replication may you delete its verified stale server object; review the exact object and any child objects before confirming. Do not recursively delete a live controller to satisfy this exercise.
 1. In the context-menu of **VN2-SRV1**, click **Move...**.
 1. In Move Server, click **VNet2** and click **OK**.
 1. In the context-menu of **PM-SRV1**, click **Move...**.
 1. In Move Server, click **Perimeter** and click **OK**.
+1. If the prerequisite topology includes live **VN3-SRV1** as a DC/RODC, move its server object to **VNet3**. Confirm its subnet mapping and actual domain before moving; do not invent a controller object for an unpromoted member.
 
 #### PowerShell
 
@@ -200,16 +222,23 @@ Perform this task on CL1.
         -Filter 'ObjectClass -eq "server"'
     ````
 
-1. Delete VN1-SRV1.
+1. Remove only a verified stale VN1-SRV1 server object after documented retirement. If VN1-SRV1 remains live, skip this step and retain its replication objects.
 
     ````powershell
-    Get-ADObject `
-        -SearchBase "CN=Servers, $($adReplicationSite.DistinguishedName)" `
-        -Filter 'ObjectClass -eq "server" -and Name -eq "VN1-SRV1"' |
-    Remove-ADObject -Recursive
+    if (Get-ADDomainController -Filter * | Where-Object Name -eq 'VN1-SRV1') {
+        Write-Host 'VN1-SRV1 is live; retain its server object.'
+    } else {
+        $retirementConfirmed = Read-Host 'Enter RETIRED only after verifying completed demotion, handover and healthy replication'
+        if ($retirementConfirmed -eq 'RETIRED') {
+            Get-ADObject `
+                -SearchBase "CN=Servers,$($adReplicationSite.DistinguishedName)" `
+                -Filter 'ObjectClass -eq "server" -and Name -eq "VN1-SRV1"' |
+                Remove-ADObject -Recursive -Confirm
+        }
+    }
     ````
 
-1. At the prompt
+1. Only if the verified stale object is being removed, review the prompt
 
     ````text
     Are you sure you want to perform this action?
@@ -230,6 +259,8 @@ Perform this task on CL1.
     ````powershell
     Move-ADDirectoryServer -Identity PM-SRV1 -Site Perimeter
     ````
+
+1. For the live VN3-SRV1 DC/RODC in the prerequisite topology, run `Move-ADDirectoryServer -Identity VN3-SRV1 -Site VNet3` and verify its resulting site. If it is not promoted in the selected lineage, record that instead of creating a fictitious server object.
 
 ### Task 5: Verify the site of client
 
@@ -329,9 +360,9 @@ Perform this task on CL1.
 1. Disable the Global Catalog on the server.
 
     ````powershell
-    Set-ADObject `
-        -Identity "CN=NTDS Settings, $($server.distinguishedName)" `
-        -Replace @{ options='0'}
+    $ntds = Get-ADObject -Identity "CN=NTDS Settings,$($server.DistinguishedName)" -Properties options
+    # Clear only the Global Catalog bit; preserve other NTDS option flags.
+    Set-ADObject -Identity $ntds -Replace @{ options = ([int]$ntds.options -band -bnot 1) }
     ````
 
 ## Exercise 3: Create site links
@@ -522,7 +553,3 @@ This is an optional exercise, if time permits.
 Wait for at least 1 hour  after completing exercise 3 in this lab, before performing this exercise.
 
 Refer to [Practice: Explore intra-site replication](../Practices/Explore-intra-site-replication.md) to document the changes in replication topology caused by the new site design.
-
-
-
-

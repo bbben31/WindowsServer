@@ -1,6 +1,27 @@
 # Lab: Installing and configuring a failover cluster
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Create-an-exportable-web-server-certificate-template.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Enable VMware processor virtualization extensions on powered-off outer hosts; run Hyper-V commands only inside the declared nested lab layer.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV10 (VMware display: VN1-SRV10; accepted display aliases: WIN-VN1-SRV10; existing); VN1-SRV2 (VMware display: VN1-SRV2; accepted display aliases: WIN-VN1-SRV2; existing); VN1-SRV23 (Hyper-V name: VN1-SRV23; accepted display aliases: WIN-VN1-SRV23; created in the designated task; not a preflight prerequisite); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Local Administrator on the explicitly declared nested Hyper-V hosts and inner guests; cluster administrator for cluster changes. VMware settings permission on the outer host.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft Windows Admin Center download/extension endpoints.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** Cluster validation completes with documented lab exceptions; the general-use File Server, CSVs and inner test VM move to the intended surviving node. Optional WAC results are recorded only where its current cluster support gate permits them.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -9,16 +30,19 @@
 
 * CL1
 * VN1-SRV1
+* VN1-SRV10
 * VN1-SRV2
 * VN1-SRV4
 * VN1-SRV5
-* VN1-SRV10
+* Created during exercise: VN1-SRV23
 
 ## Known Issues
 
-As of December 2024, Microsoft release Windows Admin Center V2 without any documentation on how to set up Windows Admin Center on a cluster. Therefore, exercise 4 should be skipped. Repectively, in exercise 5 instructions and questions regarding Windows Admin Center should be ignored.
+Exercise 4 is compatibility-gated: verify the recorded WAC version's current documented cluster-deployment support before attempting it. If unavailable, skip only that optional extension and its WAC-specific checks in Exercises 5 and 6; complete the file-server and Hyper-V failover tests. Do not treat a dated product note as verification of present support.
 
 ## Setup
+
+Use the recorded **member-server** lineage for VN1-SRV4 and VN1-SRV5. If VN1-SRV5 is an AD domain controller from directory exercises, use a separate coordinated pre-promotion lab snapshot/clone for this cluster; do not remove live directory roles to make it a cluster node. Before Exercise 1, complete [Implementing and managing iSCSI and MPIO](Implementing-and-managing-iSCSI-and-multipath-io.md): verify target **VN1-CLST1** on VN1-SRV10 exports its **1 GB quorum, 10 GB CSV1, 80 GB CSV2 and 100 MB Shares** disks to **both nodes**. Record guest DiskGuid/volume mappings and both .128/.144 storage paths. Provision/configure **Multipath I/O on both nodes**; this lab's detailed initiator demonstration is on VN1-SRV4, not evidence that VN1-SRV5 is connected. Never initialize a shared disk twice.
 
 1. On **VN1-SRV2**, sign in as **ad\Administrator**.
 1. Open **Windows PowerShell** as Administrator.
@@ -68,7 +92,7 @@ Perform this task on CL1.
 Peform this task on CL1.
 
 1. In the context menu of **Start**, click **Terminal**.
-1. In Terminal, install the windows feature **iSCSI Target Server** on **VN1-SRV4**.
+1. In Terminal, install the Windows feature **Multipath I/O** on **VN1-SRV4**.
 
     ````powershell
     Install-WindowsFeature `
@@ -114,7 +138,7 @@ Perform this task on CL1.
 Perform this task on VN1-SRV4.
 
 1. In SConfig, enter **15**.
-1. Open **MPIO properties**.
+1. Open **iSCSI Initiator properties**.
 
    ````powershell
    iscsicpl.exe
@@ -138,7 +162,7 @@ Perform this task on VN1-SRV4.
 Perform this task on CL1.
 
 1. In the context menu of **Start**, click **Terminal**.
-1. In Terminal, create a remote PowerShell session to **VN1-SRV5**.
+1. In Terminal, create a remote PowerShell session to **VN1-SRV4**.
 
     ````powershell
     Enter-PSSession VN1-SRV4
@@ -165,7 +189,7 @@ Perform this task on CL1.
     $iscsiTarget = Get-IscsiTarget -IscsiTargetPortal $iscsiTargetPortal
     ````
 
-1. Connect to the target using multi-path. Use the IP address **10.1.128.40** on the initiator side, and **10.1.128.80** on the target side.
+1. Connect to the target using multi-path. Use the IP address **10.1.128.32** on the initiator side, and **10.1.128.80** on the target side.
 
     ````powershell
     $iscsiTarget | Connect-IscsiTarget `
@@ -175,7 +199,7 @@ Perform this task on CL1.
       -IsPersistent $true
     ````
 
-1. Connect to the target using multi-path. Use the IP address **10.1.128.40** on the initiator side, and **10.1.128.80** on the target side.
+1. Connect to the target using multi-path. Use the IP address **10.1.144.32** on the initiator side, and **10.1.144.80** on the target side.
 
    ````powershell
    $iscsiTarget | Connect-IscsiTarget `
@@ -196,7 +220,7 @@ Perform this task on CL1.
 1. [Install the Remote Server Administration Failover Clustering Tools](#task-1-install-the-remote-server-administration-failover-clustering-tools) on CL1
 1. [Install the failover clustering feature](#task-2-install-the-failover-clustering-feature) on VN1-SRV4 and VN1-SRV5
 1. [Validate the configuration](#task-3-validate-the-configuration) on VN1-SRV4 and VN1-SRV5
-1. [Create a failover cluster](#task-4-create-a-virtual-machine) with VN1-SRV4 and VN1-SRV5 as nodes with the name VN1-CLST1 and the IP address 10.1.1.33
+1. [Create a failover cluster](#task-4-create-a-failover-cluster) with VN1-SRV4 and VN1-SRV5 as nodes with the name VN1-CLST1 and the IP address 10.1.1.33
 1. [Configure the quorum](#task-5-configure-the-quorum) to use the smallest disk as disk witness
 1. [Configure Cluster Shared Volumes](#task-6-configure-cluster-shared-volumes) according to the table below.
 
@@ -234,7 +258,7 @@ You do not need to wait for the completion of the installation
 Perform these steps on CL1.
 
 1. In the context menu of **Start**, click **Terminal (Admin)**.
-1. Add the windows capabilities **RSAT: Server DNS Server tools**.
+1. Add the Windows capability **RSAT: Failover Clustering Management Tools**.
 
     ````powershell
     Get-WindowsCapability `
@@ -442,7 +466,7 @@ Perform this task on CL1.
 
 ## Exercise 3: Use Hyper-V on a cluster
 
-1. [Configure nested virtualization](#task-1-configure-nested-virtualization) by exposing virtualization extensions and enabling MAC address spoofing for WIN-VN1-SRV4 and WIN-VN1-SRV5. Configure the machines with static memory of 3 GB.
+1. [Configure nested virtualization](#task-1-configure-nested-virtualization) by exposing VMware processor virtualization extensions for the outer WIN-VN1-SRV4 and WIN-VN1-SRV5 guests. Configure each with 4 GB memory. Hyper-V MAC-spoofing commands do not apply to these outer VMware guests.
 1. [Install Hyper-V](#task-2-install-hyper-v) on VN1-SRV4 and VN1-SRV5 and set the default locations to the 80 GB CSV
 1. [Configure a virtual switch](#task-3-configure-a-virtual-switch) VN1-SRV4 and VN1-SRV5 connected to the network adapter VNet1
 1. [Create a virtual machine](#task-4-create-a-virtual-machine) on the cluster using a diffencing disk based on TinyCorePure64.vhdx with 256 MB memory.
@@ -450,40 +474,7 @@ Perform this task on CL1.
 
 ### Task 1: Configure nested virtualization
 
-Perform this task on the host.
-
-1. Open **Windows PowerShell (Admin)**.
-1. In Windows PowerShell (Admin), shut down **WIN-VN1-SRV4** and **WIN-VN1-SRV5**.
-
-    ````powershell
-    $vMName = @('WIN-VN1-SRV4', 'WIN-VN1-SRV5')
-    $vMName | ForEach-Object { Stop-VM -VMName $PSItem }
-    ````
-
-1. Expose virtualization extensions to **WIN-VN1-SRV4** and **WIN-VN1-SRV5**.
-
-    ````powershell
-    Set-VMProcessor -VMName $vMName -ExposeVirtualizationExtensions $true
-    ````
-
-1. Enable MAC address spoofing for **WIN-VN1-SRV4** and **WIN-VN1-SRV5**.
-
-    ````powershell
-    Get-VMNetworkAdapter -VMName $vMName |
-    Set-VMNetworkAdapter -MacAddressSpoofing On
-    ````
-
-1. Disable dynamic memory and set the startup memory to 3 GB.
-
-    ````powershell
-    Set-VM -VMName $vMName -StaticMemory -MemoryStartupBytes 3GB
-    ````
-
-1. Start the virtual machines.
-
-    ````powershell
-    Start-VM -VMName $vMName
-    ````
+On the VMware Workstation host, shut down the Hyper-V cluster hosts named by this exercise. Open each outer VM's **Settings > Processors** and enable **Virtualize Intel VT-x/EPT or AMD-V/RVI**; allocate at least 4 GB fixed memory or the larger amount required by the workload. Record each VMnet and disk mapping, then restart the guests and verify virtualization with systeminfo. Run the later Hyper-V/cluster commands inside these nested Windows guests. Do not apply Hyper-V host commands to the outer VMware VMs.
 
 ### Task 2: Install Hyper-V
 
@@ -557,8 +548,22 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **File Explorer**.
-1. In File Explorer, copy **\\\\VN1-SRV4\\C$\\WindowsServerLab\\Resources\\TinyCorePure64.vhdx** to **\\\\VN1-SRV4\\C$\\ClusterStorage\\Volume4\\Hyper-V\\Virtual Hard Disks**. Replace 4 with the volume number of the 80 GB disk.
-1. Rename **\\\\VN1-SRV4\\C$\\ClusterStorage\\Volume*x*\\Hyper-V\\Virtual Hard Disks\\TinyCorePure64.vhdx** to **VN1-SRV23.vhdx**
+1. In File Explorer, copy **\\\\VN1-SRV4\\C$\\WindowsServerLab\\Resources\\TinyCorePure64.vhdx** to the **Hyper-V\\Virtual Hard Disks** folder on the recorded 80 GB CSV. Keep this parent disk's name and contents unchanged.
+1. In an elevated PowerShell session on **VN1-SRV4**, create the differencing child on that same CSV. Replace the placeholder with the recorded CSV directory, verify both paths, and stop if a child already exists:
+
+    ````powershell
+    $diskRoot = 'C:\ClusterStorage\<RECORDED_CSV>\Hyper-V\Virtual Hard Disks'
+    if ($diskRoot.Contains('<')) { throw 'Supply the recorded 80 GB CSV path.' }
+    $parentPath = Join-Path $diskRoot 'TinyCorePure64.vhdx'
+    $childPath = Join-Path $diskRoot 'VN1-SRV23.vhdx'
+    if (!(Test-Path -LiteralPath $parentPath) -or (Test-Path -LiteralPath $childPath)) {
+        throw 'Verify the staged parent and a new child path before continuing.'
+    }
+    New-VHD -Path $childPath -ParentPath $parentPath -Differencing
+    Get-VHD -Path $childPath | Select-Object Path, VhdType, ParentPath
+    ````
+
+    Return to CL1. Attach **VN1-SRV23.vhdx**, not its parent, in the following wizard. Both disks must remain on shared storage for migration.
 1. Open **Failover Cluster Manager**.
 1. In Failover Cluster Manager, expand **VN1-CLST1.ad.lab.test** and click **Roles**.
 1. In **Failover Cluster Manager**, in the context-menu of **Roles**, click **Virtual Machines...**, **New Virtual Machine...**.
@@ -720,6 +725,7 @@ Perform this task on VN1-SRV4.
 1. Add a DNS host record for the admincenter to the DNS server **VN1-SRV1**.
 
     ````powershell
+    $staticAddress = '10.1.1.34'
     Add-DnsServerResourceRecordA `
         -Name $hostname `
         -IPv4Address $staticAddress `
@@ -753,7 +759,7 @@ Perform this task on CL1.
 
 1. [Install the File Server](#task-1-install-the-file-server-role) role on VN1-SRV4
 
-    Note: On VN1-SRV5, the file server role was installed in a previous lab already.
+    Verify FS-FileServer on **each** node with `Get-WindowsFeature -ComputerName VN1-SRV4 -Name FS-FileServer`, then repeat for VN1-SRV5. Repeat installation for either node where it is absent; a prior exercise name is not proof that the role exists.
 
 1. [Configure the File Server role on the failover cluster](#task-2-configure-the-file-server-role-on-the-failover-cluster) with the name VN1-CLST1-FS and the IP address 10.1.1.35 using the 100 MB disk
 
@@ -803,6 +809,10 @@ Perform this task on CL1.
 1. On page Confirmation, click **Next >**.
 1. On page Summary, click **Finish**.
 
+### Prepare the clustered witness share for dependent clusters
+
+After **VN1-CLST1-FS** is Online, create a dedicated **Witness** folder on its recorded 100 MB shared disk and publish an SMB share named **Witness** through the clustered file-server role, not a node-local share. The resulting path is `\\VN1-CLST1-FS\Witness`. Retain administrator access and remove broad Everyone access. When a dependent cluster's computer object exists, grant that specific CNO (for example **ad\VN2-VN3-CLST1$** for the stretched cluster) share Change and NTFS Modify on this dedicated witness folder, then verify the selected cluster can configure the share witness. Add only the actual consuming CNOs; do not expose the witness as a general data share. Record the clustered share/volume mapping and fail it over before relying on it for another cluster.
+
 ## Exercise 6: Test failover
 
 1. [Monitor cluster services](#task-1-monitor-cluster-services) by testing the network connection to 10.1.1.184 continously, monitoring the console of VN1-SRV23 and viewing the Windows Admin Center web site
@@ -846,15 +856,15 @@ Keep all windows open for the next task.
 
 Perform this task on the host.
 
-1. Arrange the **VN1-CL1 on *host* Virtual Machine Connection** window so, that you can monitor it while continuing with the next steps.
-1. Open **Hyper-V-Manager**.
-1. In Hyper-V-Manager, in the context-menu of the virtual computer, running the cluster roles, click **Turn off...**.
+1. Arrange the VMware CL1 console and the inner VN1-SRV23 connection so you can monitor the management view and workload.
+1. Open **VMware Workstation**.
+1. Identify the outer VMware VM for the recorded owner of the cluster roles. Choose **VM > Power > Power Off** for this controlled disposable-node failure simulation.
 
-    > After a few seconds, in **Failover Cluster Manager**, **Roles** the **amincenter** should move to the other node and the Windows Admin Center should stay available.
+    > After a few seconds, in **Failover Cluster Manager**, **Roles** the **admincenter** should move to the other node and the Windows Admin Center should stay available.
 
-    > After a few seconds, **VN1-SRV23** will become **Unmonitored**. After some minutes, the virtual machine, will start on **VN1-SRV5**. The network connection should work again, but you will need to reconnect.
+    > VN1-SRV23 should restart on the recorded **surviving node** (not necessarily VN1-SRV5). Verify its actual owner and reconnect to the guest. Verify WAC availability only if its optional clustered deployment was successfully completed.
 
-1. In the context-menu of the virtual computer you just turned off, click **Start**.
+1. In VMware Workstation, power on the outer VM you just turned off and verify the cluster node rejoins.
 
 ## Exercise 7: Use cluster-aware updating
 
@@ -905,7 +915,3 @@ Perform this task on CL1.
 1. On page Additional Update Options, activate **Give me recommended updates the same way that I receive important updates** and click **Next >**.
 1. On page Confirmation, click **Apply**.
 1. On page Completion, click **Close**.
-
-
-
-

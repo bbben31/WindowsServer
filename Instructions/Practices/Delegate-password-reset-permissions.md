@@ -1,12 +1,34 @@
 # Practice: Delegate password reset permissions
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-Remote-Server-Administration-Tools.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; conditional until retired; supply the guest or explicitly confirm retirement with -RetiredVmName); VN1-SRV5 (VMware display: VN1-SRV5; accepted display aliases: WIN-VN1-SRV5; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary VMnet8 NAT on CL1 only for Windows Update RSAT capability installation; preserve the AD NIC/DNS and disconnect after setup.
+
+**Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup.
+
+**Outbound access:** Windows Update downloads Windows 11 RSAT Features on Demand on CL1 during the documented setup/fallback. Before installing capabilities, attach a temporary second VMware NIC to VMnet8 NAT; retain the AD NIC and its AD DNS, disable DNS registration on the NAT NIC, and record adapters/routes/DNS. Disconnect VMnet8 immediately after installation. If the required tools are already installed, the download step needs no outbound access. Endpoints: *.windowsupdate.com (Windows Update service/content); *.update.microsoft.com (Microsoft Update service); *.delivery.mp.microsoft.com (Windows Update delivery); https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-security (current service endpoint guidance).
+
+**Risk, cost and optional status:** low; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate.
+
+**Success verification:** The delegated user can reset a test password in the intended OU and cannot administer unrelated OUs.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect the temporary VMnet8 NIC after capability installation and restore recorded adapters/routes/DNS; retain installed RSAT until dependent exercises finish.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
 ## Required VMs
 
+* CL1
 * VN1-SRV5
 * VN1-SRV7
-* CL1
+* Conditional until retired: VN1-SRV1
 
-If you did not complete the lab [Deploying domain controllers](../Labs/Deploying-domain-controllers.md), in addition to the VMs above, **VN1-SRV1** is required. If VN1-SRV1 is already shut down after the lab, do not start it.
+> **Conditional controller lifecycle:** Supply VN1-SRV1 while it remains the active original controller. After its documented retirement, confirm that VN1-SRV5 serves the original DNS address and the required directory roles, then pass `-RetiredVmName VN1-SRV1` to preflight; never restart a retired controller. Retirement requires the completed address/role handover, not merely completing controller promotion or switching off a guest. Steps concerning the retired server apply only to recorded historical state or removal of its stale directory objects.
 
 ## Setup
 
@@ -26,7 +48,7 @@ Perform these steps on CL1.
 1. In the context-menu of **IT**, click **New**, **Group**.
 1. In New Object - Group, in **Group name**, type **Helpdesk**. Under **Group scope**, ensure **Global** is selected. Under **Group type**, ensure **Security** is selected. Click **OK**.
 1. In **Active Directory Users and Computers**, in **IT**, click **Dante Dabney**, hold down CTRL, and click **Ida Alksne**, **Lara Raisic**, and  **Stefan Deboer**.
-1. In the **Tasks** pane, under **4 items selected**, click **Add to group...**.
+1. In the context menu of the selected users in **Active Directory Users and Computers**, click **Add to a group...**.
 1. In Select Groups, under **Enter the object names to select**, type **Helpdesk** and click **OK**.
 1. In **Active Directory Users and Computers**, click **Entitling groups**.
 1. In the context-menu of **Entitling Groups**, click **New**, **Group**.
@@ -53,10 +75,10 @@ Perform these steps on CL1.
 
     > You cannot edit any properties.
 
-1. In Abbie Parsons, click **Cancel**.
+1. In Ada Russell, click **Cancel**.
 1. In **Active Directory Administrative Center**, in **ad-Sales**, in the context-menu of **Abbie Parsons**, click **Reset password...**.
 1. In Reset Password, in **Password** and **Confirm password**, type a secure password. Click to deactivate **User must change password at next log on** and click **OK**.
 
     > You have reset the password of a user successfully.
 
-
+1. As the same delegated user, try to reset the password of a disposable test user in another OU (not an administrator or service account). Record **Access denied**. If it succeeds, inspect inherited permissions and group memberships before claiming the delegation is restricted to Sales.

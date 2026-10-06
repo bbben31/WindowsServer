@@ -1,6 +1,27 @@
 # Lab: Implementing IP address management
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-the-DHCP-server-role.md; Instructions/Practices/Install-the-DNS-server-role.md; Instructions/Practices/Add-a-DHCP-scope.md; Instructions/Practices/Authorize-DHCP-server-and-activate-scope.md; Instructions/Practices/Configure-DHCP-server-options.md; Instructions/Labs/Implementing-DHCP-fault-tolerance.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Prepare VN1-SRV3's shared default SQL instance and signed SSMS using the linked reusable SQL setup; scope network access for VN1-SRV8 and CL1. The IPAM provisioning task creates the dedicated computer login/database. Prepare and record all seven managed servers' DNS/DHCP roles, scopes, exclusions/reservations, unsigned DNS zones, forwarding and managed-access state before discovery. Use actual VNet3 guest MACs and unused addresses, not fabricated inventory. The reusable local SQL Setup wizard requires the explicitly selected VN1-SRV3 Desktop Experience SQL-host lineage; do not assume the default Server Core image has that GUI or convert an installed Core server in place.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); PM-SRV1 (VMware display: PM-SRV1; accepted display aliases: WIN-PM-SRV1; existing); PM-SRV2 (VMware display: PM-SRV2; accepted display aliases: WIN-PM-SRV2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV3 (VMware display: VN1-SRV3; accepted display aliases: WIN-VN1-SRV3; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN1-SRV8 (VMware display: VN1-SRV8; accepted display aliases: WIN-VN1-SRV8; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing); VN3-SRV2 (VMware display: VN3-SRV2; accepted display aliases: WIN-VN3-SRV2; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Official Microsoft SQL Server and SSMS media/bootstrapper dependencies.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution. Local adapted SSMS and discovery workarounds are mandatory prerequisites.
+
+**Success verification:** All seven managed inventory servers appear unblocked; IPAM SQL provisioning and DHCP/DNS allocation match actual server state.
+
+**Rollback and cleanup:** Remove only exercise IPAM allocations, DNS records and DHCP reservations after verification. Restore the coordinated IPAM/SQL/AD/server baseline; remove exercise IPAM database/login/GPOs only if no dependent lab uses them. Remove temporary VMnet8.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -11,25 +32,32 @@
 
 ## Required VMs
 
+* CL1
+* PM-SRV1
+* PM-SRV2
 * VN1-SRV1
+* VN1-SRV3
 * VN1-SRV4
 * VN1-SRV6
 * VN1-SRV7
 * VN1-SRV8
 * VN2-SRV1
 * VN2-SRV2
-* PM-SRV1
-* PM-SRV2
-* CL1
+* VN3-SRV2
 
 ## Setup
 
 On **CL1**, sign in as **ad\Administrator**.
 
+1. Prepare the default SQL instance and signed SSMS using [Prepare the shared SQL backend](Active-Directory-Rights-Management-Service.md#prepare-the-shared-sql-backend); this does not require completing the RMS exercises. Extend the scoped SQL TCP 1433 firewall access to the recorded **VN1-SRV8** IP for IPAM, retaining CL1's administrative access. Verify CL1 connects through SSMS and VN1-SRV8 can reach the database engine before database provisioning. Task 3 creates the dedicated computer login/database, rather than assuming that mapping already exists.
+1. Complete [Add a DHCP scope](../Practices/Add-a-DHCP-scope.md), [Authorize DHCP server and activate scope](../Practices/Authorize-DHCP-server-and-activate-scope.md), [Configure DHCP server options](../Practices/Configure-DHCP-server-options.md), and [Implementing DHCP fault-tolerance](Implementing-DHCP-fault-tolerance.md) in the same recorded enterprise topology before importing managed DHCP state. These create the VNet1/VNet2 scopes and configured partners; install/authorize the DHCP roles on VN1-SRV6, VN1-SRV7 and VN2-SRV2 as those instructions require. Keep VMware DHCP disabled on the served VMnets, record static exclusions/reservations and test client leases.
+1. Install and configure the DNS role on **VN1-SRV1, VN2-SRV1, PM-SRV1 and PM-SRV2**. For the perimeter/non-AD zones, use the unsigned fixture preparation in [Implementing DNS Security](Implementing-DNS-Security.md#prepare-the-unsigned-dns-fixture) without applying NRPT/signing merely for this lab. Verify authoritative zone records and the lab's conditional forwarding before discovery. Record all seven managed servers, their actual IPs, DNS/DHCP roles and scope/zone inventory; compare imported data with that inventory after retrieval.
+1. Reserve `10.1.3.8` for the recorded existing VNet3 guest used in Exercise 4 (not VN3-SRV2), including its actual MAC/device name in the inventory. If no such guest exists in this selected baseline, use a recorded disposable VNet3 test guest/address and substitute that address consistently in the first reservation test; do not bind two guests to the same MAC/IP.
+
 ## Known issues and workarounds
 
-<https://github.com/EnterpriseTrainingCenter/WindowsServer/issues/181>
-<https://github.com/EnterpriseTrainingCenter/WindowsServer/issues/182>
+[Upstream issue 181](https://github.com/EnterpriseTrainingCenter/WindowsServer/issues/181): SSMS may be absent on CL1. Before database provisioning, obtain the installer only through [Microsoft's SSMS installation page](https://learn.microsoft.com/en-us/ssms/install/install). Stage the official installer under `C:\WindowsServerLab\Resources\Downloads` on CL1, check its Microsoft publisher signature, run it with local administrator rights, wait for completion, and verify SSMS opens and connects to `vn1-srv3.ad.lab.test`. Allow temporary VMnet8 for its bootstrapper dependencies; disconnect it afterward. Current SSMS UI labels may differ from the historical SSMS 18 screenshots. VN1-SRV3 must already have a compatible SQL Server instance; use the lab SQL administrator only for database/login provisioning, then the VN1-SRV8 computer account's mapped database permissions.
+[Upstream issue 182](https://github.com/EnterpriseTrainingCenter/WindowsServer/issues/182): discovery may find only VN1-SRV1. In **IPAM > SERVER INVENTORY > IPv4 > TASKS > Add Server**, enter each missing FQDN from the table below, click **Verify**, and explicitly select **DHCP server** for vn1-srv6, vn1-srv7, and vn2-srv2, or **DNS server** for vn2-srv1, pm-srv1, and pm-srv2; all use `ad.lab.test`. Mark them Managed, apply the generated IPAM GPOs, refresh access status, choose **Retrieve All Server Data**, wait for completion, and refresh the view. Verify all seven inventory servers are present and their access is unblocked. Do not use the upstream classroom domain or resource paths.
 
 ## Introduction
 
@@ -116,7 +144,7 @@ Perform this task on CL1.
 
 1. Using Microsoft Edge, navigate to <https://admincenter>.
 1. In Windows Admin Center, on the connections page, click **vn1-srv8.ad.lab.test**.
-1. Connected to vn1-srv5.ad.lab.test, under **Tools**, click **Roles & features**.
+1. Connected to vn1-srv8.ad.lab.test, under **Tools**, click **Roles & features**.
 1. In Roles and features, activate the checkbox beside **IP Address Management (IPAM) Server** and click **Install**.
 1. In the pane Install Role and Features, activate the checkbox **Reboot the server automatically, if required** and click **Yes**.
 
@@ -127,7 +155,7 @@ After a few minutes, a notification **Install Roles and Features** appears. If y
 Perform this task on CL1.
 
 1. Open **Terminal**.
-1. Install **IP Address Management (IPAM) Server** on VN1-SRV8 and VN1-SRV9.
+1. Install **IP Address Management (IPAM) Server** on VN1-SRV8.
 
     ````powershell
     Install-WindowsFeature `
@@ -300,8 +328,8 @@ Perform this task on CL1.
 1. In Edit IP Address Subnet, in Name, type **VNet2** and click **OK**.
 1. In **Server Manager > IPAM > IP ADDRESS SPACE > IP Address Block > IPv4**, in the context-menu of Network **10.1.200.0/24**, click **Edit IP Address Subnet...**
 1. In Edit IP Address Subnet, in Name, type **Perimeter** and click **OK**.
-1. In **Server Manager > IPAM > IP ADDRESS SPACE > IP Address Block > IPv4**, in the context-menu of Network **85.13.141.192/28**, click **Edit IP Address Subnet...**
-1. In Edit IP Address Subnet, in Name, type **Perimeter** and click **OK**.
+1. In **Server Manager > IPAM > IP ADDRESS SPACE > IP Address Block > IPv4**, in the context-menu of Network **85.13.142.192/28**, click **Edit IP Address Subnet...**
+1. In Edit IP Address Subnet, in Name, type **External** and click **OK**.
 
 ## Exercise 3: Managing DHCP and DNS servers using IPAM
 
@@ -328,7 +356,7 @@ Perform this task on CL1.
 
 1. Open **DHCP**.
 1. In DHCP, in the context-menu of **DHCP**, click **Add Server...**
-1. In Add Server, under **This server**, type **VN1-SRV6"** and click **OK**.
+1. In Add Server, under **This server**, type **VN1-SRV6** and click **OK**.
 1. In **DHCP**, expand **vn1-srv6.ad.lab.test**, **IPv4**.
 
     You should see the new **Scope [10.1.3.0] VNet3**.
@@ -387,8 +415,8 @@ Perform this task on CL1.
 1. Open **Server Manager**.
 1. In Server Manager, click **IPAM**.
 1. In Server Manager > IPAM > OVERVIEW, in the left pane, under **IP ADDRESS SPACE**, click **IP Address Range Groups**.
-1. In Server Manager > IPAM > IP ADDRESS SPACE > IP Address Range Groups, in the context-menu of the range with a start address of **85.13.142.207**, click **Find and Allocate Available IP Address...**.
-1. In Find and Allocate Available IP Address, wait for the **Ping Reply Status**. If it changes to **Reply**, click **Find Next**. If the next IP address also sends a reply, ignore it.
+1. In Server Manager > IPAM > IP ADDRESS SPACE > IP Address Range Groups, in the context-menu of the range with a start address of **85.13.142.193** and end address **85.13.142.206**, click **Find and Allocate Available IP Address...**. The reserved gateway `.193` is unavailable; `.207` is the subnet broadcast address and must not be allocated.
+1. In Find and Allocate Available IP Address, wait for the **Ping Reply Status**. If it changes to **Reply**, click **Find Next** until an unused address is offered. Confirm the candidate against the recorded inventory as well: silence alone does not prove an address is unused. Never allocate an address known to be in use.
 
     Under **Basic Configurations**, review the settings.
 
@@ -410,38 +438,39 @@ Perform this task on CL1.
 1. Open **Server Manager**.
 1. In Server Manager, click **IPAM**.
 1. In Server Manager > IPAM > OVERVIEW, in the left pane, under **IP ADDRESS SPACE**, click **IP Address Inventory**.
+1. Before editing, ensure `10.1.3.8` is an explicitly recorded disposable VNet3 guest address in **IP Address Inventory**. If absent, use **TASKS > Add IP Address**, enter `10.1.3.8`, the guest's recorded device name and actual VNet3 MAC address, and associate it with the `10.1.3.2-254` range. Do not invent a guest or reuse VN3-SRV2's MAC for this first reservation.
 1. In Server Manager > IPAM > IP ADDRESS SPACE > IP Address Inventory, in the context-menu of **10.1.3.8**, click **Edit IP Address...**.
-1. In Edit IPv4 Address, under **Basic Configurations**, in MAC address, type **00-15-5d-00-03-08**.
+1. In Edit IPv4 Address, under **Basic Configurations**, in MAC address, enter the actual MAC address recorded for the VNet3 guest being reserved.
 1. In the left pane, click **DHCP Reservation**.
 1. Under DHCP Reservation Synchronization, activate **Associate MAC to Client ID**. In **Reservation Server name**, click **vn1-srv6.ad.lab.test**. In **Reservation type**, click **Both**. Ensure **Update 'Managed By Service' and 'Service Instance' with the reservation server details** and **Automatically create DHCP reservation for this IP address** are activated.
 1. Click **OK**.
 1. Open **DHCP**.
 1. In DHCP, in the context-menu of **DHCP**, click **Add Server...**
-1. In Add Server, under **This server**, type **VN1-SRV6"** and click **OK**.
+1. In Add Server, under **This server**, type **VN1-SRV6** and click **OK**.
 1. In **DHCP**, expand **vn1-srv6.ad.lab.test**, **IPv4**, **Scope [10.1.3.0] VNet3** and click **Reservations**.
 
-    You should see the reservation for 10.1.3.8.
+    You should see the reservation for the address just allocated (10.1.3.8 for the first edit).
 
 1. Switch to **Server Manager**.
 1. In Server Manager > IPAM > OVERVIEW, in the left pane, under **IP ADDRESS SPACE**, click **IP Address Range Groups**.
 1. In Server Manager > IPAM > IP ADDRESS SPACE > IP Address Range Groups, in the context-menu of the range with a start address of **10.1.3.2**, click **Find and Allocate Available IP Address...**.
-1. In Find and Allocate Available IP Address, wait for the **Ping Reply Status**. If it changes to **Reply**, click **Find Next**. If the next IP address also sends a reply, ignore it.
-1. Under **Basic Configurations**, in **MAC address**, type **00-15-5d-00-03-16**
+1. In Find and Allocate Available IP Address, wait for the **Ping Reply Status**. If it changes to **Reply**, click **Find Next** until an unused address is offered. Confirm the candidate against the recorded inventory; do not ignore a reply from an existing guest. Record the address allocated to VN3-SRV2.
+1. Under **Basic Configurations**, in **MAC address**, enter the actual VNet3 MAC address of VN3-SRV2
 1. In the left pane, click **DHCP Reservation**.
 1. Under DHCP Reservation Synchronization, activate **Associate MAC to Client ID**. In **Reservation Server name**, click **vn1-srv6.ad.lab.test**. In **Reservation type**, click **Both**. Ensure **Update 'Managed By Service' and 'Service Instance' with the reservation server details** and **Automatically create DHCP reservation for this IP address** are activated.
 1. In the left pane, click **DNS Record**.
-1. Under DNS Record Synchronization, in **Device name**, type **vn3-srv2**. In **Forward lookup zone**, click **ad.lab.test*. In **Forward lookup primary server**, click **VN1-SRV1.ad.lab.test**. Activate **Automatically create DNS records for this IP address**.
+1. Under DNS Record Synchronization, in **Device name**, type **vn3-srv2**. In **Forward lookup zone**, click **ad.lab.test**. In **Forward lookup primary server**, click **VN1-SRV1.ad.lab.test**. Activate **Automatically create DNS records for this IP address**.
 1. Click **OK**.
 1. Switch to **DHCP**.
 1. In **DHCP**, expand **vn1-srv6.ad.lab.test**, **IPv4**., **Scope [10.1.3.0] VNet3** and click **Reservations**.
 
-    You should see the reservation for 10.1.3.8.
+    You should see the reservation for the address allocated to VN3-SRV2 in the previous steps, with VN3-SRV2's recorded MAC address.
 1. Open **DNS**.
 
-    If the dialog **Connect to DNS Server** appears, click **The following computer**, type **pm-srv1.ad.lab.test** below and click **OK**.
+    If the dialog **Connect to DNS Server** appears, click **The following computer**, type **vn1-srv1.ad.lab.test** below and click **OK**.
 
-1. In DNS Manager, click **pm-srv1.ad.lab.test**.
-1. Expand **pm-srv1.ad.lab.test**, **Forward Lookup Zones** and click **contoso.com**.
+1. In DNS Manager, click **vn1-srv1.ad.lab.test**.
+1. Expand **vn1-srv1.ad.lab.test**, **Forward Lookup Zones** and click **ad.lab.test**.
 
     You should see the A record you just created.
 
@@ -460,6 +489,3 @@ Perform this task on CL1.
     If nothing is found, find the IP address of CL1 and try again.
 
 If time permits, perform similar queries by host name, by user name, or by client id.
-
-
-

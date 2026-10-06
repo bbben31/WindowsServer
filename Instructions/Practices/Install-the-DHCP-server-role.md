@@ -1,19 +1,42 @@
 # Practice: Install the DHCP server role
 
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-Remote-Server-Administration-Tools.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller. Verify CL1's Server Manager/RSAT and established remote server connection. Use the WAC branch only with a verified working gateway and target connection; otherwise follow the Server Manager/PowerShell path.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments.
+
+**Permissions:** Local Administrator on the named disposable guests for role, service, storage, registry and remote-management changes; authorized lab account for remote access.
+
+**Outbound access:** Isolated lab; no online download is required by the selected procedure.
+
+**Risk, cost and optional status:** low; local-only; optional=false. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware.
+
+**Success verification:** Get-WindowsFeature DHCP reports Installed on VN1-SRV6, VN1-SRV7 and VN2-SRV2; confirm post-install groups/configuration.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
 ## Required VMs
 
+* CL1
 * VN1-SRV1
 * VN1-SRV4
 * VN1-SRV6
 * VN1-SRV7
 * VN2-SRV2
-* CL1
 
 ## Task
 
 Install the DHCP server role on VN1-SRV6, VN1-SRV7, and VN2-SRV2.
 
 ## Instructions
+
+Before using a graphical branch, install [RSAT](Install-Remote-Server-Administration-Tools.md) on CL1 and add the named target servers to Server Manager. Use the WAC alternative only if the selected gateway and those server connections already work; otherwise use Server Manager/PowerShell rather than assume an admincenter DNS name exists.
 
 ### Desktop Experience
 
@@ -44,7 +67,7 @@ Perform this task on CL1.
 1. Sign in as **ad\administrator**.
 1. Using Microsoft Edge, navigate to <https://admincenter>.
 1. In Windows Admin Center, on the connections page, click **vn1-srv6.ad.lab.test**.
-1. Connected to vn1-srv5.ad.lab.test, under **Tools**, click **Roles & features**.
+1. Connected to vn1-srv6.ad.lab.test, under **Tools**, click **Roles & features**.
 1. In Roles and features, activate the checkbox beside **DHCP Server** and click **Install**.
 1. In the pane Install Role and Features, activate the checkbox **Reboot the server automatically, if required** and click **Yes**.
 
@@ -121,5 +144,3 @@ Perform this task on CL1.
             -Value 2
     }
     ````
-
-

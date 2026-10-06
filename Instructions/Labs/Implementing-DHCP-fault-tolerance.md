@@ -1,20 +1,41 @@
 # Lab: Implementing DHCP fault-tolerance
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Install-the-DHCP-server-role.md; Instructions/Practices/Authorize-DHCP-server-and-activate-scope.md; Instructions/Practices/Configure-DHCP-server-options.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing); VN1-SRV6 (VMware display: VN1-SRV6; accepted display aliases: WIN-VN1-SRV6; existing); VN1-SRV7 (VMware display: VN1-SRV7; accepted display aliases: WIN-VN1-SRV7; existing); VN2-SRV1 (VMware display: VN2-SRV1; accepted display aliases: WIN-VN2-SRV1; existing); VN2-SRV2 (VMware display: VN2-SRV2; accepted display aliases: WIN-VN2-SRV2; existing). Enterprise expansion: named source VNet1/VNet2/VNet3 and 10.1.x.0/24 segments use distinct isolated VMware custom VMnets. Record the per-exercise mapping; disable VMware DHCP on Windows DHCP segments. Temporary outbound VMnet8 NAT during the declared online or media-staging steps only; disconnect afterward.
+
+**Permissions:** DHCP Administrators/delegated scope rights on the named servers; authorized AD DHCP-authorization rights for authorization steps. Local Administrator for guest networking/role setup.
+
+**Outbound access:** Temporary VMware NAT VMnet8; preserve AD DNS on the lab NIC, disable NAT NIC DNS registration, remove outbound connectivity afterward. Endpoints: Microsoft Windows Update/WSUS and feature-on-demand endpoints.
+
+**Risk, cost and optional status:** high; local-only; optional=true. Enterprise expansion profile; retain the named multi-server roles and isolate all source networks in VMware. Verify current support for optional products before execution.
+
+**Success verification:** The intended clients lease addresses through relay/split scope/failover; inspect leases on the correct partner after controlled failure.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; remove temporary VMnet8 access and restore recorded adapters/DNS/settings.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
 
 ## Required VMs
 
+* CL1
+* CL2
 * VN1-SRV1
 * VN1-SRV4
 * VN1-SRV6
 * VN1-SRV7
 * VN2-SRV1
 * VN2-SRV2
-* CL1
-* CL2
 
 ## Setup
 
@@ -47,7 +68,7 @@ Perform this task on CL1.
 
 1. Open **DHCP**.
 1. In DHCP, in the context-menu of **DHCP**, click **Add Server...**
-1. In Add Server, under **This server**, type **VN2-SRV2"** and click **OK**.
+1. In Add Server, under **This server**, type **VN2-SRV2** and click **OK**.
 1. In **DHCP**, expand  **vn2-srv2.ad.lab.test**, and click **IPv4**.
 1. In the context-menu of **IPv4**, click **New Scope...**
 1. In the New Scope Wizard, on page Welcome to the New Scope Wizard, click **Next >**.
@@ -70,7 +91,7 @@ Perform this task on CL1.
 Perform this task on CL1.
 
 1. Open **Terminal**.
-1. For all computers starting with **VN2-SRV*** get the MAC addresses and IP addresses of all net adapters on VNet1.
+1. For all computers starting with **VN2-SRV*** get the MAC addresses and IP addresses of all net adapters on VNet2.
 
     ````powershell
     $computerName = (Get-ADComputer -Filter 'Name -like "VN2-SRV*"').DNSHostName
@@ -133,7 +154,7 @@ For the rest of the practice, choose your favorite tool.
 Perform these steps for each line of the table in Terminal.
 
 1. In the context-menu of Reservations, click **New Reservation...**
-1. In New Reservation, in **Reservation name**, type the value of **PSComputerName**. In **IP address**, type the value of **IPAddress**. In **MAC address**, type the value of **MacAddress**. Click **Add**.
+1. In New Reservation, in **Reservation name**, type the value of **Name**. In **IP address**, type the value of **IPAddress**. In **MAC address**, type the value of **ClientId**. Click **Add**.
 
 #### Windows Admin Center
 
@@ -146,7 +167,7 @@ Perform these steps for each line of the table in Terminal.
 Perform these steps for each line of the table in Terminal.
 
 1. In Vnet [10.1.2.0], under **Address reservations**, click **New reservation**.
-1. In the panel Create a new reservation, under **Reservation name**, type the value of **PSComputerName**. Under **IP address**, type the value of **IPAddress**. In **MAC address**, type the value of **MacAddress**. Click **Create**.
+1. In the panel Create a new reservation, under **Reservation name**, type the value of **Name**. Under **IP address**, type the value of **IPAddress**. In **MAC address**, type the value of **ClientId**. Click **Create**.
 
 #### PowerShell
 
@@ -159,7 +180,7 @@ Perform these steps for each line of the table in Terminal.
     Add-DhcpServerv4Reservation -ComputerName $computerName -ScopeId $scopeId
     ````
 
-    Note: If you have created reservations previously, you may receive error messages. You can safely ignore them.
+    If a reservation already exists, compare its IP address and ClientId with the recorded inventory. Retain a matching reservation; investigate mismatches rather than ignoring errors.
 
 1. Verify the reservations.
 
@@ -307,21 +328,21 @@ Perform these steps on CL1.
 1. In View features, if necessary, click **See available features**. In the text field **Find an available optional feature**, type **RSAT**. Activate the check box beside **RSAT: Remote Access Management Tools**. Click **Add (1)**.
 1. If required, restart the computer.
 
-You do not need to wait for the completion of the installation
+Wait for the installation to complete before opening Routing and Remote Access below.
 
 #### PowerShell
 
 Perform these steps on CL1.
 
 1. In the context menu of **Start**, click **Terminal (Admin)**.
-1. Add the windows capabilities **RSAT: Server DNS Server tools**.
+1. Add the Windows capability **RSAT: Remote Access Management Tools**.
 
     ````powershell
     Get-WindowsCapability -Online -Name 'Rsat.RemoteAccess.Management.Tools*' |
     Add-WindowsCapability -Online
     ````
 
-You do not need to wait for the completion of the installation.
+Wait for the capability installation to finish before opening Routing and Remote Access in Task 4.
 
 ### Task 2: Install the Routing and Remote Access role
 
@@ -358,7 +379,7 @@ Perform this task on CL1.
     If you do not see vn2-srv2.ad.lab.test, perform these steps:
 
     1. In DHCP, in the context-menu of **DHCP**, click **Add Server...**
-    1. In Add Server, under **This server**, type **VN2-SRV2"** and click **OK**.
+    1. In Add Server, under **This server**, type **VN2-SRV2** and click **OK**.
 
 1. In the context menu of **Scope [10.1.2.0] VNet2**, click **Advanced...**, **Split Scope**.
 1. In Dhcp Split-Scope Configuration Wizard, on page DHCP Split-Scope, click **Next >**.
@@ -376,7 +397,7 @@ Perform this task on CL1.
 1. On page Summary of Split-Scope Configuration, click **Finish**.
 1. Click **Close**.
 1. In DHCP, in the context-menu of **DHCP**, click **Add Server...**
-1. In Add Server, under **This server**, type **VN1-SRV6"** and click **OK**.
+1. In Add Server, under **This server**, type **VN1-SRV6** and click **OK**.
 1. In **DHCP**, expand  **vn1-srv6.ad.lab.test**, **IPv4**, and click **Scope [10.1.2.0] VNet2**.
 1. In the context menu of **Scope [10.1.2.0] VNet2**, click **Activate**.
 
@@ -424,7 +445,7 @@ Perform this task on CL1.
    If necessary, perform these steps to add VN2-SRV2 to the DHCP console:
 
    1. In **DHCP**, in the context-menu of **DHCP**, click **Add Server...**
-   1. In Add Server, under **This server**, type **VN2-SRV2"** and click **OK**.
+   1. In Add Server, under **This server**, type **VN2-SRV2** and click **OK**.
 
 1. In the context-menu of **Address Leases**, click **Refresh**.
 
@@ -435,7 +456,7 @@ Perform this task on CL1.
    If necessary, perform these steps to add VN1-SRV6 to the DHCP console:
 
    1. In **DHCP**, in the context-menu of **DHCP**, click **Add Server...**
-   1. In Add Server, under **This server**, type **VN1-SRV6"** and click **OK**.
+   1. In Add Server, under **This server**, type **VN1-SRV6** and click **OK**.
 
 1. In the context-menu of **Address Leases**, click **Refresh**.
 
@@ -514,6 +535,8 @@ Perform this task on CL1.
 
 Perform this task on CL1.
 
+1. In the VMware host console, verify that CL1's test NIC is on the recorded VNet1 custom VMnet. Disconnect temporary NAT and other client-test NICs for this test. Record the original IP, DNS, routes and VMware mapping before changing them.
+1. On CL1, open **Settings > Network & internet > Ethernet** for that NIC. Set **IP assignment** and **DNS server assignment** to **Automatic (DHCP)**. Verify the resulting address is in `10.1.1.0/24`, the router is `10.1.1.1`, and DNS is `10.1.1.8`. Do not continue with a static address or a lease from VMware DHCP. Restore the recorded client configuration after the test.
 1. Open **Terminal**.
 1. Renew the IP address.
 
@@ -542,7 +565,7 @@ Perform this task on CL1.
     If necessary, perform these steps to add VN1-SRV6 to the DHCP console:
 
     1. In **DHCP**, in the context-menu of **DHCP**, click **Add Server...**
-    1. In Add Server, under **This server**, type **VN1-SRV6"** and click **OK**.
+    1. In Add Server, under **This server**, type **VN1-SRV6** and click **OK**.
 
     You should see the lease for CL1.ad.lab.test.
 
@@ -551,7 +574,7 @@ Perform this task on CL1.
     If necessary, perform these steps to add VN1-SRV7 to the DHCP console:
 
     1. In **DHCP**, in the context-menu of **DHCP**, click **Add Server...**
-    1. In Add Server, under **This server**, type **VN1-SRV7"** and click **OK**.
+    1. In Add Server, under **This server**, type **VN1-SRV7** and click **OK**.
 
     You should see the lease for CL1.ad.lab.test with the same data as in the previous step.
 
@@ -573,7 +596,3 @@ Perform this task on CL1.
 
 1. Switch to **DHCP**.
 1. In the context menu of the DHCP server stopped, click **All Tasks**, **Start**.
-
-
-
-

@@ -4,7 +4,7 @@ This runbook builds the disposable `ad.lab.test` forest on the personal VMware l
 
 ## Prerequisites and topology
 
-Complete [Milestone A](VMware-Segmented-Networking.md) and [Milestone B](Base-Images-and-Templates.md). Run the [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1), resolve warnings, and confirm the template is workgroup-joined, not a domain controller, and has no secrets.
+Complete [Milestone A](VMware-Segmented-Networking.md) and [Milestone B](Base-Images-and-Templates.md). Use this runbook's foundation checks and confirm the template is generalized, workgroup-joined, not a domain controller, and has no secrets. The [read-only preflight checker](../../tools/Preflight-LearnerLab.ps1) is for a selected manifest Practice/Lab, not this General runbook.
 
 The minimum topology is one VM:
 
@@ -17,9 +17,9 @@ The optional two-controller topology is:
 | VM | Role | Addresses | VMware NICs |
 | --- | --- | --- | --- |
 | `VN1-SRV1` | First domain controller, DNS, Global Catalog | `10.10.10.10/24` | VMnet10 |
-| `VN1-SRV5` | Additional domain controller, DNS, Global Catalog | `10.10.10.11/24` | VMnet10; optional `10.10.20.11/24` on VMnet20 for a lab explicitly requiring a server/workload path |
+| `VN1-SRV5` | Additional domain controller, DNS, Global Catalog | `10.10.10.11/24` | VMnet10; optional `10.10.20.11/24` on VMnet11 for a lab explicitly requiring a server/workload path |
 
-The VMnet20 NIC on `VN1-SRV5` is not required for AD DS and must not become an additional default gateway or an accidentally registered DNS address. Keep AD management, DNS, and domain discovery on VMnet10. Do not add the VMnet20 NIC until a selected lab requires it.
+The VMnet11 NIC on `VN1-SRV5` is not required for AD DS and must not become an additional default gateway or an accidentally registered DNS address. Keep AD management, DNS, and domain discovery on VMnet10. Do not add the VMnet11 NIC until a selected lab requires it.
 
 Use a static address for every domain controller. A controller whose address changes can break DNS glue, SRV records, replication, secure channels, and client discovery. Domain controllers should be authoritative for `ad.lab.test` and should not use public DNS directly. Member servers and clients must use `10.10.10.10`, then `10.10.10.11` after the second DNS server is healthy; public resolution belongs behind DNS forwarders.
 
@@ -130,7 +130,7 @@ The second controller is not required for the minimum lab. Add it when a replica
 2. Attach VMnet10 and assign `10.10.10.11/24`, with no default gateway on the isolated NIC. Set DNS temporarily to `10.10.10.10`.
 3. Confirm `VN1-SRV1` resolves and the clocks are close before promotion.
 4. Install AD DS and use **Promote this server to a domain controller**, choose **Add a domain controller to an existing domain**, enter `ad.lab.test`, enable DNS and Global Catalog, leave RODC disabled for this basic topology, and enter the DSRM password interactively.
-5. If a selected lab requires a server/workload NIC, add VMnet20 as `10.10.20.11/24` without a gateway. Do not register that secondary NIC in DNS unless the lab explicitly documents the required multi-homing design.
+5. If a selected lab requires a server/workload NIC, add VMnet11 as `10.10.20.11/24` without a gateway. Do not register that secondary NIC in DNS unless the lab explicitly documents the required multi-homing design.
 6. Reboot and wait for promotion to complete. Set DNS on the VMnet10 NIC to `10.10.10.10` and `10.10.10.11` only after both services are healthy.
 
 The source [additional domain controller procedure](Configuring-Active-Directory-Domain-Services-as-an-additional-domain-controller.md) provides the GUI and PowerShell alternatives. Use `Get-Credential` interactively; never embed domain credentials.
@@ -144,10 +144,9 @@ Resolve-DnsName _ldap._tcp.ad.lab.test -Type SRV -Server 10.10.10.11
 repadmin /replsummary
 repadmin /showrepl
 dcdiag /test:dns /v
-Test-ComputerSecureChannel -Verbose
 ```
 
-Expected conditions are both controllers discoverable, both DNS servers resolving the same AD SRV records, no replication failures, and a successful secure-channel test when run in the domain context. Take `C-second-DC-validated` only then.
+Expected conditions are both controllers discoverable, both DNS servers resolving the same AD SRV records, and no replication failures. Take `C-second-DC-validated` only then. Run `Test-ComputerSecureChannel` only on a joined member during Milestone D, not on a DC: [Microsoft documents false-positive errors on domain controllers](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/test-computersecurechannel?view=powershell-5.1).
 
 ## Time synchronization
 

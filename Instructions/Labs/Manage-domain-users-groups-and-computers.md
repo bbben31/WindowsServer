@@ -1,6 +1,27 @@
 # Lab: Manage domain users, groups, and computers
 
-> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision every VM, extra disk, cluster member, certificate, and client named by this lab; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
+<!-- BEGIN GENERATED COMPLETION CONTRACT -->
+## Self-learner completion contract
+
+Generated from `metadata/curriculum-source.json`; edit that entry and regenerate rather than editing this section.
+
+**Prerequisites (in order):** Instructions/General/Learner-Setup.md; Instructions/General/Environment-Profiles.md; Instructions/General/Member-Servers-and-Clients.md; Instructions/Practices/Manage-local-groups.md; Instructions/Practices/Enable-the-Active-Directory-Recycle-Bin.md; Instructions/Labs/Explore-Windows-Admin-Center.md; Instructions/General/Learner-Account-Fixtures.md. Provision only existing prerequisite machines and their required roles, disks, certificates and test data before starting; create phase-created machines in the designated tasks. Preserve the selected profile and recorded VMnet mapping. Take a coordinated pre-lab recovery point for every guest changed by this exercise; do not independently rewind a domain controller.
+
+**Machines and network profile:** CL1 (VMware display: CL1; accepted display aliases: WIN-CL1; existing); CL2 (VMware display: CL2; accepted display aliases: WIN-CL2; existing); VN1-SRV1 (VMware display: VN1-SRV1; accepted display aliases: WIN-VN1-SRV1; existing); VN1-SRV4 (VMware display: VN1-SRV4; accepted display aliases: WIN-VN1-SRV4; existing). Core foundation: VMnet10 10.10.10.0/24 (AD), VMnet11 10.10.20.0/24 (workloads), VMnet12 10.10.30.0/24 (clients); use only the NICs required by this procedure. Temporary VMnet8 NAT on the configured WAC gateway guest and CL1 browser during extension installation only; retain isolated AD NICs/DNS and disconnect afterward.
+
+**Permissions:** Delegated AD/GPO rights for the named OU, account and policy changes; lab Domain Administrator only where the procedure requires it. Local Administrator for guest setup. WAC gateway Administrator for installing the extension; Local Administrator on gateway/browser guests only for temporary NIC configuration.
+
+**Outbound access:** Download the WAC Active Directory extension from the configured official Microsoft extension feed. Before extension installation, attach temporary VMnet8 NAT NICs to the existing WAC gateway guest and CL1 browser guest (one NIC if they are the same machine); preserve the AD NIC/DNS, disable NAT NIC DNS registration, and record adapters/routes/DNS. Disconnect these NICs after installation. If the extension is already installed, this setup step needs no download. Endpoints: https://aka.ms/wac-public-extensions (official feed redirect); https://pkgs.dev.azure.com (gateway extension packages); *.vsblob.visualstudio.com (gateway package content); https://winadmincenterassets.blob.core.windows.net (browser extension assets); https://js.monitor.azure.com (browser extension assets); https://nuget.org (browser extension management); https://announcements.blob.core.windows.net (browser extension management).
+
+**Risk, cost and optional status:** high; local-only; optional=false. Core learner profile unless the procedure declares an additional enterprise role or compatibility gate. The Active Directory extension must be compatible with the installed WAC gateway version; verify its publisher/version before installation.
+
+**Success verification:** The intended test accounts/groups/computer objects exist with correct membership and permissions; recovery restores the deleted object.
+
+**Rollback and cleanup:** Restore the coordinated pre-lab recovery points of affected disposable guests and remove only exercise-created data/configuration. Retain prerequisite roles until dependent exercises finish; restore recorded adapters/DNS/settings. Disconnect temporary VMnet8 NICs on the gateway/browser and restore recorded adapters/routes/DNS. Retain the Active Directory extension until dependent labs finish; uninstall only an exercise-installed extension when no dependent lab needs it.
+
+<!-- END GENERATED COMPLETION CONTRACT -->
+
+> **Learner topology note:** Complete [Learner setup](../General/Learner-Setup.md) and the practices linked below first. Provision only existing prerequisite machines, disks, cluster roles and certificates before starting; create machines marked Created during exercise in their designated tasks. Follow alternatives and conditional-retirement requirements instead of starting every named VM; the foundation machines alone may not be enough. Use your own documented addresses and the ad.lab.test domain. Do not use classroom provisioning scripts or credentials.
 
 
 
@@ -11,10 +32,10 @@
 
 ## Required VMs
 
-* VN1-SRV1
-* VN1-SRV4
 * CL1
 * CL2
+* VN1-SRV1
+* VN1-SRV4
 
 ## Setup
 
@@ -855,7 +876,7 @@ Perform this task on CL1.
 1. In Active Directory Administrative Center, click **Global Search**.
 1. Under GLOBAL SEARCH, in **Search**, type **CL2** and click **Search**.
 1. In the context-menu of **CL2**, click **Reset account...**.
-1. In the message box **Are you sure you want to delete the Computer 'CL2'?**, click **Yes**.
+1. Confirm only the **reset account** operation for CL2. If the dialog asks to **delete** the computer, click **No/Cancel** and reselect Reset account; deleting the object is not this task.
 
 #### PowerShell
 
@@ -902,6 +923,3 @@ Perform this task on CL2.
     > This time you should be successful.
 
 1. Sign out.
-
-
-
